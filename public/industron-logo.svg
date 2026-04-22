@@ -1,0 +1,15 @@
+<svg width="220" height="48" viewBox="0 0 220 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="1" y="1" width="46" height="46" rx="11" fill="#2563EB"/>
+  <rect x="7" y="7" width="34" height="34" rx="8" fill="#1D4ED8"/>
+  <circle cx="24" cy="24" r="8" fill="white"/>
+  <circle cx="24" cy="24" r="3" fill="#2563EB"/>
+  <path d="M61 14H66.5V34H61V14Z" fill="#0F172A"/>
+  <path d="M72 14H77.5V34H72V14Z" fill="#0F172A"/>
+  <path d="M83 14H88.6V34H83V14Z" fill="#0F172A"/>
+  <path d="M96 14H102.5L112 27V14H117.5V34H111.9L102 20.4V34H96V14Z" fill="#0F172A"/>
+  <path d="M123 14H129.5V34H123V14Z" fill="#0F172A"/>
+  <path d="M135.3 14H141.8V28.3H153.8V34H135.3V14Z" fill="#0F172A"/>
+  <path d="M157.5 14H175.5V19.5H164V21.5H174.5V26.4H164V28.5H175.9V34H157.5V14Z" fill="#0F172A"/>
+  <path d="M181.3 14H193.2C198.1 14 201.2 16.5 201.2 20.6C201.2 23.5 199.8 25.1 197.6 26L202 34H195L191.4 27.2H187.8V34H181.3V14ZM192.6 22.3C194 22.3 194.8 21.7 194.8 20.7C194.8 19.7 194 19.1 192.6 19.1H187.8V22.3H192.6Z" fill="#0F172A"/>
+  <path d="M206 14H212.5V34H206V14Z" fill="#0F172A"/>
+</svg>
