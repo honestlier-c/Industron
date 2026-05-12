@@ -173,23 +173,119 @@
 }
 
 @media (max-width: 760px) {
+  /* ── Sequence & sticky ───────────────────────────── */
+  .meso-sequence {
+    height: 300vh;
+  }
+
+  /* Flex column: canvas on top, text panel beneath — no gap */
+  .meso-sticky {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Canvas occupies exactly the top 58 % */
+  .meso-sticky canvas {
+    flex: 0 0 58vh;
+    width: 100% !important;
+    height: 58vh !important;
+    display: block;
+  }
+
+  /* Permanent white backdrop that fills the bottom 42 % */
+  .meso-sticky::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 42vh;
+    background: #fff;
+    border-top: 1px solid var(--border);
+    border-radius: 18px 18px 0 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Bottom-sheet text panels ────────────────────── */
+  .meso-copy {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 58vh;
+    bottom: auto;
+    max-width: 100%;
+    transform: translateY(10px);
+    padding: 1.1rem 1.25rem 1.6rem;
+    background: transparent;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    text-align: left;
+    z-index: 1;
+  }
+  .meso-copy.is-active {
+    transform: translateY(0);
+  }
+
+  /* All positional variants → bottom panel */
+  .meso-copy--left,
+  .meso-copy--right,
+  .meso-copy--center,
+  .meso-copy--final {
+    left: 0;
+    right: 0;
+    top: 58vh;
+    bottom: auto;
+    text-align: left;
+    transform: translateY(10px);
+  }
+  .meso-copy--left.is-active,
+  .meso-copy--right.is-active,
+  .meso-copy--center.is-active,
+  .meso-copy--final.is-active {
+    transform: translateY(0);
+  }
+
+  /* ── Typography ──────────────────────────────────── */
+  .meso-copy h1 {
+    font-size: clamp(1.15rem, 5vw, 1.4rem);
+    line-height: 1.2;
+  }
+  .meso-copy h2 {
+    font-size: clamp(1rem, 4.2vw, 1.2rem);
+    line-height: 1.22;
+  }
+  .meso-sub,
+  .meso-copy p {
+    margin-top: 0.45rem;
+    font-size: clamp(0.82rem, 3.1vw, 0.92rem);
+    line-height: 1.45;
+  }
+  .meso-kicker {
+    margin-bottom: 0.4rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.11em;
+  }
+
+  /* ── CTAs ────────────────────────────────────────── */
   .meso-cta {
-    padding: 0.52rem 0.9rem;
+    padding: 0.5rem 0.9rem;
     font-size: 0.75rem;
   }
-  .meso-sequence {
-    height: 420vh;
+  .meso-final-actions {
+    margin-top: 0.85rem;
+    justify-content: flex-start;
+    gap: 0.6rem;
   }
-  .meso-copy--center {
-    top: 16vh;
-    width: min(88vw, 540px);
+  .meso-link {
+    font-size: 0.78rem;
   }
-  .meso-copy--left,
-  .meso-copy--right {
-    top: 24vh;
-  }
-  .meso-copy--final {
-    bottom: 10vh;
+
+  /* ── Info grid ───────────────────────────────────── */
+  .meso-info {
+    padding: 3rem 0;
   }
   .meso-info-grid {
     grid-template-columns: 1fr;

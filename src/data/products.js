@@ -73,6 +73,7 @@ function p({
   cardLogo,
   cardLogoAlt,
   image,
+  frameCount,
 }) {
   const short = beatsHeading || name.split(/[–-]/)[0].trim()
   return {
@@ -88,6 +89,7 @@ function p({
     info: info || defaultInfo,
     cardLogo: cardLogo ?? DEFAULT_CARD_LOGO,
     cardLogoAlt: cardLogoAlt ?? 'Industron',
+    ...(frameCount ? { frameCount } : {}),
     ...(externalUrl ? { externalUrl } : {}),
   }
 }
@@ -270,6 +272,7 @@ export const PRODUCTS = [
     slug: 'mesoprobe',
     name: 'MesoProbe',
     image: `${IMG}/MesoProbe.jpg`,
+    frameCount: 54,
     category: 'Education and Research',
     shortDesc: 'Meso-scale testing for larger samples, higher loads, and deformation modes beyond classical nanoindentation.',
     highlight: 'meso-scale platform',

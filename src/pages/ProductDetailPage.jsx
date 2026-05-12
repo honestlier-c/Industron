@@ -18,17 +18,19 @@ export default function ProductDetailPage() {
   const targetProgressRef = useRef(0)
   const smoothProgressRef = useRef(0)
   const lastTimeRef = useRef(0)
+  const lastRenderedFrameRef = useRef(-1)
   const [progress, setProgress] = useState(0)
 
   const framesFolder = product?.framesFolder || '/MesoProbe'
+  const maxFrames = product?.frameCount || MAX_FRAMES
 
   const frameUrls = useMemo(
     () =>
-      Array.from({ length: MAX_FRAMES }, (_, i) => {
+      Array.from({ length: maxFrames }, (_, i) => {
         const id = String(i + 1).padStart(3, '0')
         return `${framesFolder}/ezgif-frame-${id}.jpg`
       }),
-    [framesFolder],
+    [framesFolder, maxFrames],
   )
 
   const activeBeat = useMemo(() => {
@@ -52,34 +54,45 @@ export default function ProductDetailPage() {
     const ctx = canvas.getContext('2d')
     if (!ctx) return undefined
 
-    const renderFrame = (index) => {
+    const renderFrame = (index, force = false) => {
       const img = imagesRef.current[index] || imagesRef.current[0]
       if (!img || !img.complete || img.naturalWidth === 0) return
 
-      const viewportW = window.innerWidth
-      const viewportH = window.innerHeight
-      const dpr = Math.min(2, window.devicePixelRatio || 1)
-      const width = Math.floor(viewportW * dpr)
-      const height = Math.floor(viewportH * dpr)
+      // Use the canvas element's rendered size (set by CSS) as the target,
+      // so desktop and mobile layouts both drive sizing from CSS.
+      const targetW = canvas.clientWidth || window.innerWidth
+      const targetH = canvas.clientHeight || window.innerHeight
+      const isMobile = window.innerWidth <= 760
+      const dpr = Math.min(isMobile ? 1.2 : 1.6, window.devicePixelRatio || 1)
+      const width = Math.floor(targetW * dpr)
+      const height = Math.floor(targetH * dpr)
 
       if (canvas.width !== width || canvas.height !== height) {
         canvas.width = width
         canvas.height = height
-        canvas.style.width = `${viewportW}px`
-        canvas.style.height = `${viewportH}px`
       }
 
-      const targetW = viewportW
-      const targetH = viewportH
-      const scale = Math.min(targetW / img.naturalWidth, targetH / img.naturalHeight)
+      if (!force && lastRenderedFrameRef.current === index) return
+
+      const containScale = Math.min(targetW / img.naturalWidth, targetH / img.naturalHeight)
+      const coverScale = Math.max(targetW / img.naturalWidth, targetH / img.naturalHeight)
+      const frameAspect = img.naturalWidth / img.naturalHeight
+      const isWide16x9 = frameAspect > 1.7 && frameAspect < 1.85
+      // 3840x2160 frames are wide; on mobile pure "contain" looks too small.
+      // Use a light blend toward cover to keep subject larger without hard crop.
+      const scale =
+        isMobile && isWide16x9
+          ? containScale + (coverScale - containScale) * 0.32
+          : containScale
       const drawW = img.naturalWidth * scale
       const drawH = img.naturalHeight * scale
       const dx = (targetW - drawW) * 0.5
-      const dy = (targetH - drawH) * 0.5
+      const dy = (targetH - drawH) * (isMobile && isWide16x9 ? 0.53 : 0.5)
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.clearRect(0, 0, targetW, targetH)
       ctx.drawImage(img, dx, dy, drawW, drawH)
+      lastRenderedFrameRef.current = index
     }
 
     const getScrollProgress = () => {
@@ -107,7 +120,8 @@ export default function ProductDetailPage() {
         (targetProgressRef.current - smoothProgressRef.current) * alpha
 
       smoothProgressRef.current = nextProgress
-      setProgress((prev) => (Math.abs(prev - nextProgress) < 0.0005 ? prev : nextProgress))
+      const minDelta = window.innerWidth <= 760 ? 0.006 : 0.0015
+      setProgress((prev) => (Math.abs(prev - nextProgress) < minDelta ? prev : nextProgress))
 
       if (count > 0) {
         const frame = Math.round(nextProgress * (count - 1))
@@ -119,6 +133,7 @@ export default function ProductDetailPage() {
 
     let cancelled = false
     imagesRef.current = []
+    lastRenderedFrameRef.current = -1
     targetProgressRef.current = getScrollProgress()
     smoothProgressRef.current = targetProgressRef.current
     setProgress(targetProgressRef.current)
@@ -148,7 +163,7 @@ export default function ProductDetailPage() {
 
         consecutiveMisses = 0
         imagesRef.current.push(img)
-        if (imagesRef.current.length === 1) renderFrame(0)
+        if (imagesRef.current.length === 1) renderFrame(0, true)
       }
     }
 
@@ -161,7 +176,7 @@ export default function ProductDetailPage() {
       const count = imagesRef.current.length
       if (count > 0) {
         const frame = Math.round(smoothProgressRef.current * (count - 1))
-        renderFrame(frame)
+        renderFrame(frame, true)
       }
     }
     window.addEventListener('resize', onResize, { passive: true })
