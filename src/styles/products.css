@@ -43,19 +43,29 @@
   transform: translateY(-4px);
   box-shadow: 0 14px 34px rgba(37, 99, 235, 0.09);
 }
+/* No overflow:hidden + fixed aspect-ratio — those clip imgs when % heights fail inside flex.
+   Size by max dimensions only so the full PNG stays visible. */
 .product-image-wrap {
-  aspect-ratio: 16 / 10;
+  width: 100%;
+  min-height: 0;
   border-radius: 14px;
-  overflow: hidden;
   border: 1px solid var(--border);
-  background: linear-gradient(180deg, #f6f9ff 0%, #eef5ff 100%);
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
   margin-bottom: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem 1rem;
+  box-sizing: border-box;
 }
 .product-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
   display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: clamp(11rem, 32vw, 15.5rem);
+  object-fit: contain;
+  object-position: center;
 }
 .product-card h3 {
   margin: 0 0 0.55rem;

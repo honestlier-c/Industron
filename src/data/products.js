@@ -2,10 +2,13 @@
    PRODUCTS — listing + detail pages (/products/:slug)
 
    framesFolder → public folder for ezgif-frame-###.jpg sequences
-   (default /MesoProbe until you add per-product folders)
+   Card images      → public/Products_Image/ (see `image` on each product)
    ============================================================ */
 
 const FRAMES = '/MesoProbe'
+
+/** Product card thumbnails — files in public/Products_Image/ */
+const IMG = '/Products_Image'
 
 /** Footer logo on product cards — override per product with `cardLogo` / `cardLogoAlt` */
 export const DEFAULT_CARD_LOGO = '/industron-logo.png'
@@ -13,24 +16,6 @@ export const DEFAULT_CARD_LOGO = '/industron-logo.png'
 /** Bruker (Hysitron) product line — use on cards that link to bruker.com */
 export const BRUKER_CARD_LOGO = '/Bruker-logo.png'
 export const BRUKER_CARD_LOGO_ALT = 'Bruker'
-
-const IMAGES = [
-  '/Website/Customer/IITM.png',
-  '/Website/Customer/IIT-Roorkee.png',
-  '/Website/Customer/IIT-Kanpur.png',
-  '/Website/Customer/drdo.png',
-  '/Website/Customer/IIT-Indore-150x115.png',
-  '/Website/Customer/IIMT.png',
-  '/Website/Customer/isro.png',
-  '/Website/Customer/iisc-1-150x132.png',
-]
-
-let imageIndex = 0
-function nextImage() {
-  const src = IMAGES[imageIndex % IMAGES.length]
-  imageIndex += 1
-  return src
-}
 
 function defaultHero(name, highlight, lead, badges) {
   return { tag: 'Product', title: name, highlight, lead, badges }
@@ -87,13 +72,14 @@ function p({
   externalUrl,
   cardLogo,
   cardLogoAlt,
+  image,
 }) {
   const short = beatsHeading || name.split(/[–-]/)[0].trim()
   return {
     slug,
     name,
     category,
-    image: nextImage(),
+    image: image ?? '/industron-logo.png',
     shortDesc,
     exploreTo: `/products/${slug}`,
     framesFolder: FRAMES,
@@ -134,6 +120,7 @@ export const PRODUCTS = [
   p({
     slug: 'ti-980-triboindenter',
     name: 'TI 980 TriboIndenter',
+    image: `${IMG}/Hysitron-TI-980-TriboIndenter-300x215.png`,
     category: 'Standalone',
     shortDesc: 'High-performance tribology and mechanical testing platform for standalone lab workflows.',
     highlight: 'TriboIndenter',
@@ -148,6 +135,7 @@ export const PRODUCTS = [
   p({
     slug: 'ti-premier',
     name: 'TI Premier',
+    image: `${IMG}/Hysitron-TI-Premier-247x300.png`,
     category: 'Standalone',
     shortDesc: 'Flagship tabletop nanoindenter with SPM imaging, nanotribology, and accelerated property mapping.',
     highlight: 'tabletop nanoindenter',
@@ -161,6 +149,7 @@ export const PRODUCTS = [
   p({
     slug: 'ts-77-select',
     name: 'TS 77 Select',
+    image: `${IMG}/Hysitron-TS-77-Select-300x261.png`,
     category: 'Standalone',
     shortDesc: 'Modular nanoindentation toolkit for quantitative nanoscale-to-microscale mechanical and tribological tests.',
     highlight: 'Select',
@@ -176,6 +165,7 @@ export const PRODUCTS = [
   p({
     slug: 'pi-85l-sem-picoindenter',
     name: 'PI 85L SEM PicoIndenter',
+    image: `${IMG}/Hysitron-PI-85L-SEM-PicoIndenter-300x197.png`,
     category: 'In-Situ',
     shortDesc: 'In-situ nanomechanical testing inside the SEM with a compact footprint for column integration.',
     highlight: 'SEM PicoIndenter',
@@ -189,6 +179,7 @@ export const PRODUCTS = [
   p({
     slug: 'pi-89-sem-picoindenter',
     name: 'PI 89 SEM PicoIndenter',
+    image: `${IMG}/Hysitron-PI-88-SEM-PicoIndenter-300x190.png`,
     category: 'In-Situ',
     shortDesc: 'Advanced SEM in-situ platform with interchangeable transducers, encoded stages, and flexible sample positioning.',
     highlight: 'SEM PicoIndenter',
@@ -208,6 +199,7 @@ export const PRODUCTS = [
   p({
     slug: 'pi-95-tem-picoindenter',
     name: 'PI 95 TEM PicoIndenter',
+    image: `${IMG}/PI95-300x268.png`,
     category: 'In-Situ',
     shortDesc: 'Quantitative in-situ nanomechanics inside the TEM — indentation, compression, tensile, and fatigue.',
     highlight: 'TEM PicoIndenter',
@@ -221,6 +213,7 @@ export const PRODUCTS = [
   p({
     slug: 'intraspect-360',
     name: 'IntraSpect 360',
+    image: `${IMG}/Hysitron-IntraSpect-360-197x300.png`,
     category: 'In-Situ',
     shortDesc: 'In-situ spectroscopy and mechanical correlation for advanced materials characterization workflows.',
     highlight: '360',
@@ -234,6 +227,7 @@ export const PRODUCTS = [
   p({
     slug: 'ts-75-triboscope',
     name: 'TS 75 TriboScope',
+    image: `${IMG}/PI88-268x300.png`,
     category: 'In-Situ',
     shortDesc: 'SEM-integrated tribology and mechanical testing for friction, wear, and contact mechanics under observation.',
     highlight: 'TriboScope',
@@ -247,6 +241,7 @@ export const PRODUCTS = [
   p({
     slug: 'biosoft-in-situ-indenter',
     name: 'BioSoft In-Situ Indenter',
+    image: `${IMG}/Hysitron-BioSoft-253x300.png`,
     category: 'In-Situ',
     shortDesc: 'Soft matter and biological-sample in-situ indentation for hydrated and delicate materials under SEM.',
     highlight: 'BioSoft',
@@ -260,19 +255,21 @@ export const PRODUCTS = [
 
   // —— Education and Research ——
   p({
-    slug: 'muprobe-500',
-    name: 'MuProbe 500',
+    slug: 'μProbe-500',
+    name: 'μProbe 500',
+    image: `${IMG}/Intraspect90-300x300.png`,
     category: 'Education and Research',
     shortDesc: 'Education and research platform for micro-scale mechanical teaching labs and exploratory R&D.',
     highlight: 'micro-scale platform',
     lead: 'Accessible micro-indentation and related experiments for universities and training facilities — stable, clear, and supported.',
     badges: ['Education', 'Research', 'Micro-scale'],
-    beatsHeading: 'MuProbe 500',
+    beatsHeading: 'μProbe 500',
     beatsTagline: 'Built for teaching labs and research groups that need dependable micro-mechanical data without industrial complexity.',
   }),
   p({
     slug: 'mesoprobe',
     name: 'MesoProbe',
+    image: `${IMG}/MesoProbe.jpg`,
     category: 'Education and Research',
     shortDesc: 'Meso-scale testing for larger samples, higher loads, and deformation modes beyond classical nanoindentation.',
     highlight: 'meso-scale platform',
@@ -291,6 +288,7 @@ export const PRODUCTS = [
   p({
     slug: 'ng50',
     name: 'NG50',
+    image: `${IMG}/NG50.png`,
     category: 'Desktop',
     shortDesc: 'Compact desktop in-situ optical mechanical system for space-conscious labs.',
     highlight: 'desktop platform',
@@ -301,6 +299,7 @@ export const PRODUCTS = [
   p({
     slug: 'ng80',
     name: 'NG80',
+    image: `${IMG}/NG80.png`,
     category: 'Desktop',
     shortDesc: 'In-situ optical mechanical platform integrating microscopy, load cells, and XY stages for deformation studies.',
     highlight: 'optical system',
