@@ -46,7 +46,7 @@ export default function ContactPage() {
         tag="Contact"
         title="We'd love to"
         highlight="hear from you"
-        lead="General enquiries, technical support, product guidance, and advanced material testing — reach the right team below."
+        lead="General enquiries, technical support, product guidance, and advanced material testing — connect with the right global team below."
         badges={['Response < 1 business day', 'India · USA', 'Lab services', 'Founder access']}
       />
 
@@ -62,7 +62,7 @@ export default function ContactPage() {
           >
             <div className="section-tag">Who to contact</div>
             <h2>Reach the right team</h2>
-            <p>Each desk is monitored by named specialists — your enquiry never lands in a black hole.</p>
+            <p>Each desk is monitored by named specialists — your enquiry is routed quickly to the right regional or technical team.</p>
           </motion.div>
 
           <motion.div
@@ -137,7 +137,7 @@ export default function ContactPage() {
           >
             <div className="section-tag">Visit us</div>
             <h2>Office locations</h2>
-            <p>Operations and lab facilities across India and the USA.</p>
+            <p>Operations and support facilities serving customers across global regions, including India and the USA.</p>
           </motion.div>
 
           <motion.div
@@ -183,10 +183,10 @@ export default function ContactPage() {
             />
             <div className="contact-founder-body">
               <div className="section-tag">Founder feedback</div>
-              <h2>A direct line to our Managing Director</h2>
+              <h2>A direct line for strategic global feedback</h2>
               <p>
                 For candid feedback, strategic collaborations, or when you simply want the
-                founder's take — write directly to Dr. Syed Asif.
+                founder&rsquo;s take — write directly to Dr. Syed Asif.
               </p>
               <div className="contact-founder-meta">
                 <div>

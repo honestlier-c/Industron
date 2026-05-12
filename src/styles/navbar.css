@@ -1,0 +1,126 @@
+/* ============================================================
+   NAVBAR
+   ============================================================ */
+.navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  transition: background 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease;
+  animation: navbar-enter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes navbar-enter {
+  from { transform: translateY(-90px); }
+  to   { transform: translateY(0); }
+}
+/* Mobile sheet menu must sit above page content (fixes invisible / blocked overlay on some routes) */
+.navbar.menu-open {
+  z-index: 1100;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 1px 0 var(--border);
+}
+.navbar.scrolled {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 1px 0 var(--border);
+}
+
+.nav-inner {
+  width: min(1200px, 92vw);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 0;
+  min-height: 76px;
+}
+
+.nav-logo {
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--text);
+  transition: color 0.3s;
+}
+.navbar.scrolled .nav-logo { color: var(--text); }
+
+.brand-logo-image {
+  height: 50px;
+  width: auto;
+  display: block;
+}
+.nav-brand-logo-image {
+  height: 50px;
+}
+
+.logo-dot {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2.2rem;
+}
+.nav-links a {
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--text); }
+.navbar.scrolled .nav-links a { color: var(--text-dim); }
+.navbar.scrolled .nav-links a:hover { color: var(--text); }
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-cta {
+  padding: 0.58rem 1.25rem;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  transition: all 0.22s ease;
+  cursor: pointer;
+}
+.nav-cta:hover {
+  opacity: 0.88;
+}
+.navbar.scrolled .nav-cta {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.navbar.scrolled .nav-cta:hover { opacity: 0.88; }
+
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding: 0.4rem;
+}
+.hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+.navbar.scrolled .hamburger span { background: var(--text); }
+

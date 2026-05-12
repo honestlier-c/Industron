@@ -1,6 +1,7 @@
 import { Canvas } from '@react-three/fiber'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import NanoindenterScene from '../three/NanoindenterScene'
 
 const fadeUp = {
@@ -55,33 +56,21 @@ export default function Hero() {
 
   return (
     <section className="hero" id="hero">
-      <div className="hero-canvas">
-        <Canvas
-          camera={{
-            position: isNarrow ? [0, 0.3, 7.2] : [0, 0.15, 7.0],
-            fov: isNarrow ? 54 : 44,
-          }}
-          gl={{ antialias: true, alpha: true }}
-          dpr={[1, 2]}
-        >
-          <Suspense fallback={null}>
-            <NanoindenterScene mouse={mouse} scrollRef={scrollRef} />
-          </Suspense>
-        </Canvas>
-      </div>
+      {!isNarrow && (
+        <div className="hero-canvas">
+          <Canvas
+            camera={{ position: [0, 0.15, 7.0], fov: 44 }}
+            gl={{ antialias: true, alpha: true }}
+            dpr={[1, 2]}
+          >
+            <Suspense fallback={null}>
+              <NanoindenterScene mouse={mouse} scrollRef={scrollRef} />
+            </Suspense>
+          </Canvas>
+        </div>
+      )}
 
       <div className="container hero-content">
-        <motion.div
-          className="hero-tag"
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          custom={0}
-        >
-          <span className="hero-tag-dot" />
-          Industron Nanotechnology Pvt Ltd · Advanced Nanomechanical Solutions
-        </motion.div>
-
         <motion.h1 variants={fadeUp} initial="hidden" animate="visible" custom={1}>
           High-Performance<br />
           Nanomechanical Testing Instruments<br />
@@ -95,8 +84,7 @@ export default function Hero() {
           animate="visible"
           custom={2}
         >
-          Trusted by IISc, IITs, and global research labs for high-precision
-          nanomechanical characterization across advanced materials and devices.
+          Chosen by research institutions, engineering teams, and advanced manufacturers worldwide for high-precision nanomechanical characterization across next-generation materials and devices.
         </motion.p>
 
         <motion.div
@@ -107,27 +95,14 @@ export default function Hero() {
           custom={3}
         >
           <a href="#about" className="btn-primary">
-            Explore Instruments <span aria-hidden="true">→</span>
+            Explore Solutions <span aria-hidden="true">→</span>
           </a>
-          <a href="/contact" className="btn-ghost">
-            Request a Demo
-          </a>
-          <a href="/contact" className="btn-ghost">
-            Get Technical Specs
-          </a>
-        </motion.div>
-
-        <motion.div
-          className="hero-trust"
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          custom={4}
-        >
-          <span className="hero-trust-label">Trusted by</span>
-          {['IISc', 'IITs', 'Research Labs', 'Industry'].map((item) => (
-            <span className="hero-trust-chip" key={item}>{item}</span>
-          ))}
+          <Link to="/contact" className="btn-ghost">
+            Request Global Demo
+          </Link>
+          <Link to="/testing-form" className="btn-ghost">
+            Get Your Material Tested
+          </Link>
         </motion.div>
       </div>
 

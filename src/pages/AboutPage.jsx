@@ -1,14 +1,15 @@
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import FuturisticWaveDots from '../components/FuturisticWaveDots'
 
 /* -----------------------------------------------------------
    CONTENT
 ----------------------------------------------------------- */
-const HERO_HIGHLIGHTS = [
-  'DSIR recognized',
-  'IISc & IIT partners',
-  'India & USA',
-  'Nanomechanics R&D',
+const HERO_MILESTONES = [
+  { value: '2011', label: 'Founded' },
+  { value: '40+', label: 'Installations' },
+  { value: 'Global Labs', label: 'Research network' },
+  { value: 'Worldwide', label: 'Customer footprint' },
 ]
 
 const WHO_WE_ARE = [
@@ -16,10 +17,10 @@ const WHO_WE_ARE = [
   'Welcome to Industron Technical Services Pvt. Ltd., and we are delighted to have you here.',
   'Industron is committed to advancing research and development to deliver high-value solutions in scientific instrumentation with cutting-edge technology. We are a dedicated team of scientists and engineers with world-class expertise in materials science and engineering, embedded control systems, hardware and software development, analytical instrument design, sensors and actuators, and precision engineering.',
   'Since its inception, Industron has actively collaborated with premier institutions such as IISc and various IITs, contributing to pioneering research and product innovation. Over the years, our team has developed advanced technologies and instruments — including NanoGuru®/NG80, a desktop nanomechanical testing instrument designed for evaluating nanoscale mechanical properties of materials.',
-  'Our R&D division is recognized as an In-house R&D Unit by the Department of Scientific and Industrial Research (DSIR), Government of India.',
+  'Our R&D division collaborates closely with academia and industry to advance materials research for global customer programs.',
 ]
 
-const WHO_WE_ARE_BADGES = ['Since 2011', 'DSIR Recognized', 'IISc & IIT Partners', 'Trivandrum · Edina']
+const WHO_WE_ARE_BADGES = ['Since 2011', 'Global research partners', 'Trivandrum · Edina']
 
 const WHAT_WE_DO = [
   'At Industron, our customers are scientists and engineers from both academia and industry. Customer satisfaction and superior support form the core pillars of our company. We engage proactively with our customers through day-to-day interactions, online and onsite meetings, as well as regular workshops and conferences. Our flagship biennial workshop, Nanoyantrika, is a testament to our commitment to knowledge sharing and collaboration.',
@@ -63,7 +64,7 @@ const CORE_COMPETENCIES = [
   {
     icon: '❋',
     title: 'Customer-First Support',
-    text: 'Proactive, dedicated support that builds lasting relationships with our valued clients across India and the world.',
+    text: 'Proactive, dedicated support that builds lasting relationships with customers across global markets.',
   },
 ]
 
@@ -99,7 +100,7 @@ const LEADERS = [
     ],
     bio: [
       'Dr. S. A. Syed Asif is the Managing Director and founder of Industron Group of Companies. He has over 30 years of experience in designing and developing nanomechanical testing instruments. Before Industron, he served as Director of R&D at Bruker Nano Surfaces and Hysitron. He completed his PhD at Oxford University in Material Science, and holds his Masters and Bachelors from the Indian Institute of Science (IISc), Bangalore.',
-      'He is one of the pioneers of in-situ nanomechanics inside TEM/SEM/Raman microscopes, with 22 active patents, 120+ publications, and numerous invited talks. He has won multiple R&D 100 Awards, Microscopy Today Innovation Awards, and was instrumental in SBIR funding and the National Tibbetts Award for Hysitron. Under his leadership, NanoGuru® — a nanomechanical testing instrument for graduate and undergraduate research — was developed in India. He is a member of MRS, ACerS, and TMS, and an active collaborator with research institutions worldwide.',
+      'He is one of the pioneers of in-situ nanomechanics inside TEM/SEM/Raman microscopes, with 22 active patents, 120+ publications, and numerous invited talks. He has won multiple R&D 100 Awards, Microscopy Today Innovation Awards, and was instrumental in SBIR funding and the National Tibbetts Award for Hysitron. Under his leadership, NanoGuru® — a nanomechanical testing instrument for graduate and undergraduate research — was developed for broad academic adoption worldwide. He is a member of MRS, ACerS, and TMS, and an active collaborator with research institutions worldwide.',
     ],
   },
 ]
@@ -177,7 +178,7 @@ export default function AboutPage() {
 
             <motion.h1 className="about-hero-title" variants={fadeUp}>
               Engineering Nanomechanics<br />
-              <span className="gradient-text">for India and the World</span>
+              <span className="gradient-text">for Global Research & Industry</span>
             </motion.h1>
 
             <motion.p className="about-hero-sub" variants={fadeUp}>
@@ -186,9 +187,12 @@ export default function AboutPage() {
               long-term collaboration with academia and industry.
             </motion.p>
 
-            <motion.div className="about-hero-highlights" variants={fadeUp}>
-              {HERO_HIGHLIGHTS.map((label) => (
-                <span key={label} className="about-chip">{label}</span>
+            <motion.div className="about-milestone-ribbon" variants={fadeUp}>
+              {HERO_MILESTONES.map((item) => (
+                <div key={item.label} className="about-milestone-chip">
+                  <span className="about-milestone-value">{item.value}</span>
+                  <span className="about-milestone-label">{item.label}</span>
+                </div>
               ))}
             </motion.div>
           </motion.div>
@@ -200,7 +204,7 @@ export default function AboutPage() {
         <div className="container">
           <AboutBlock
             tag="Who we are"
-            title="A team of scientists & engineers advancing"
+            title="A global team of scientists & engineers advancing"
             gradientTitle="scientific instrumentation"
             lead="Introduction, mission & R&D identity"
             badges={WHO_WE_ARE_BADGES}
@@ -220,7 +224,7 @@ export default function AboutPage() {
             tag="What we do"
             title="R&D, nanomechanics testing, and"
             gradientTitle="precision instrument design"
-            lead="Serving academia and industry with world-class capabilities."
+            lead="Serving global academia and industry with world-class capabilities."
             badges={WHAT_WE_DO_BADGES}
           >
             {WHAT_WE_DO.map((line, i) => (
@@ -245,7 +249,7 @@ export default function AboutPage() {
               Our distinct <span className="gradient-text">strengths</span>
             </motion.h2>
             <motion.p className="about-block-lead" variants={fadeUp}>
-              What sets us apart as an indigenous nanomechanics partner.
+              What sets us apart as a globally trusted nanomechanics partner.
             </motion.p>
           </motion.div>
 
@@ -342,18 +346,18 @@ export default function AboutPage() {
             <div>
               <div className="section-tag">Let’s collaborate</div>
               <h2>
-                Ready to build something <span className="gradient-text">remarkable?</span>
+                Ready to build a <span className="gradient-text">global breakthrough?</span>
               </h2>
               <p>
-                Reach out to discuss instruments, testing services, or R&D collaborations.
+                Connect with us for instruments, testing services, or R&D collaborations across global programs.
                 Our team responds within one business day.
               </p>
             </div>
             <div className="about-cta-actions">
-              <a href="/contact" className="btn-primary">
+              <Link to="/contact" className="btn-primary">
                 Get in Touch <span aria-hidden="true">→</span>
-              </a>
-              <a href="/services" className="btn-ghost">Explore Services</a>
+              </Link>
+              <Link to="/services" className="btn-ghost">Explore Services</Link>
             </div>
           </motion.div>
         </div>

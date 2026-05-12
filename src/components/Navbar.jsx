@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
 import { NavLink, Link } from 'react-router-dom'
 
 const LINKS = [
@@ -28,16 +27,13 @@ export default function Navbar() {
   }, [menuOpen])
 
   return (
-    <motion.nav
+    <nav
       className={`navbar${scrolled ? ' scrolled' : ''}${menuOpen ? ' menu-open' : ''}`}
-      initial={{ y: -90 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
     >
       <div className="nav-inner">
         <Link to="/" className="nav-logo" onClick={() => setMenuOpen(false)}>
           <img
-            src="/Industron_logo.png"
+            src="/industron-logo.png"
             alt="Industron"
             className="brand-logo-image nav-brand-logo-image"
           />
@@ -73,6 +69,6 @@ export default function Navbar() {
           </button>
         </div>
       </div>
-    </motion.nav>
+    </nav>
   )
 }

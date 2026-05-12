@@ -1,0 +1,132 @@
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 960px) {
+  /* Solid bar on small screens so hero content never reads through the fixed header */
+  .navbar:not(.scrolled) {
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.06);
+  }
+
+  .nav-links { display: none; }
+  .hamburger { display: flex; }
+
+  .nav-links.open {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    /* Below the fixed header row so logo / CTA / hamburger stay usable */
+    top: calc(76px + env(safe-area-inset-top, 0px));
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: calc(100vh - 76px - env(safe-area-inset-top, 0px));
+    /* Opaque sheet — backdrop-filter can look empty / fail over some pages on mobile */
+    background: #ffffff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    z-index: 1;
+    justify-content: center;
+    align-items: center;
+    gap: 2.5rem;
+    font-size: 1.25rem;
+    pointer-events: auto;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .nav-links.open a { font-size: 1.25rem; color: var(--text) !important; }
+
+  .services-grid   { grid-template-columns: 1fr; }
+  .contact-grid    { grid-template-columns: 1fr; gap: 2.5rem; }
+  .footer-grid     { grid-template-columns: 1fr 1fr; }
+  .brand-logo-image { height: 36px; }
+  .nav-brand-logo-image { height: 38px; }
+  .hero-content    { padding-left: 0; }
+}
+
+@media (max-width: 960px) {
+  .about-block,
+  .about-block--reverse {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .about-block--reverse .about-block-side    { order: 1; }
+  .about-block--reverse .about-block-content { order: 2; }
+  .about-comp-grid    { grid-template-columns: repeat(2, 1fr); }
+  .about-leader-grid  { grid-template-columns: 1fr; }
+  .about-cta          { grid-template-columns: 1fr; padding: 2.25rem; }
+  .about-cta-actions  { justify-content: flex-start; }
+  .products-grid      { grid-template-columns: 1fr; }
+  .services-test-grid       { grid-template-columns: 1fr; }
+  .services-instrument-grid { grid-template-columns: 1fr; }
+  .applications-two-col    { grid-template-columns: 1fr; }
+  .applications-tech-grid  { grid-template-columns: repeat(2, 1fr); }
+  .contact-page-grid       { grid-template-columns: 1fr; }
+  .contact-page-offices    { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 720px) {
+  .about-comp-grid    { grid-template-columns: 1fr; }
+  .applications-tech-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 860px) {
+  /* Mobile: no 3D scene — keep hero lean and text-focused. */
+  .hero {
+    height: auto;
+    min-height: 0;
+    display: block;
+    padding-bottom: 3rem;
+  }
+  .hero::before {
+    display: none;
+  }
+  .hero-canvas {
+    display: none;
+  }
+  .hero-content {
+    padding-top: 6.75rem;
+    padding-bottom: 0.5rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .section         { padding: 5rem 0; }
+  .form-row        { grid-template-columns: 1fr; }
+  .hero h1         { margin-bottom: 1.5rem; font-size: clamp(2.1rem, 9vw, 3rem); }
+  .hero-sub        { margin-bottom: 1.3rem; }
+  .hero-actions    { gap: 0.75rem; }
+  .hero-actions .btn-primary,
+  .hero-actions .btn-ghost { width: 100%; justify-content: center; }
+  .hero-content    { padding-top: 7.25rem; }
+  .footer-grid     { grid-template-columns: 1fr; }
+  .footer-bottom   { flex-direction: column; gap: 1.2rem; text-align: center; }
+  .testing-modal { padding: 1rem; border-radius: 14px; }
+  .testing-modal-form { grid-template-columns: 1fr; }
+  .testing-modal-form label:has(textarea) { grid-column: auto; }
+  .testing-modal-actions { justify-content: stretch; }
+  .testing-modal-actions .btn-primary,
+  .testing-modal-actions .btn-ghost {
+    flex: 1;
+    justify-content: center;
+  }
+  .about-hero            { padding: 8.5rem 0 3.5rem; }
+  .about-section-wrap    { padding: 3rem 0; }
+  .about-cta             { padding: 2rem; }
+  .about-cta-actions .btn-primary,
+  .about-cta-actions .btn-ghost { width: 100%; justify-content: center; }
+  .products-hero         { padding: 8.6rem 0 3rem; }
+  .products-cta          { padding: 1.2rem; }
+  .products-cta .btn-primary { width: 100%; justify-content: center; }
+  .services-hero            { padding: 8.6rem 0 2.5rem; }
+  .services-block           { padding: 1.35rem 1.1rem; }
+  .services-cta .btn-primary { width: 100%; justify-content: center; }
+  .applications-hero         { padding: 8.6rem 0 2rem; }
+  .contact-page-hero         { padding: 8.6rem 0 1.5rem; }
+  .contact-home-teaser .btn-primary { width: 100%; justify-content: center; }
+}
+

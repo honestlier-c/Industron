@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 const COLS = [
   {
     title: 'Services',
@@ -5,7 +7,7 @@ const COLS = [
       { label: 'Research & Development', href: '/services' },
       { label: 'Nanomechanical Instruments', href: '/products' },
       { label: 'Advanced Material Testing', href: '/services' },
-      { label: 'DSIR Recognized R&D Unit', href: '/about' },
+      { label: 'Testing enquiry form', href: '/testing-form' },
     ],
   },
   {
@@ -14,7 +16,7 @@ const COLS = [
       { label: 'NanoGuru®', href: '/products' },
       { label: 'NG50 / NG80', href: '/products' },
       { label: 'μProbe', href: '/products' },
-      { label: 'MesoProbe', href: '/products' },
+      { label: 'MesoProbe', href: '/products/mesoprobe' },
       { label: 'Hysitron Instruments', href: '/products' },
     ],
   },
@@ -30,15 +32,26 @@ const COLS = [
   },
 ]
 
+function isRoute(href = '') {
+  return href.startsWith('/') && !href.startsWith('//') && !href.startsWith('/#')
+}
+
+function FooterLink({ label, href }) {
+  if (isRoute(href)) {
+    return <Link to={href}>{label}</Link>
+  }
+  return <a href={href}>{label}</a>
+}
+
 export default function Footer() {
   return (
     <footer className="footer">
       <div className="container">
         <div className="footer-grid">
           <div className="footer-brand">
-            <a href="/" className="footer-logo">
-              <img src="/Industron_logo.png" alt="Industron" className="brand-logo-image" />
-            </a>
+            <Link to="/" className="footer-logo">
+              <img src="/industron-logo.png" alt="Industron" className="brand-logo-image" />
+            </Link>
             <p>
               Designing, developing and marketing high performance scientific instruments
               since 2011. Trivandrum, India · Edina, MN, USA.
@@ -49,8 +62,10 @@ export default function Footer() {
             <div className="footer-col" key={title}>
               <h5>{title}</h5>
               <ul>
-                {links.map(({ label, href }) => (
-                  <li key={label}><a href={href}>{label}</a></li>
+                {links.map((link) => (
+                  <li key={link.label}>
+                    <FooterLink {...link} />
+                  </li>
                 ))}
               </ul>
             </div>

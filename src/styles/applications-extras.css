@@ -1,0 +1,58 @@
+/* ============================================================
+   APPLICATIONS — filter chips, industry accent bar, tech numbering
+   ============================================================ */
+.applications-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 2rem;
+}
+.applications-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.95rem;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 0.22s ease, color 0.22s ease, background 0.22s ease;
+}
+.applications-filter-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.applications-filter-chip.is-active {
+  border-color: transparent;
+  background: var(--gradient);
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.25);
+}
+.applications-industry-head {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1.25rem;
+}
+.applications-industry-head h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  letter-spacing: -0.01em;
+}
+.applications-industry-bar {
+  width: 4px;
+  height: 26px;
+  border-radius: 3px;
+  background: var(--gradient);
+  flex-shrink: 0;
+}
+.applications-industry-card.accent-cyan .applications-industry-bar {
+  background: linear-gradient(180deg, #06b6d4, #0e7490);
+}
+.applications-industry-card.accent-purple .applications-industry-bar {
+  background: linear-gradient(180deg, #a78bfa, #6d28d9);
+}
+

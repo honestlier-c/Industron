@@ -171,7 +171,7 @@ export default function ApplicationsPage() {
         tag="Applications"
         title="Nanomechanical applications"
         highlight="across industries"
-        lead="Studying the mechanical response of materials at the nanoscale has gained significant attention — driven by nanostructured materials and the continued miniaturization of engineering components, thin films, and surface coatings."
+        lead="Studying the mechanical response of materials at the nanoscale is now critical across global industries — driven by nanostructured materials and the continued miniaturization of engineering components, thin films, and surface coatings."
         badges={['Cross-sector', 'Multiple methods', 'In-situ ready', 'High-temp capable']}
       />
 
@@ -283,10 +283,10 @@ export default function ApplicationsPage() {
 
       <PageCTA
         tag="Have a target application?"
-        title="Tell us the material and"
-        highlight="we'll recommend the test"
-        lead="Share your specimen type and property of interest — our application engineers will propose the right technique and platform."
-        primary={{ label: 'Discuss your Application', href: '/contact' }}
+        title="Tell us your material and"
+        highlight="we'll recommend the global test workflow"
+        lead="Share your specimen type and target property — our application engineers will propose the right technique and platform for your region and industry context."
+        primary={{ label: 'Discuss Your Global Application', href: '/contact' }}
         secondary={{ label: 'View Services', href: '/services' }}
       />
     </main>

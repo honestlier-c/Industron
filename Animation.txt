@@ -1,0 +1,309 @@
+"use client";
+
+/**
+ * Industron Nanotechnology — Cinematic Scrollytelling Template
+ * Stack: Next.js App Router mindset + Tailwind utilities + Framer Motion
+ * Core: Sticky canvas image-sequence (120 frames) driven by scroll
+ *
+ * HOW TO USE:
+ * 1) Place your frame images in /public/frames/frame_0001.webp ... frame_0120.webp
+ * 2) Adjust TOTAL_FRAMES and path if needed
+ * 3) Replace copy blocks with your product (nano indenter / actuator / system)
+ * 4) Tune breakpoints & typography to match your design system
+ */
+
+import { useEffect, useMemo, useRef, useState } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+
+// -------------------------
+// CONFIG
+// -------------------------
+const TOTAL_FRAMES = 120;
+const FRAME_PATH = (i: number) => `/frames/frame_${String(i).padStart(4, "0")}.webp`;
+
+// Scroll segments (0 → 1)
+const SEGMENTS = {
+  hero: [0.0, 0.15],
+  breakdown: [0.15, 0.4],
+  core: [0.4, 0.65],
+  performance: [0.65, 0.85],
+  cta: [0.85, 1.0],
+} as const;
+
+// -------------------------
+// UTIL
+// -------------------------
+function clamp(n: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, n));
+}
+
+function mapRange(value: number, inMin: number, inMax: number, outMin: number, outMax: number) {
+  const t = clamp((value - inMin) / (inMax - inMin), 0, 1);
+  return outMin + t * (outMax - outMin);
+}
+
+// -------------------------
+// MAIN PAGE
+// -------------------------
+export default function Page() {
+  return (
+    <div className="bg-[#050505] text-white">
+      <Navbar />
+      <Scrollytelling />
+      <Footer />
+    </div>
+  );
+}
+
+// -------------------------
+// NAVBAR (Apple-like)
+// -------------------------
+function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <div
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
+        scrolled
+          ? "bg-[#050505]/70 backdrop-blur-md border-b border-white/10"
+          : "bg-transparent"
+      }`}
+    >
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-3 text-sm">
+        <div className="font-medium tracking-tight">Industron</div>
+
+        <div className="hidden md:flex gap-8 text-white/70">
+          {[
+            "Overview",
+            "Technology",
+            "Architecture",
+            "Applications",
+            "Specs",
+          ].map((item) => (
+            <span key={item} className="hover:text-white transition">
+              {item}
+            </span>
+          ))}
+        </div>
+
+        <button className="px-4 py-1.5 rounded-full text-sm font-medium border border-transparent bg-gradient-to-r from-[#0050FF] to-[#00D6FF] text-white shadow-[0_0_20px_rgba(0,214,255,0.25)] hover:opacity-90 transition">
+          Request Demo
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// -------------------------
+// SCROLL EXPERIENCE
+// -------------------------
+function Scrollytelling() {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [images, setImages] = useState<HTMLImageElement[]>([]);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"],
+  });
+
+  // Preload images
+  useEffect(() => {
+    let mounted = true;
+    const imgs: HTMLImageElement[] = [];
+
+    for (let i = 1; i <= TOTAL_FRAMES; i++) {
+      const img = new Image();
+      img.src = FRAME_PATH(i);
+      imgs.push(img);
+    }
+
+    Promise.all(
+      imgs.map(
+        (img) =>
+          new Promise((res) => {
+            img.onload = res;
+          })
+      )
+    ).then(() => {
+      if (mounted) setImages(imgs);
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // Draw frame
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || images.length === 0) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const render = () => {
+      const progress = scrollYProgress.get();
+      const frame = Math.floor(progress * (TOTAL_FRAMES - 1));
+      const img = images[frame];
+
+      if (!img) return;
+
+      const { width, height } = canvas;
+      ctx.clearRect(0, 0, width, height);
+
+      const scale = Math.min(width / img.width, height / img.height);
+      const x = width / 2 - (img.width * scale) / 2;
+      const y = height / 2 - (img.height * scale) / 2;
+
+      ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+    };
+
+    const unsubscribe = scrollYProgress.on("change", render);
+    render();
+
+    return () => unsubscribe();
+  }, [images, scrollYProgress]);
+
+  // Resize canvas
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    resize();
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
+  }, []);
+
+  return (
+    <div ref={containerRef} className="relative h-[400vh]">
+      <div className="sticky top-0 h-screen w-full overflow-hidden">
+        <canvas ref={canvasRef} className="w-full h-full" />
+
+        {/* TEXT LAYERS */}
+        <HeroText progress={scrollYProgress} />
+        <BreakdownText progress={scrollYProgress} />
+        <CoreText progress={scrollYProgress} />
+        <PerformanceText progress={scrollYProgress} />
+        <CTAText progress={scrollYProgress} />
+      </div>
+    </div>
+  );
+}
+
+// -------------------------
+// TEXT BLOCKS
+// -------------------------
+
+function useSegmentOpacity(progress: any, [start, end]: [number, number]) {
+  return useTransform(progress, [start, start + 0.05, end - 0.05, end], [0, 1, 1, 0]);
+}
+
+function HeroText({ progress }: any) {
+  const opacity = useSegmentOpacity(progress, SEGMENTS.hero);
+
+  return (
+    <motion.div
+      style={{ opacity }}
+      className="absolute inset-0 flex flex-col items-center justify-center text-center px-6"
+    >
+      <h1 className="text-5xl md:text-7xl font-semibold tracking-tight">
+        Precision at the nanoscale
+      </h1>
+      <p className="mt-4 text-white/60 max-w-xl">
+        Engineering the unseen.
+      </p>
+    </motion.div>
+  );
+}
+
+function BreakdownText({ progress }: any) {
+  const opacity = useSegmentOpacity(progress, SEGMENTS.breakdown);
+
+  return (
+    <motion.div
+      style={{ opacity }}
+      className="absolute left-10 top-1/2 -translate-y-1/2 max-w-md"
+    >
+      <h2 className="text-3xl font-semibold">Built for atomic-level control</h2>
+      <p className="mt-4 text-white/60">
+        Ultra-stable architecture, nanometer positioning, and vibration-isolated design.
+      </p>
+    </motion.div>
+  );
+}
+
+function CoreText({ progress }: any) {
+  const opacity = useSegmentOpacity(progress, SEGMENTS.core);
+
+  return (
+    <motion.div
+      style={{ opacity }}
+      className="absolute right-10 top-1/2 -translate-y-1/2 max-w-md text-right"
+    >
+      <h2 className="text-3xl font-semibold">Real-time adaptive measurement</h2>
+      <p className="mt-4 text-white/60">
+        Closed-loop feedback, high-frequency acquisition, sub-nanometer resolution.
+      </p>
+    </motion.div>
+  );
+}
+
+function PerformanceText({ progress }: any) {
+  const opacity = useSegmentOpacity(progress, SEGMENTS.performance);
+
+  return (
+    <motion.div
+      style={{ opacity }}
+      className="absolute inset-0 flex flex-col items-center justify-center text-center px-6"
+    >
+      <h2 className="text-4xl font-semibold">Data you can trust</h2>
+      <p className="mt-4 text-white/60 max-w-xl">
+        Repeatable precision. Research-grade accuracy. Industry-ready reliability.
+      </p>
+    </motion.div>
+  );
+}
+
+function CTAText({ progress }: any) {
+  const opacity = useSegmentOpacity(progress, SEGMENTS.cta);
+
+  return (
+    <motion.div
+      style={{ opacity }}
+      className="absolute inset-0 flex flex-col items-center justify-center text-center px-6"
+    >
+      <h2 className="text-4xl font-semibold">Measure beyond limits</h2>
+      <p className="mt-4 text-white/60">Industron Nanotechnology</p>
+
+      <div className="mt-6 flex gap-4">
+        <button className="px-6 py-2 rounded-full bg-gradient-to-r from-[#0050FF] to-[#00D6FF]">
+          Explore Systems
+        </button>
+        <button className="text-white/70 hover:text-white">See full specs</button>
+      </div>
+    </motion.div>
+  );
+}
+
+// -------------------------
+// FOOTER
+// -------------------------
+function Footer() {
+  return (
+    <div className="py-20 text-center text-white/40 text-sm">
+      © {new Date().getFullYear()} Industron Nanotechnology Pvt Ltd
+    </div>
+  );
+}

@@ -1,222 +1,234 @@
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import PageHero from '../components/PageHero'
 import PageCTA from '../components/PageCTA'
 
-const RD_DOMAINS = [
-  'Mechanical Design',
-  'Electronic Design',
-  'Embedded System Design',
-  'Software Design',
-  'Smart Product Engineering',
+const JUMP_LINKS = [
+  { id: 'nrl-testing', label: 'NRL testing' },
+  { id: 'consultancy', label: 'R&D consultancy' },
+  { id: 'training', label: 'Training' },
+  { id: 'agreements', label: 'Service agreements' },
+  { id: 'support', label: 'Technical support' },
 ]
 
-const RD_APPROACH = [
-  'Agile process methodology',
-  'Adaptable and flexible solutions',
-  'Thorough testing at every stage',
-  'Faster time-to-market',
+const SMART_PRODUCT_CAPS = [
+  'Precision mechanical design',
+  'CAD for parts and assemblies',
+  'Finite Element Analysis (FEA)',
+  'Electro-mechanical system design',
+  'Mechatronic sensors and actuators',
+  'Embedded hardware and software integration',
 ]
 
-const MATERIAL_TESTS = [
-  {
-    icon: '◈',
-    title: 'Nanoindentation',
-    desc: 'Precise measurement of mechanical properties at the nanoscale.',
-  },
-  {
-    icon: '◇',
-    title: 'Dynamic Mechanical Analysis (DMA)',
-    desc: 'Evaluation of material behavior under dynamic loading conditions.',
-  },
-  {
-    icon: '⊙',
-    title: 'Scanning Probe Microscopy (SPM)',
-    desc: 'High-resolution surface imaging and analysis.',
-  },
-  {
-    icon: '◉',
-    title: 'Nanoscratch Testing',
-    desc: 'Assessment of coating adhesion and scratch resistance.',
-  },
-  {
-    icon: '✦',
-    title: 'Scanning Wear Testing',
-    desc: 'Analysis of wear behavior under controlled conditions.',
-  },
-  {
-    icon: '❋',
-    title: 'High Temperature Testing',
-    desc: 'Material performance evaluation at elevated temperatures.',
-  },
+const MATERIAL_DEV_ITEMS = [
+  'New materials',
+  'Thin films and coatings',
+  'Heat treatment processes',
 ]
 
-const INSTRUMENTS = [
-  {
-    name: 'TI Premier',
-    desc: 'Advanced nanoindentation system for high-precision measurements.',
-  },
-  {
-    name: 'TS 77',
-    desc: 'Robust platform for comprehensive nanomechanical analysis.',
-  },
-  {
-    name: 'NG 50',
-    desc: 'Compact and efficient system for nanoscale testing applications.',
-  },
+const MATERIAL_ANALYSIS = [
+  'Mechanical strength and hardness',
+  'Elastic and viscoelastic properties',
+  'Fracture toughness',
+  'Creep resistance',
+  'Structure–property correlation',
+  'Failure analysis',
 ]
 
-const stagger = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.06 } },
-}
+const TRAINING_FEATURES = [
+  'Programs for both industry and academia',
+  'Hands-on training and practical exposure',
+  'Focus on real-world applications',
+]
+
+const SERVICE_AGREEMENTS = [
+  'Preventive maintenance support',
+  'Reduced downtime',
+  'Streamlined servicing process',
+  'Quick response for urgent system needs',
+]
+
+const TECH_SUPPORT = [
+  'Easy access to technical information',
+  'Assistance in system operation and data analysis',
+  'Continuous improvements for better usability',
+]
+
 const fadeUp = {
   hidden: { opacity: 0, y: 22 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] } },
+}
+
+function DocCard({ id, children, className = '' }) {
+  return (
+    <motion.article
+      id={id}
+      className={`services-doc-card ${className}`.trim()}
+      variants={fadeUp}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.06 }}
+    >
+      {children}
+    </motion.article>
+  )
 }
 
 export default function ServicesPage() {
   return (
     <main className="services-page">
       <PageHero
-        tag="Services"
-        title="Industron Technical Services"
-        highlight="R&D, testing & instrumentation"
-        lead="Comprehensive support from consultancy and smart product engineering to advanced material characterization and nanomechanical test platforms."
-        badges={['DSIR Recognized', 'India & USA', 'Lab Services', 'Consultancy']}
+        size="lg"
+        tag="Industron Technical Services"
+        title="Services"
+        highlight="testing, consultancy & customer care"
+        lead="From the Nanomechanics Research Laboratory (NRL) to product engineering and long-term support — one team aligned with global research and instrumentation goals."
+        badges={['NRL', 'Smart product engineering', 'Training', 'Service agreements']}
       />
 
-      <section className="page-section">
+      <div className="services-jump-wrap">
         <div className="container">
-          <motion.article
-            className="services-block"
-            variants={stagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.12 }}
-          >
-            <motion.div className="services-block-head" variants={fadeUp}>
-              <div>
-                <div className="section-tag">R&amp;D consultancy</div>
-                <h2>R&amp;D Consultancy Services</h2>
-              </div>
-            </motion.div>
+          <nav className="services-jump" aria-label="On this page">
+            {JUMP_LINKS.map(({ id, label }) => (
+              <a key={id} href={`#${id}`}>
+                {label}
+              </a>
+            ))}
+          </nav>
+        </div>
+      </div>
 
-            <motion.p className="services-block-lead" variants={fadeUp}>
-              Comprehensive research and development support across multiple engineering
-              domains — delivered through a proven, agile process.
-            </motion.p>
-
-            <div className="services-split">
-              <motion.div className="services-split-col" variants={fadeUp}>
-                <h3 className="services-subheading">Engineering domains</h3>
-                <ul className="services-pill-list">
-                  {RD_DOMAINS.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </motion.div>
-              <motion.div className="services-split-col" variants={fadeUp}>
-                <h3 className="services-subheading">Our approach</h3>
-                <ul className="services-check-list">
-                  {RD_APPROACH.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </motion.div>
+      <section className="page-section services-doc-wrap">
+        <div className="container services-doc-layout">
+          <DocCard id="nrl-testing" className="services-doc-card--feature">
+            <span className="services-doc-kicker">Laboratory</span>
+            <h2>Advanced Material Testing</h2>
+            <p>
+              Team Industron supports the materials research community using advanced
+              nanomechanical technologies. The{' '}
+              <strong>Nanomechanics Research Laboratory (NRL)</strong> has executed
+              numerous R&amp;D projects in collaboration with leading research
+              organizations, academic institutions, and industries worldwide.
+            </p>
+            <p>
+              The laboratory is equipped with state-of-the-art infrastructure to deliver
+              high-quality experimental results. The team specializes in designing
+              experiments based on specific research requirements and provides deep
+              insights into material behavior.
+            </p>
+            <div className="services-callout" role="note">
+              <strong>Facility access.</strong>{' '}
+              Industron offers access to its testing facilities to both academic and
+              industrial researchers on a <strong>chargeable basis</strong>, enabling
+              high-quality research at minimal cost.{' '}
+              <Link to="/testing-form" className="services-callout-link">
+                Open sample testing enquiry form →
+              </Link>
             </div>
-          </motion.article>
-        </div>
-      </section>
+          </DocCard>
 
-      <section className="page-section page-section-alt">
-        <div className="container">
-          <motion.div
-            className="services-block-head services-block-head--centered"
-            variants={stagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.25 }}
-          >
-            <motion.div variants={fadeUp}>
-              <div className="section-tag">Material testing</div>
-              <h2>Material Testing Services</h2>
-              <p className="services-block-lead">
-                Advanced material characterization and testing solutions in our
-                Nanomechanics Research Lab (NRL).
+          <DocCard id="consultancy" className="services-doc-card--consult">
+            <span className="services-doc-kicker">Consultancy</span>
+            <h2>R&amp;D Consultancy Support</h2>
+            <p className="services-doc-lead">
+              Industron provides consultancy across two major verticals:
+            </p>
+
+            <div className="services-consultancy-grid">
+              <div className="services-consultancy-col">
+                <h3>
+                  <span className="services-consultancy-icon" aria-hidden="true">◇</span>
+                  Smart Product Engineering
+                </h3>
+                <p>
+                  A multidisciplinary approach integrating mechanical, electrical, and
+                  software engineering to bring products from concept to production.
+                </p>
+                <p className="services-doc-list-title">Capabilities include</p>
+                <ul className="services-doc-list services-doc-list--checks">
+                  {SMART_PRODUCT_CAPS.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="services-consultancy-col">
+                <h3>
+                  <span className="services-consultancy-icon" aria-hidden="true">◈</span>
+                  Material Development &amp; Testing
+                </h3>
+                <p className="services-doc-list-title">Support for development and evaluation of</p>
+                <ul className="services-doc-list services-doc-list--checks">
+                  {MATERIAL_DEV_ITEMS.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+                <p className="services-doc-list-title">Key analysis areas</p>
+                <ul className="services-doc-list services-doc-list--checks">
+                  {MATERIAL_ANALYSIS.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+                <p className="services-consultancy-foot">
+                  Industron also offers <strong>in-situ / operando testing</strong>, enabling
+                  real-time material behavior analysis.
+                </p>
+              </div>
+            </div>
+          </DocCard>
+
+          <div className="services-mini-grid">
+            <DocCard id="training" className="services-doc-card--mini">
+              <span className="services-doc-kicker">Learning</span>
+              <h2>Training Courses</h2>
+              <p>
+                Specialized programs in <strong>nanomechanical testing</strong>, backed by
+                over <strong>30 years of expertise</strong> from R&amp;D leadership.
               </p>
-            </motion.div>
-          </motion.div>
+              <p className="services-doc-list-title">Key features</p>
+              <ul className="services-doc-list services-doc-list--checks">
+                {TRAINING_FEATURES.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </DocCard>
 
-          <motion.div
-            className="services-test-grid"
-            variants={stagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.1 }}
-          >
-            {MATERIAL_TESTS.map(({ icon, title, desc }) => (
-              <motion.article
-                key={title}
-                className="services-test-card"
-                variants={fadeUp}
-              >
-                <div className="services-test-icon">{icon}</div>
-                <h3>{title}</h3>
-                <p>{desc}</p>
-              </motion.article>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      <section className="page-section">
-        <div className="container">
-          <motion.div
-            className="services-block-head services-block-head--centered"
-            variants={stagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.25 }}
-          >
-            <motion.div variants={fadeUp}>
-              <div className="section-tag">Instruments</div>
-              <h2>Nanomechanical Test Instruments</h2>
-              <p className="services-block-lead">
-                Cutting-edge instrumentation for nanomechanical testing — from tabletop
-                to custom systems.
+            <DocCard id="agreements" className="services-doc-card--mini">
+              <span className="services-doc-kicker">Uptime</span>
+              <h2>Service Agreements</h2>
+              <p className="services-doc-lead">Reliability and uptime:</p>
+              <ul className="services-doc-list services-doc-list--checks">
+                {SERVICE_AGREEMENTS.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+              <p className="services-mini-foot">
+                <strong>High customer satisfaction</strong> through structured service support.
               </p>
-            </motion.div>
-          </motion.div>
+            </DocCard>
 
-          <motion.div
-            className="services-instrument-grid"
-            variants={stagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.1 }}
-          >
-            {INSTRUMENTS.map(({ name, desc }) => (
-              <motion.article
-                key={name}
-                className="services-instrument-card"
-                variants={fadeUp}
-              >
-                <h3>{name}</h3>
-                <p>{desc}</p>
-                <a href="/products" className="services-card-link">
-                  View in product portfolio <span aria-hidden="true">→</span>
-                </a>
-              </motion.article>
-            ))}
-          </motion.div>
+            <DocCard id="support" className="services-doc-card--mini">
+              <span className="services-doc-kicker">Help desk</span>
+              <h2>Technical Support Center</h2>
+              <p className="services-doc-lead">Dedicated support for:</p>
+              <ul className="services-doc-list services-doc-list--checks">
+                {TECH_SUPPORT.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+              <p className="services-mini-foot">
+                <strong>Product specialists</strong> are available when you need direct, expert help.
+              </p>
+            </DocCard>
+          </div>
         </div>
       </section>
 
       <PageCTA
         tag="Let's collaborate"
-        title="Discuss a project or"
-        highlight="testing scope"
-        lead="Reach out for consultancy, lab services, or instrument enquiries — our team responds within one business day."
+        title="Discuss testing, consultancy, or"
+        highlight="training & support"
+        lead="Reach out for NRL access, smart product engineering, or instrument-related enquiries — our global team will connect you with the right specialist."
         primary={{ label: 'Get in Touch', href: '/contact' }}
         secondary={{ label: 'Explore Products', href: '/products' }}
       />

@@ -1,0 +1,31 @@
+/* ============================================================
+   RESPONSIVE — new shared patterns
+   ============================================================ */
+@media (max-width: 1080px) {
+  .services-split              { grid-template-columns: 1fr; }
+  .contact-offices-grid        { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 960px) {
+  .page-hero                   { padding: 9rem 0 3.5rem; }
+  .page-section                { padding: 3.5rem 0; }
+  .page-cta-wrap               { padding: 3.5rem 0 4.5rem; }
+  .page-cta                    { grid-template-columns: 1fr; padding: 2.25rem; }
+  .page-cta-actions            { justify-content: flex-start; }
+  .contact-offices-grid        { grid-template-columns: 1fr; }
+  .contact-founder-card        { grid-template-columns: 1fr; text-align: left; padding: 1.75rem; }
+  .contact-founder-photo       { max-width: 180px; margin: 0 auto; }
+  .products-filter             { width: 100%; overflow-x: auto; flex-wrap: nowrap; }
+  .applications-filter         { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 0.25rem; }
+  .applications-filter-chip    { white-space: nowrap; flex-shrink: 0; }
+  .products-filter-chip        { white-space: nowrap; flex-shrink: 0; }
+}
+
+@media (max-width: 600px) {
+  .page-hero                   { padding: 8rem 0 2.5rem; }
+  .page-hero-title             { font-size: clamp(1.9rem, 7.5vw, 2.6rem); }
+  .page-cta                    { padding: 1.75rem; }
+  .page-cta-actions .btn-primary,
+  .page-cta-actions .btn-ghost { width: 100%; justify-content: center; }
+  .contact-founder-meta .btn-primary { width: 100%; justify-content: center; }
+}

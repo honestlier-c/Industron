@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 
 export default function Contact() {
   return (
@@ -13,8 +14,8 @@ export default function Contact() {
         >
           <div className="section-tag">Contact</div>
           <h2>
-            To learn more about our<br />
-            <span className="gradient-text">Products &amp; Services</span>
+            Connect with our<br />
+            <span className="gradient-text">Global Products &amp; Services Team</span>
           </h2>
         </motion.div>
 
@@ -26,8 +27,7 @@ export default function Contact() {
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         >
           <p>
-            For general enquiries, technical support, office locations, and team contacts,
-            visit our full contact page.
+            For global enquiries, technical support, office locations, and team contacts, visit our full contact page.
           </p>
           <p className="contact-home-quick">
             <strong>Email:</strong>{' '}
@@ -36,9 +36,9 @@ export default function Contact() {
             <strong>India:</strong>{' '}
             <a href="tel:+914712786500">+91 471 278 6500</a>
           </p>
-          <a href="/contact" className="btn-primary">
-            View contact &amp; offices <span aria-hidden="true">→</span>
-          </a>
+          <Link to="/contact" className="btn-primary">
+            View global contacts &amp; offices <span aria-hidden="true">→</span>
+          </Link>
         </motion.div>
       </div>
     </section>

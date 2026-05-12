@@ -1,0 +1,64 @@
+/* ============================================================
+   SERVICES — new split layout + centered heads + icon tiles
+   ============================================================ */
+
+/* Non-centered (R&D block): keep row layout, prevent tag stretching */
+.services-block-head:not(.services-block-head--centered) > div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+/* Centered variant — redesigned, tight and proper */
+.services-block-head--centered {
+  display: block;
+  text-align: center;
+  padding: 0;
+  border: 0;
+  margin: 0 auto 2.5rem;
+  max-width: 720px;
+}
+.services-block-head--centered > div {
+  display: block;
+}
+.services-block-head--centered .section-tag {
+  margin: 0 auto 0.85rem;
+}
+.services-block-head--centered h2 {
+  margin: 0 0 0.7rem;
+  font-size: clamp(1.7rem, 3vw, 2.2rem);
+  letter-spacing: -0.02em;
+}
+.services-block-head--centered .services-block-lead {
+  margin: 0 auto;
+  max-width: 600px;
+}
+
+/* R&D split */
+.services-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.75rem;
+  margin-top: 1.25rem;
+}
+.services-split-col .services-subheading {
+  margin-top: 0;
+}
+
+/* Material test cards — icon + content */
+.services-test-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--accent-dim);
+  border: 1px solid rgba(37, 99, 235, 0.22);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  margin-bottom: 0.8rem;
+}
+.services-test-card { position: relative; }
+

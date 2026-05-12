@@ -1,0 +1,52 @@
+/* ============================================================
+   PRODUCTS — filter chips, card top row, 3-col grid on wide
+   ============================================================ */
+.products-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 2rem;
+  padding: 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+  width: fit-content;
+}
+.products-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.52rem 1rem;
+  border: 0;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 0.88rem;
+  font-weight: 600;
+  border-radius: 11px;
+  cursor: pointer;
+  transition: background 0.22s ease, color 0.22s ease;
+}
+.products-filter-chip:hover { color: var(--text); }
+.products-filter-chip.is-active {
+  background: var(--gradient);
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.25);
+}
+.product-card-brand-logo {
+  height: 1.65rem;
+  width: auto;
+  max-width: min(42%, 7.5rem);
+  object-fit: contain;
+  object-position: left center;
+  flex-shrink: 0;
+}
+.product-card-cta {
+  margin-top: 0;
+  width: fit-content;
+  white-space: nowrap;
+}
+@media (min-width: 1100px) {
+  .products-grid { grid-template-columns: repeat(3, 1fr); }
+}
+

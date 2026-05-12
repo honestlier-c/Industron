@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 
 const CUSTOMERS = [
   { name: 'IISc Bangalore', logo: '/Website/Customer/iisc-1-150x132.png' },
@@ -42,10 +43,10 @@ export default function Research() {
           viewport={{ once: true }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="section-tag">Our Customers &amp; Collaborators</div>
+          <div className="section-tag">Global Customers &amp; Collaborators</div>
           <h2>
             Trusted Across<br />
-            <span className="gradient-text">India's Leading Institutions and Industries</span>
+            <span className="gradient-text">India&rsquo;s Leading Institutions and Industries</span>
           </h2>
         </motion.div>
 
@@ -56,10 +57,7 @@ export default function Research() {
           viewport={{ once: true }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
         >
-          With <strong>40+ installations</strong> across IISc, most IITs, national laboratories,
-          and industry partners, Industron is the preferred provider for nanomechanical testing
-          in India. Our worldwide collaboration network supports cutting-edge research in
-          materials science, biomedical engineering, aerospace, and semiconductors.
+          With <strong>40+ installations</strong> across top universities, national laboratories, and industry partners, Industron supports mission-critical nanomechanical testing programs worldwide. Our collaboration network accelerates breakthroughs in materials science, biomedical engineering, aerospace, and semiconductors.
         </motion.p>
 
         <motion.div
@@ -86,7 +84,7 @@ export default function Research() {
           viewport={{ once: true }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
         >
-          <a href="/contact" className="btn-primary">Get in Touch</a>
+          <Link to="/contact" className="btn-primary">Start a Global Conversation</Link>
         </motion.div>
       </div>
     </section>

@@ -1,0 +1,197 @@
+/* ============================================================
+   MESOPROBE — cinematic scrollytelling page
+   ============================================================ */
+.meso-page {
+  background: linear-gradient(180deg, #f7fbff 0%, #ffffff 48%, #ffffff 100%);
+  color: var(--text);
+}
+
+.meso-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.56rem 1.05rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  border: 1px solid rgba(0, 214, 255, 0.45);
+  background: linear-gradient(135deg, #0050ff 0%, #00d6ff 100%);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 6px 24px rgba(0, 80, 255, 0.3);
+}
+
+.meso-sequence {
+  height: 480vh;
+  position: relative;
+  border-top: 1px solid var(--border);
+}
+.meso-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: #ffffff;
+}
+.meso-sticky canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.meso-copy {
+  position: absolute;
+  max-width: 540px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(14px);
+  transition: opacity 0.28s ease, transform 0.28s ease, visibility 0.28s ease;
+}
+.meso-copy.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+.meso-copy--center {
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  top: 19vh;
+}
+.meso-copy--left {
+  left: min(8vw, 108px);
+  top: 30vh;
+}
+.meso-copy--right {
+  right: min(8vw, 108px);
+  top: 30vh;
+  text-align: left;
+}
+.meso-copy--final {
+  top: auto;
+  bottom: 14vh;
+}
+.meso-copy--center.is-active {
+  transform: translateX(-50%);
+}
+.meso-kicker {
+  margin: 0 0 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.68rem;
+  color: var(--accent);
+}
+.meso-copy h1,
+.meso-copy h2 {
+  margin: 0;
+  letter-spacing: -0.02em;
+  line-height: 1.03;
+  font-size: clamp(2rem, 4.6vw, 4.2rem);
+  color: var(--text);
+  text-wrap: balance;
+}
+.meso-copy h2 {
+  font-size: clamp(1.45rem, 3vw, 2.7rem);
+}
+.meso-sub,
+.meso-copy p {
+  margin-top: 0.9rem;
+  font-size: clamp(1rem, 1.34vw, 1.1rem);
+  line-height: 1.78;
+  color: var(--text-dim);
+}
+
+.meso-final-actions,
+.meso-buy-actions {
+  display: flex;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  margin-top: 1.3rem;
+  justify-content: center;
+}
+.meso-link {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.meso-info {
+  background: linear-gradient(180deg, #f8fbff 0%, #f2f7ff 100%);
+  padding: 5.5rem 0;
+  border-top: 1px solid var(--border);
+}
+.meso-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+.meso-info article {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.35rem 1.3rem;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+}
+.meso-info h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  color: var(--text);
+}
+.meso-info p {
+  margin: 0;
+  color: var(--text-dim);
+  line-height: 1.72;
+}
+
+.meso-buy {
+  padding: 4.5rem 0 5.4rem;
+  text-align: center;
+  border-top: 1px solid var(--border);
+  background: #fff;
+}
+.meso-buy h2 {
+  margin: 0;
+  color: var(--text);
+}
+.meso-buy p {
+  margin: 1rem auto 0;
+  max-width: 700px;
+  color: var(--text-dim);
+  line-height: 1.74;
+}
+
+@media (max-width: 1100px) {
+  .meso-copy--left,
+  .meso-copy--right {
+    left: 7vw;
+    right: 7vw;
+    max-width: 560px;
+  }
+}
+
+@media (max-width: 760px) {
+  .meso-cta {
+    padding: 0.52rem 0.9rem;
+    font-size: 0.75rem;
+  }
+  .meso-sequence {
+    height: 420vh;
+  }
+  .meso-copy--center {
+    top: 16vh;
+    width: min(88vw, 540px);
+  }
+  .meso-copy--left,
+  .meso-copy--right {
+    top: 24vh;
+  }
+  .meso-copy--final {
+    bottom: 10vh;
+  }
+  .meso-info-grid {
+    grid-template-columns: 1fr;
+  }
+}

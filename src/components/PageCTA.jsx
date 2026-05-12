@@ -1,4 +1,36 @@
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
+
+function isInternal(href = '') {
+  return href.startsWith('/') && !href.startsWith('//')
+}
+
+function CTAButton({ action, variant }) {
+  if (!action) return null
+  const className = variant === 'primary' ? 'btn-primary' : 'btn-ghost'
+  const arrow =
+    variant === 'primary' ? (
+      <>
+        {' '}
+        <span aria-hidden="true">→</span>
+      </>
+    ) : null
+
+  if (isInternal(action.href)) {
+    return (
+      <Link to={action.href} className={className}>
+        {action.label}
+        {arrow}
+      </Link>
+    )
+  }
+  return (
+    <a href={action.href} className={className}>
+      {action.label}
+      {arrow}
+    </a>
+  )
+}
 
 export default function PageCTA({
   tag = "Let's collaborate",
@@ -32,16 +64,8 @@ export default function PageCTA({
             {lead && <p>{lead}</p>}
           </div>
           <div className="page-cta-actions">
-            {primary && (
-              <a href={primary.href} className="btn-primary">
-                {primary.label} <span aria-hidden="true">→</span>
-              </a>
-            )}
-            {secondary && (
-              <a href={secondary.href} className="btn-ghost">
-                {secondary.label}
-              </a>
-            )}
+            <CTAButton action={primary} variant="primary" />
+            <CTAButton action={secondary} variant="ghost" />
           </div>
         </motion.div>
       </div>
