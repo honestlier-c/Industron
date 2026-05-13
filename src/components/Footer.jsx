@@ -54,7 +54,9 @@ export default function Footer() {
             </Link>
             <p>
               Designing, developing and marketing high performance scientific instruments
-              since 2011. Trivandrum, India · Edina, MN, USA.
+              since 2011.<br />
+              Trivandrum, India  <br />
+              Edina, MN, USA
             </p>
           </div>
 
