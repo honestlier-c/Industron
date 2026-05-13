@@ -178,29 +178,34 @@
     height: 300vh;
   }
 
-  /* Flex column: canvas on top, text panel beneath — no gap */
+  /*
+   * 3840×2160 frames are 16:9. At full viewport width the intrinsic height is
+   * 100vw × 9/16. A fixed 58vh canvas leaves a large letterbox band above the
+   * text — use the smaller of 58vh and that intrinsic height so the image sits
+   * flush with the copy panel.
+   */
   .meso-sticky {
+    --meso-canvas-h: min(58vh, calc(100vw * 9 / 16));
     display: flex;
     flex-direction: column;
     overflow: hidden;
   }
 
-  /* Canvas occupies exactly the top 58 % */
   .meso-sticky canvas {
-    flex: 0 0 58vh;
+    flex: 0 0 var(--meso-canvas-h);
     width: 100% !important;
-    height: 58vh !important;
+    height: var(--meso-canvas-h) !important;
     display: block;
   }
 
-  /* Permanent white backdrop that fills the bottom 42 % */
+  /* White panel fills everything below the canvas (no fixed 42vh gap) */
   .meso-sticky::after {
     content: '';
     position: absolute;
     left: 0;
     right: 0;
+    top: var(--meso-canvas-h);
     bottom: 0;
-    height: 42vh;
     background: #fff;
     border-top: 1px solid var(--border);
     border-radius: 18px 18px 0 0;
@@ -213,11 +218,11 @@
     position: absolute;
     left: 0;
     right: 0;
-    top: 58vh;
+    top: var(--meso-canvas-h);
     bottom: auto;
     max-width: 100%;
     transform: translateY(10px);
-    padding: 1.1rem 1.25rem 1.6rem;
+    padding: 0.85rem 1.15rem 1.35rem;
     background: transparent;
     border-radius: 0;
     border: none;
@@ -236,7 +241,7 @@
   .meso-copy--final {
     left: 0;
     right: 0;
-    top: 58vh;
+    top: var(--meso-canvas-h);
     bottom: auto;
     text-align: left;
     transform: translateY(10px);
