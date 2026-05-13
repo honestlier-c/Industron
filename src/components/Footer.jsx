@@ -13,7 +13,6 @@ const COLS = [
   {
     title: 'Products',
     links: [
-      { label: 'NanoGuru®', href: '/products/ng50' },
       { label: 'NG50', href: '/products/ng50' },
       { label: 'NG80', href: '/products/ng80' },
       { label: 'μProbe', href: '/products/uprobe-500' },
