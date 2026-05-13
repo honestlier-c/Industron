@@ -353,7 +353,7 @@ export const PRODUCTS = [
   p({
     slug: 'mesoprobe',
     name: 'MesoProbe',
-    image: `${IMG}/MesoProbe.jpg`,
+    image: `${IMG}/MesoProbe.png`,
     ...SCROLL_SEQUENCE,
     category: 'Education and Research',
     shortDesc:
