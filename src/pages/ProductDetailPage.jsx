@@ -8,8 +8,8 @@ import { DEFAULT_SCROLL_BEATS, getBeatOpacity } from '../data/scrollBeats'
 import { useScrollSequence } from '../hooks/useScrollSequence'
 import { fadeUp, stagger } from '../motion/presets'
 
-function BeatCopy({ beatKey, beatFrames, progress, className, children }) {
-  const opacity = useTransform(progress, (p) => getBeatOpacity(p, beatFrames, beatKey))
+function BeatCopy({ beatKey, beatFrames, totalFrames, progress, className, children }) {
+  const opacity = useTransform(progress, (p) => getBeatOpacity(p, beatFrames, beatKey, totalFrames))
   const y = useTransform(opacity, (o) => 28 * (1 - o))
   const pointerEvents = useTransform(opacity, (o) => (o > 0.08 ? 'auto' : 'none'))
 
@@ -77,7 +77,6 @@ function SequenceDetailPage({ product }) {
     canvasRef,
     frameUrls,
     enabled: true,
-    beatFrames,
     progressMotion: scrollProgress,
   })
 
@@ -112,31 +111,31 @@ function SequenceDetailPage({ product }) {
         <div className="meso-sticky">
           <canvas ref={canvasRef} aria-label={`${name} product visual`} />
 
-          <BeatCopy beatKey="intro" beatFrames={beatFrames} progress={scrollProgress} className="meso-copy--right">
+          <BeatCopy beatKey="intro" beatFrames={beatFrames} totalFrames={product.frameCount} progress={scrollProgress} className="meso-copy--right">
             <p className="meso-kicker">{beats.intro.kicker}</p>
             <h2>{beats.intro.heading}</h2>
             <p className="meso-sub">{beats.intro.sub}</p>
           </BeatCopy>
 
-          <BeatCopy beatKey="engineering" beatFrames={beatFrames} progress={scrollProgress} className="meso-copy--left">
+          <BeatCopy beatKey="engineering" beatFrames={beatFrames} totalFrames={product.frameCount} progress={scrollProgress} className="meso-copy--left">
             <p className="meso-kicker">{beats.engineering.kicker}</p>
             <h2>{beats.engineering.heading}</h2>
             <p>{beats.engineering.text}</p>
           </BeatCopy>
 
-          <BeatCopy beatKey="control" beatFrames={beatFrames} progress={scrollProgress} className="meso-copy--right">
+          <BeatCopy beatKey="control" beatFrames={beatFrames} totalFrames={product.frameCount} progress={scrollProgress} className="meso-copy--right">
             <p className="meso-kicker">{beats.control.kicker}</p>
             <h2>{beats.control.heading}</h2>
             <p>{beats.control.text}</p>
           </BeatCopy>
 
-          <BeatCopy beatKey="performance" beatFrames={beatFrames} progress={scrollProgress} className="meso-copy--left">
+          <BeatCopy beatKey="performance" beatFrames={beatFrames} totalFrames={product.frameCount} progress={scrollProgress} className="meso-copy--left">
             <p className="meso-kicker">{beats.performance.kicker}</p>
             <h2>{beats.performance.heading}</h2>
             <p>{beats.performance.text}</p>
           </BeatCopy>
 
-          <BeatCopy beatKey="final" beatFrames={beatFrames} progress={scrollProgress} className="meso-copy--left meso-copy--final">
+          <BeatCopy beatKey="final" beatFrames={beatFrames} totalFrames={product.frameCount} progress={scrollProgress} className="meso-copy--left meso-copy--final">
             <p className="meso-kicker">{beats.final.kicker}</p>
             <h2>{beats.final.heading}</h2>
             <p>{beats.final.text}</p>
@@ -153,7 +152,7 @@ function SequenceDetailPage({ product }) {
   )
 }
 
-/* ── Static detail (NG50, NG80, μProbe 500, …) ──────────────────────── */
+/* ── Static detail (products without a frame sequence) ─────────────── */
 function StaticDetailPage({ product }) {
   const { name, slug, shortDesc, hero, beats, info } = product
 

@@ -1,6 +1,6 @@
 /**
- * Default scroll-sync beat → frame ranges (1-based frame numbers).
- * Used by all products with a JPEG scroll sequence unless overridden per product.
+ * Beat ranges control TEXT only (when copy fades in).
+ * Frames always scrub linearly 1 → totalFrames — nothing is skipped.
  */
 export const DEFAULT_SCROLL_BEATS = [
   { key: 'intro',       start: 1,  end: 8 },
@@ -10,42 +10,44 @@ export const DEFAULT_SCROLL_BEATS = [
   { key: 'final',       start: 57, end: null },
 ]
 
-/** Active beat key from overall scroll progress (0–1), split into equal segments. */
-export function getBeatFromProgress(progress, beats = DEFAULT_SCROLL_BEATS) {
-  const n = beats.length
+/** Scroll progress (0–1) → frame index (0-based). Every frame gets scroll space. */
+export function progressToFrameIndex(progress, totalFrames) {
+  const max = Math.max(0, totalFrames - 1)
   const clamped = Math.min(1, Math.max(0, progress))
-  if (clamped >= 1) return beats[n - 1].key
-  const idx = Math.min(n - 1, Math.floor(clamped * n))
-  return beats[idx].key
+  return Math.round(clamped * max)
 }
 
-/** Opacity for a beat panel — smooth fade in/out within each scroll segment (0–1). */
-export function getBeatOpacity(progress, beats, beatKey) {
-  const n = beats.length
-  const idx = beats.findIndex((b) => b.key === beatKey)
-  if (idx < 0) return 0
+/** Current 1-based frame number from scroll progress. */
+export function progressToFrameNumber(progress, totalFrames) {
+  return progressToFrameIndex(progress, totalFrames) + 1
+}
 
-  const segSize = 1 / n
-  const segStart = idx * segSize
-  const local = (progress - segStart) / segSize
+/** Text opacity — visible only while the current frame is inside this beat's range. */
+export function getBeatOpacity(progress, beats, beatKey, totalFrames) {
+  const beat = beats.find((b) => b.key === beatKey)
+  if (!beat) return 0
 
-  if (local <= 0 || local >= 1) return 0
+  const frame = progressToFrameIndex(progress, totalFrames)
+  const start = beat.start - 1
+  const end = (beat.end ?? totalFrames) - 1
 
-  const fade = 0.28
+  if (frame < start || frame > end) return 0
+
+  const span = Math.max(1, end - start)
+  const local = (frame - start) / span
+  const fade = 0.18
   if (local < fade) return local / fade
   if (local > 1 - fade) return (1 - local) / fade
   return 1
 }
 
-/** Map scroll progress (0–1) to a loaded-frame array index using beat frame ranges. */
-export function progressToFrameIndex(progress, beats, totalFrames) {
-  const n = beats.length
-  const clamped = Math.min(1, Math.max(0, progress))
-  const scaled = clamped * n
-  const idx = Math.min(n - 1, Math.floor(scaled))
-  const localT = scaled - idx
-  const beat = beats[idx]
-  const start = beat.start - 1
-  const end = (beat.end ?? totalFrames) - 1
-  return Math.round(start + localT * Math.max(0, end - start))
+/** Which beat (if any) the current frame falls in — for debugging / optional use. */
+export function getBeatFromProgress(progress, beats = DEFAULT_SCROLL_BEATS, totalFrames = 64) {
+  const frame = progressToFrameIndex(progress, totalFrames)
+  for (const beat of beats) {
+    const start = beat.start - 1
+    const end = (beat.end ?? totalFrames) - 1
+    if (frame >= start && frame <= end) return beat.key
+  }
+  return null
 }

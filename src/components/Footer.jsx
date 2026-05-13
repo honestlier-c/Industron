@@ -13,9 +13,9 @@ const COLS = [
   {
     title: 'Products',
     links: [
-      { label: 'NanoGuru®', href: '/products' },
-      { label: 'NG50 / NG80', href: '/products' },
-      { label: 'μProbe', href: '/products' },
+      { label: 'NanoGuru®', href: '/products/ng50' },
+      { label: 'NG50 / NG80', href: '/products/ng50' },
+      { label: 'μProbe', href: '/products/uprobe-500' },
       { label: 'MesoProbe', href: '/products/mesoprobe' },
       { label: 'Hysitron Instruments', href: '/products' },
     ],

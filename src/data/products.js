@@ -3,11 +3,21 @@
 
    framesFolder → public folder for ezgif-frame-###.jpg sequences
    Omit framesFolder to use /MesoProbe until a product-specific folder exists.
-   Card images      → public/Products_Image/ (see `image` on each product)
+   scrollBeats    → text-only windows; frames always play 1…frameCount linearly
+   Card images    → public/Products_Image/ (see `image` on each product)
    ============================================================ */
 
-/** Default scroll-sequence folder — only used when a product explicitly opts in via frameCount */
+import { DEFAULT_SCROLL_BEATS } from './scrollBeats'
+
+/** Default scroll-sequence folder — placeholder until product-specific assets exist */
 const DEFAULT_FRAMES_FOLDER = '/MesoProbe'
+
+/** Shared scroll-sequence defaults (MesoProbe, NG50, NG80, μProbe 500, …) */
+const SCROLL_SEQUENCE = {
+  frameCount: 64,
+  framesFolder: DEFAULT_FRAMES_FOLDER,
+  scrollBeats: DEFAULT_SCROLL_BEATS,
+}
 
 /** Product card thumbnails — files in public/Products_Image/ */
 const IMG = '/Products_Image'
@@ -79,6 +89,7 @@ function p({
   image,
   frameCount,
   framesFolder: framesFolderOverride,
+  scrollBeats: scrollBeatsOverride,
 }) {
   const short = beatsHeading || name.split(/[–-]/)[0].trim()
   return {
@@ -97,6 +108,7 @@ function p({
     ...(frameCount ? {
       frameCount,
       framesFolder: framesFolderOverride ?? DEFAULT_FRAMES_FOLDER,
+      scrollBeats: scrollBeatsOverride ?? DEFAULT_SCROLL_BEATS,
     } : {}),
     ...(externalUrl ? { externalUrl } : {}),
   }
@@ -268,7 +280,7 @@ export const PRODUCTS = [
     slug: 'uprobe-500',
     name: 'μProbe 500',
     image: `${IMG}/μProbe500.png`,
-    frameCount: 64,
+    ...SCROLL_SEQUENCE,
     category: 'Education and Research',
     shortDesc:
       'Depth-sensing micro-indenter for education and research: hardness and modulus, depth profiling, partial unload, automation, and advanced materials characterization up to 500 mN.',
@@ -342,7 +354,7 @@ export const PRODUCTS = [
     slug: 'mesoprobe',
     name: 'MesoProbe',
     image: `${IMG}/MesoProbe.jpg`,
-    frameCount: 64,
+    ...SCROLL_SEQUENCE,
     category: 'Education and Research',
     shortDesc:
       'Versatile, high-throughput meso-scale mechanical testing with in-situ optical microscopy, DIC, nanometre resolution, large actuation distance, and large force range—up to 600 °C.',
@@ -417,7 +429,7 @@ export const PRODUCTS = [
     slug: 'ng50',
     name: 'NG50',
     image: `${IMG}/NG50.png`,
-    frameCount: 64,
+    ...SCROLL_SEQUENCE,
     category: 'Desktop',
     shortDesc:
       'NanoGuru® turnkey nanomechanical education: instrumentation plus Practicum© curriculum, samples, and experiments for undergraduate nanoscale science and materials.',
@@ -487,7 +499,7 @@ export const PRODUCTS = [
     slug: 'ng80',
     name: 'NG80',
     image: `${IMG}/NG80.png`,
-    frameCount: 64,
+    ...SCROLL_SEQUENCE,
     category: 'Desktop',
     shortDesc:
       'High-throughput nanomechanical test platform: scanning nanoWear, high-speed indentation, nanoScratch, quasistatic nanoindentation, fracture toughness, and in-situ SPM imaging.',

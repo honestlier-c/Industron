@@ -4,22 +4,9 @@ import { progressToFrameIndex } from '../data/scrollBeats'
 const MAX_CONSECUTIVE_MISSES = 6
 const PRELOAD_CONCURRENCY = 6
 
-/** Frame indices used by beat ranges — preload these first so scroll works early. */
-function priorityIndices(beatFrames, total) {
-  if (!beatFrames?.length) {
-    return Array.from({ length: total }, (_, i) => i)
-  }
-  const set = new Set()
-  for (const beat of beatFrames) {
-    const end = beat.end ?? total
-    for (let n = beat.start; n <= end; n += 1) set.add(n - 1)
-  }
-  const priority = [...set].sort((a, b) => a - b)
-  const rest = []
-  for (let i = 0; i < total; i += 1) {
-    if (!set.has(i)) rest.push(i)
-  }
-  return [...priority, ...rest]
+/** Preload in frame order 0…n-1 so playback never jumps ahead. */
+function sequentialIndices(total) {
+  return Array.from({ length: total }, (_, i) => i)
 }
 
 function nearestLoadedIndex(images, target) {
@@ -54,7 +41,6 @@ export function useScrollSequence({
   canvasRef,
   frameUrls,
   enabled,
-  beatFrames,
   progressMotion,
 }) {
   const imagesRef = useRef([])
@@ -70,12 +56,8 @@ export function useScrollSequence({
     const ctx = canvas.getContext('2d')
     if (!ctx) return undefined
 
-    const resolveFrameIndex = (progress) => {
-      if (beatFrames?.length) {
-        return progressToFrameIndex(progress, beatFrames, totalSourceFrames)
-      }
-      return Math.round(progress * Math.max(0, totalSourceFrames - 1))
-    }
+    const resolveFrameIndex = (progress) =>
+      progressToFrameIndex(progress, totalSourceFrames)
 
     const renderFrame = (index, force = false) => {
       const loaded = nearestLoadedIndex(imagesRef.current, index)
@@ -141,7 +123,7 @@ export function useScrollSequence({
     lastRenderedFrameRef.current = -1
 
     const preload = async () => {
-      const order = priorityIndices(beatFrames, totalSourceFrames)
+      const order = sequentialIndices(totalSourceFrames)
       let next = 0
       let misses = 0
 
@@ -195,7 +177,7 @@ export function useScrollSequence({
       window.removeEventListener('resize', onResize)
       io.disconnect()
     }
-  }, [frameUrls, enabled, sectionRef, canvasRef, beatFrames, progressMotion, totalSourceFrames])
+  }, [frameUrls, enabled, sectionRef, canvasRef, progressMotion, totalSourceFrames])
 
   return {}
 }
