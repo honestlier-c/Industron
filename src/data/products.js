@@ -2,10 +2,12 @@
    PRODUCTS — listing + detail pages (/products/:slug)
 
    framesFolder → public folder for ezgif-frame-###.jpg sequences
+   Omit framesFolder to use /MesoProbe until a product-specific folder exists.
    Card images      → public/Products_Image/ (see `image` on each product)
    ============================================================ */
 
-const FRAMES = '/MesoProbe'
+/** Default scroll-sequence folder — only used when a product explicitly opts in via frameCount */
+const DEFAULT_FRAMES_FOLDER = '/MesoProbe'
 
 /** Product card thumbnails — files in public/Products_Image/ */
 const IMG = '/Products_Image'
@@ -76,6 +78,7 @@ function p({
   cardLogoAlt,
   image,
   frameCount,
+  framesFolder: framesFolderOverride,
 }) {
   const short = beatsHeading || name.split(/[–-]/)[0].trim()
   return {
@@ -85,13 +88,16 @@ function p({
     image: image ?? '/industron-logo.png',
     shortDesc,
     exploreTo: `/products/${slug}`,
-    framesFolder: FRAMES,
     hero: heroOverride ?? defaultHero(name, highlight, lead, badges),
     beats: beatsOverride ?? defaultBeats(short, beatsTagline || shortDesc),
     info: info || defaultInfo,
     cardLogo: cardLogo ?? DEFAULT_CARD_LOGO,
     cardLogoAlt: cardLogoAlt ?? 'Industron',
-    ...(frameCount ? { frameCount } : {}),
+    // Only include sequence fields when the product has a scroll animation
+    ...(frameCount ? {
+      frameCount,
+      framesFolder: framesFolderOverride ?? DEFAULT_FRAMES_FOLDER,
+    } : {}),
     ...(externalUrl ? { externalUrl } : {}),
   }
 }
@@ -259,9 +265,10 @@ export const PRODUCTS = [
 
   // —— Education and Research ——
   p({
-    slug: 'μProbe-500',
+    slug: 'uprobe-500',
     name: 'μProbe 500',
     image: `${IMG}/μProbe500.png`,
+    frameCount: 64,
     category: 'Education and Research',
     shortDesc:
       'Depth-sensing micro-indenter for education and research: hardness and modulus, depth profiling, partial unload, automation, and advanced materials characterization up to 500 mN.',
@@ -335,7 +342,7 @@ export const PRODUCTS = [
     slug: 'mesoprobe',
     name: 'MesoProbe',
     image: `${IMG}/MesoProbe.jpg`,
-    frameCount: 54,
+    frameCount: 64,
     category: 'Education and Research',
     shortDesc:
       'Versatile, high-throughput meso-scale mechanical testing with in-situ optical microscopy, DIC, nanometre resolution, large actuation distance, and large force range—up to 600 °C.',
@@ -410,6 +417,7 @@ export const PRODUCTS = [
     slug: 'ng50',
     name: 'NG50',
     image: `${IMG}/NG50.png`,
+    frameCount: 64,
     category: 'Desktop',
     shortDesc:
       'NanoGuru® turnkey nanomechanical education: instrumentation plus Practicum© curriculum, samples, and experiments for undergraduate nanoscale science and materials.',
@@ -479,6 +487,7 @@ export const PRODUCTS = [
     slug: 'ng80',
     name: 'NG80',
     image: `${IMG}/NG80.png`,
+    frameCount: 64,
     category: 'Desktop',
     shortDesc:
       'High-throughput nanomechanical test platform: scanning nanoWear, high-speed indentation, nanoScratch, quasistatic nanoindentation, fracture toughness, and in-situ SPM imaging.',
@@ -551,3 +560,14 @@ export const PRODUCTS = [
 ]
 
 export const PRODUCT_BY_SLUG = Object.fromEntries(PRODUCTS.map((prod) => [prod.slug, prod]))
+
+// Validate slug uniqueness and required fields at module load (caught during dev/build)
+if (import.meta.env.DEV) {
+  const seen = new Set()
+  for (const prod of PRODUCTS) {
+    if (!prod.slug) console.error('[products] Missing slug:', prod.name)
+    if (!prod.name) console.error('[products] Missing name on slug:', prod.slug)
+    if (seen.has(prod.slug)) console.error('[products] Duplicate slug:', prod.slug)
+    seen.add(prod.slug)
+  }
+}

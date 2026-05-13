@@ -4,6 +4,7 @@
 .meso-page {
   background: linear-gradient(180deg, #f7fbff 0%, #ffffff 48%, #ffffff 100%);
   color: var(--text);
+  scroll-behavior: auto;
 }
 
 .meso-cta {
@@ -52,6 +53,12 @@
   visibility: visible;
   pointer-events: auto;
   transform: translateY(0);
+}
+/* Framer Motion drives opacity + transform — do not set them here */
+.meso-copy.meso-copy--motion {
+  visibility: visible;
+  pointer-events: none;
+  transition: none;
 }
 .meso-copy--center {
   left: 50%;
@@ -221,7 +228,6 @@
     top: var(--meso-canvas-h);
     bottom: auto;
     max-width: 100%;
-    transform: translateY(10px);
     padding: 0.85rem 1.15rem 1.35rem;
     background: transparent;
     border-radius: 0;
@@ -229,6 +235,10 @@
     box-shadow: none;
     text-align: left;
     z-index: 1;
+  }
+  .meso-copy.meso-copy--motion {
+    visibility: visible;
+    transition: none;
   }
   .meso-copy.is-active {
     transform: translateY(0);
@@ -244,7 +254,6 @@
     top: var(--meso-canvas-h);
     bottom: auto;
     text-align: left;
-    transform: translateY(10px);
   }
   .meso-copy--left.is-active,
   .meso-copy--right.is-active,

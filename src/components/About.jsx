@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 
 const SERVICES = [
   {
+    id: 'rd',
     icon: '◈',
     title: 'Research & Development',
     paragraphs: [
@@ -11,15 +12,17 @@ const SERVICES = [
     ],
   },
   {
+    id: 'instruments',
     icon: '⊙',
     title: 'Mechanical Testing Instruments & Anti‑Vibration Tables',
     paragraphs: [
-      'Today, Industron is a leading solution provider for mechanical testing and materials characterization, addressing length scales from nano to meso. The company takes pride in developing the world’s first affordable depth‑sensing indentation system spanning the micro‑ to meso‑scale, effectively bridging a critical gap in advanced materials characterization.',
-      'In addition to high‑performance research‑grade systems, Industron is actively developing educational and training instruments to support fundamental research, hands‑on learning, and routine laboratory operations. Complementing its indigenous innovations, Industron offers state‑of‑the‑art nanomechanical testing solutions from Bruker’s Hysitron portfolio, including flagship platforms such as the TI 990, TI 980, and TI Premier II.',
+        "Today, Industron is a leading solution provider for mechanical testing and materials characterization, addressing length scales from nano to meso. The company takes pride in developing the world\u2019s first affordable depth\u2011sensing indentation system spanning the micro\u2011 to meso\u2011scale, effectively bridging a critical gap in advanced materials characterization.",
+        "In addition to high\u2011performance research\u2011grade systems, Industron is actively developing educational and training instruments to support fundamental research, hands\u2011on learning, and routine laboratory operations. Complementing its indigenous innovations, Industron offers state\u2011of\u2011the\u2011art nanomechanical testing solutions from Bruker\u2019s Hysitron portfolio, including flagship platforms such as the TI 990, TI 980, and TI Premier II.",
       'Further strengthening its product ecosystem, Industron is indigenously developing anti‑vibration tables and essential surface‑characterization accessories, enabling high‑precision measurements and stable experimental environments.',
     ],
   },
   {
+    id: 'testing',
     icon: '◇',
     title: 'Advanced Material Testing',
     paragraphs: [
@@ -48,9 +51,9 @@ export default function About() {
         </motion.div>
 
         <div className="services-grid">
-          {SERVICES.map(({ icon, title, paragraphs }, i) => (
+          {SERVICES.map(({ id, icon, title, paragraphs }, i) => (
             <motion.div
-              key={title}
+              key={id}
               className="service-card"
               initial={{ opacity: 0, y: 28 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -62,17 +65,13 @@ export default function About() {
               {paragraphs.map((text, j) => (
                 <p key={j}>{text}</p>
               ))}
-              {title === 'Mechanical Testing Instruments & Anti‑Vibration Tables' && (
-                <a href="#hero" className="btn-primary" style={{ marginTop: '0.75rem', width: 'fit-content' }}>
+              {id === 'instruments' && (
+                <a href="#hero" className="btn-primary service-card-cta">
                   Instruments
                 </a>
               )}
-              {title === 'Advanced Material Testing' && (
-                <Link
-                  to="/testing-form"
-                  className="btn-primary"
-                  style={{ marginTop: '0.75rem', width: 'fit-content', display: 'inline-flex' }}
-                >
+              {id === 'testing' && (
+                <Link to="/testing-form" className="btn-primary service-card-cta">
                   Enquiry for testing
                 </Link>
               )}

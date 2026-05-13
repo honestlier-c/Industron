@@ -78,14 +78,33 @@ export default function Footer() {
           <span>© 2026 Industron Nanotechnology Pvt Ltd. All rights reserved.</span>
           <div className="footer-socials">
             {[
-              { href: '#', label: 'Li', title: 'LinkedIn' },
-              { href: '#', label: 'Tw', title: 'Twitter'  },
-              { href: '#', label: 'Yt', title: 'YouTube'  },
-            ].map(({ href, label, title }) => (
-              <a key={title} href={href} className="footer-social" aria-label={title} title={title}>
-                {label}
-              </a>
-            ))}
+              { href: 'https://www.linkedin.com/company/industron-nanotechnology', label: 'Li', title: 'LinkedIn' },
+              { href: '#', label: 'Tw', title: 'Twitter', comingSoon: true },
+              { href: '#', label: 'Yt', title: 'YouTube', comingSoon: true },
+            ].map(({ href, label, title, comingSoon }) =>
+              comingSoon ? (
+                <span
+                  key={title}
+                  className="footer-social footer-social--disabled"
+                  aria-label={`${title} (coming soon)`}
+                  title={`${title} — coming soon`}
+                >
+                  {label}
+                </span>
+              ) : (
+                <a
+                  key={title}
+                  href={href}
+                  className="footer-social"
+                  aria-label={title}
+                  title={title}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {label}
+                </a>
+              )
+            )}
           </div>
         </div>
       </div>

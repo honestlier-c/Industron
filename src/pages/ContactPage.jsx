@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion'
 import PageHero from '../components/PageHero'
+import { fadeUp, stagger } from '../motion/presets'
+import SEOMeta from '../components/SEOMeta'
 
 const OFFICES = [
   {
@@ -30,18 +32,14 @@ const OFFICES = [
   },
 ]
 
-const stagger = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.07 } },
-}
-const fadeUp = {
-  hidden: { opacity: 0, y: 22 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
-}
-
 export default function ContactPage() {
   return (
     <main className="contact-page">
+      <SEOMeta
+        title="Contact"
+        description="Contact Industron for technical support, product guidance, material testing enquiries, or strategic collaborations. Offices in Trivandrum, India and Edina, MN, USA."
+        canonical="https://www.industronnano.com/contact"
+      />
       <PageHero
         tag="Contact"
         title="We'd love to"
@@ -82,7 +80,7 @@ export default function ContactPage() {
                 <dt>India office</dt>
                 <dd><a href="tel:+914712786500">+91 471 278 6500</a></dd>
                 <dt>USA office</dt>
-                <dd><a href="tel:+19522216227">+1 95 222 16 227</a></dd>
+                <dd><a href="tel:+19522216227">+1 952 221 6227</a></dd>
               </dl>
             </motion.article>
 

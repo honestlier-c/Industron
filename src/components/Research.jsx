@@ -30,7 +30,9 @@ const CUSTOMERS = [
   { name: 'RVCE', logo: '/Website/Customer/RVCE.png' },
 ]
 
-const CUSTOMER_LOOP = [...CUSTOMERS, ...CUSTOMERS]
+// Duplicate just enough entries to fill the track for seamless CSS scrolling
+// Using a smaller repeat factor instead of the full array × 2
+const CUSTOMER_LOOP = [...CUSTOMERS, ...CUSTOMERS.slice(0, Math.ceil(CUSTOMERS.length / 2))]
 
 export default function Research() {
   return (

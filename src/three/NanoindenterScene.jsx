@@ -184,8 +184,7 @@ function SampleSurface({ indentRef, ringRefs, glowRef, useReflection }) {
    Chart — axes, ticks, loading/unloading curves, residual drop-line
 ================================================================== */
 function ForceDepthChart({ cycleRef }) {
-  const dotRef     = useRef()
-  const dropLineRef = useRef()
+  const dotRef = useRef()
 
   const {
     loadingLine, unloadingLine, axes, frame, tickMarks, dropLine, N
@@ -328,7 +327,7 @@ function ForceDepthChart({ cycleRef }) {
 
       <primitive object={tickMarks} />
       <primitive object={axes} />
-      <primitive object={dropLine} ref={dropLineRef} />
+      <primitive object={dropLine} />
       <primitive object={loadingLine} />
       <primitive object={unloadingLine} />
 

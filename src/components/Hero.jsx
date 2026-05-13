@@ -1,8 +1,9 @@
-import { Canvas } from '@react-three/fiber'
-import { Suspense, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import NanoindenterScene from '../three/NanoindenterScene'
+
+// Lazy-load the heavy Three.js / R3F canvas so it only enters the bundle when needed
+const HeroCanvas = lazy(() => import('./HeroCanvas'))
 
 const fadeUp = {
   hidden:  { opacity: 0, y: 36 },
@@ -12,6 +13,7 @@ const fadeUp = {
     transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: i * 0.12 },
   }),
 }
+// Note: Hero uses a custom longer delay variant so it keeps its own fadeUp above.
 
 export default function Hero() {
   const mouse     = useRef([0, 0])
@@ -57,16 +59,10 @@ export default function Hero() {
   return (
     <section className="hero" id="hero">
       {!isNarrow && (
-        <div className="hero-canvas">
-          <Canvas
-            camera={{ position: [0, 0.15, 7.0], fov: 44 }}
-            gl={{ antialias: true, alpha: true }}
-            dpr={[1, 2]}
-          >
-            <Suspense fallback={null}>
-              <NanoindenterScene mouse={mouse} scrollRef={scrollRef} />
-            </Suspense>
-          </Canvas>
+        <div className="hero-canvas" aria-hidden="true">
+          <Suspense fallback={null}>
+            <HeroCanvas mouse={mouse} scrollRef={scrollRef} />
+          </Suspense>
         </div>
       )}
 

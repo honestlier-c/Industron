@@ -4,23 +4,10 @@ import { Link } from 'react-router-dom'
 import PageHero from '../components/PageHero'
 import PageCTA from '../components/PageCTA'
 import { PRODUCTS } from '../data/products'
+import { fadeUp } from '../motion/presets'
+import SEOMeta from '../components/SEOMeta'
 
-const CATEGORIES = [
-  'All',
-  'Standalone',
-  'In-Situ',
-  'Education and Research',
-  'Desktop',
-]
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  visible: (i = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: i * 0.05 },
-  }),
-}
+const CATEGORIES = ['All', 'Standalone', 'In-Situ', 'Education and Research', 'Desktop']
 
 export default function ProductsPage() {
   const [active, setActive] = useState('All')
@@ -32,6 +19,11 @@ export default function ProductsPage() {
 
   return (
     <main className="products-page">
+      <SEOMeta
+        title="Product Portfolio"
+        description="Browse Industron's full portfolio of nanomechanical testing instruments — nanoindentation, in-situ SEM/TEM picoindentation, triboscopy, meso-scale testing, and education systems."
+        canonical="https://www.industronnano.com/products"
+      />
       <PageHero
         tag="Product Portfolio"
         title="Instruments built for"
@@ -47,13 +39,12 @@ export default function ProductsPage() {
 
       <section className="page-section">
         <div className="container">
-          <div className="products-filter" role="tablist" aria-label="Filter products">
+          <div className="products-filter" role="group" aria-label="Filter products by category">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat}
                 type="button"
-                role="tab"
-                aria-selected={active === cat}
+                aria-pressed={active === cat}
                 className={`products-filter-chip${active === cat ? ' is-active' : ''}`}
                 onClick={() => setActive(cat)}
               >

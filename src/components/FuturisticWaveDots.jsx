@@ -114,6 +114,22 @@ export default function FuturisticWaveDots({ className }) {
     const parent = canvas.parentElement
     if (parent) ro.observe(parent)
 
+    // Pause the RAF loop when the canvas is completely out of the viewport
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          if (!reduce) {
+            cancelAnimationFrame(rafRef.current)
+            rafRef.current = requestAnimationFrame(draw)
+          }
+        } else {
+          cancelAnimationFrame(rafRef.current)
+        }
+      },
+      { threshold: 0 },
+    )
+    io.observe(canvas)
+
     const onVis = () => {
       if (document.hidden) {
         cancelAnimationFrame(rafRef.current)
@@ -127,6 +143,7 @@ export default function FuturisticWaveDots({ className }) {
     return () => {
       cancelAnimationFrame(rafRef.current)
       ro.disconnect()
+      io.disconnect()
       document.removeEventListener('visibilitychange', onVis)
     }
   }, [])

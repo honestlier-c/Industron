@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import PageHero from '../components/PageHero'
 import PageCTA from '../components/PageCTA'
+import { fadeUp } from '../motion/presets'
+import SEOMeta from '../components/SEOMeta'
 
 const INDUSTRIES = [
   {
@@ -148,15 +150,6 @@ const TESTING_TECHNIQUES = [
   },
 ]
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 22 },
-  visible: (i = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: i * 0.04 },
-  }),
-}
-
 export default function ApplicationsPage() {
   const [active, setActive] = useState('Steel Industry')
 
@@ -167,6 +160,11 @@ export default function ApplicationsPage() {
 
   return (
     <main className="applications-page">
+      <SEOMeta
+        title="Applications"
+        description="Nanomechanical testing applications across steel, pharma, automotive, aerospace, biomaterials, polymers, and more. Techniques from nanoindentation to DMA and high-temperature testing."
+        canonical="https://www.industronnano.com/applications"
+      />
       <PageHero
         tag="Applications"
         title="Nanomechanical applications"
@@ -190,13 +188,12 @@ export default function ApplicationsPage() {
             <p>Techniques and representative application notes, filtered by sector.</p>
           </motion.div>
 
-          <div className="applications-filter" role="tablist" aria-label="Filter by industry">
+          <div className="applications-filter" role="group" aria-label="Filter by industry">
             {INDUSTRIES.map((ind) => (
               <button
                 key={ind.title}
                 type="button"
-                role="tab"
-                aria-selected={active === ind.title}
+                aria-pressed={active === ind.title}
                 className={`applications-filter-chip${active === ind.title ? ' is-active' : ''}`}
                 onClick={() => setActive(ind.title)}
               >

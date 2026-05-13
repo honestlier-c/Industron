@@ -1,15 +1,6 @@
 import { motion } from 'framer-motion'
 import FuturisticWaveDots from './FuturisticWaveDots'
-
-const stagger = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.08 } },
-}
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 22 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
-}
+import { fadeUp, stagger } from '../motion/presets'
 
 export default function PageHero({
   tag,

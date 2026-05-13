@@ -2,6 +2,8 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import PageHero from '../components/PageHero'
 import PageCTA from '../components/PageCTA'
+import SEOMeta from '../components/SEOMeta'
+import { fadeUp } from '../motion/presets'
 
 const JUMP_LINKS = [
   { id: 'nrl-testing', label: 'NRL testing' },
@@ -54,11 +56,6 @@ const TECH_SUPPORT = [
   'Continuous improvements for better usability',
 ]
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 22 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] } },
-}
-
 function DocCard({ id, children, className = '' }) {
   return (
     <motion.article
@@ -77,6 +74,11 @@ function DocCard({ id, children, className = '' }) {
 export default function ServicesPage() {
   return (
     <main className="services-page">
+      <SEOMeta
+        title="Services"
+        description="Industron services: Nanomechanics Research Lab testing, R&D consultancy, instrument training, service agreements, and technical support for global customers."
+        canonical="https://www.industronnano.com/services"
+      />
       <PageHero
         size="lg"
         tag="Industron Technical Services"

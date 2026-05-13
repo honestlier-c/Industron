@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import FuturisticWaveDots from '../components/FuturisticWaveDots'
+import { fadeUp, stagger } from '../motion/presets'
+import SEOMeta from '../components/SEOMeta'
 
 /* -----------------------------------------------------------
    CONTENT
@@ -13,8 +15,7 @@ const HERO_MILESTONES = [
 ]
 
 const WHO_WE_ARE = [
-  'Welcome to Industron — we are very glad you are here.',
-  'Welcome to Industron Technical Services Pvt. Ltd., and we are delighted to have you here.',
+  'Welcome to Industron Technical Services Pvt. Ltd. — we are delighted to have you here.',
   'Industron is committed to advancing research and development to deliver high-value solutions in scientific instrumentation with cutting-edge technology. We are a dedicated team of scientists and engineers with world-class expertise in materials science and engineering, embedded control systems, hardware and software development, analytical instrument design, sensors and actuators, and precision engineering.',
   'Since its inception, Industron has actively collaborated with premier institutions such as IISc and various IITs, contributing to pioneering research and product innovation. Over the years, our team has developed advanced technologies and instruments — including NanoGuru®/NG80, a desktop nanomechanical testing instrument designed for evaluating nanoscale mechanical properties of materials.',
   'Our R&D division collaborates closely with academia and industry to advance materials research for global customer programs.',
@@ -106,18 +107,6 @@ const LEADERS = [
 ]
 
 /* -----------------------------------------------------------
-   ANIMATION HELPERS
------------------------------------------------------------ */
-const fadeUp = {
-  hidden:  { opacity: 0, y: 28 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
-}
-const stagger = {
-  hidden:  {},
-  visible: { transition: { staggerChildren: 0.08 } },
-}
-
-/* -----------------------------------------------------------
    REUSABLE BLOCK
 ----------------------------------------------------------- */
 function AboutBlock({ tag, title, gradientTitle, lead, badges, children, reverse = false }) {
@@ -158,6 +147,11 @@ function AboutBlock({ tag, title, gradientTitle, lead, badges, children, reverse
 export default function AboutPage() {
   return (
     <main className="about-page">
+      <SEOMeta
+        title="About Us"
+        description="Industron — a global team of scientists and engineers advancing scientific instrumentation since 2011. R&D, nanomechanics testing, and precision instrument design."
+        canonical="https://www.industronnano.com/about"
+      />
       {/* HERO */}
       <section className="about-hero">
         <div className="about-hero-bg" aria-hidden="true">

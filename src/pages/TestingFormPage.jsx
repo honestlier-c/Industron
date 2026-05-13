@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import PageHero from '../components/PageHero'
+import SEOMeta from '../components/SEOMeta'
 
 const TESTING_EMAIL = 'kp@industronnano.com'
 
@@ -38,6 +39,11 @@ export default function TestingFormPage() {
 
   return (
     <main className="testing-form-page">
+      <SEOMeta
+        title="Material Testing Enquiry"
+        description="Submit a material testing enquiry to Industron's Nanomechanics Research Lab (NRL). We handle nanoindentation, tribology, and advanced material characterization for academia and industry."
+        canonical="https://www.industronnano.com/testing-form"
+      />
       <PageHero
         tag="Nanomechanics Research Lab (NRL)"
         title="Sample testing"

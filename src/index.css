@@ -44,3 +44,77 @@
 
 /* Responsive overrides for the shared page system ---------------- */
 @import './styles/responsive-shared.css';
+
+/* ── Accessibility & utility helpers ─────────────────────────────── */
+
+/* Skip navigation link — hidden until focused */
+.skip-link {
+  position: fixed;
+  top: -100%;
+  left: 1rem;
+  z-index: 9999;
+  padding: 0.5rem 1rem;
+  background: var(--accent, #2563eb);
+  color: #fff;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: top 0.15s;
+}
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* Visually hidden but announced by screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Redirect notice (external product pages) */
+.redirect-notice {
+  padding: 4.5rem 0;
+  text-align: center;
+}
+.redirect-notice__text {
+  color: var(--muted, #6b7280);
+  font-size: 1.05rem;
+}
+
+/* Service card CTA button (moved from inline styles) */
+.service-card-cta {
+  margin-top: 0.75rem;
+  width: fit-content;
+  display: inline-flex;
+}
+
+/* Disabled footer social icon */
+.footer-social--disabled {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: #fff;
+  border: 1px solid var(--border, #e5e7eb);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  color: var(--muted, #9ca3af);
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Static product detail beat sections */
+.static-beat {
+  max-width: 760px;
+  margin: 0 auto 3.5rem;
+}
+.static-beat:last-child { margin-bottom: 0; }
