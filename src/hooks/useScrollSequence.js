@@ -1,5 +1,10 @@
 import { useEffect, useRef } from 'react'
 import { progressToFrameIndex } from '../data/scrollBeats'
+import {
+  applyFrameDrawMetrics,
+  computeFrameDrawMetrics,
+  getStickyFromCanvas,
+} from '../utils/frameDrawMetrics'
 
 const MAX_CONSECUTIVE_MISSES = 6
 const PRELOAD_CONCURRENCY = 6
@@ -76,20 +81,12 @@ export function useScrollSequence({
         canvas.height = height
       }
 
+      const metrics = computeFrameDrawMetrics(targetW, targetH, img, isMobile)
+      applyFrameDrawMetrics(getStickyFromCanvas(canvas), metrics)
+
       if (!force && lastRenderedFrameRef.current === loaded) return
 
-      const containScale = Math.min(targetW / img.naturalWidth, targetH / img.naturalHeight)
-      const coverScale = Math.max(targetW / img.naturalWidth, targetH / img.naturalHeight)
-      const frameAspect = img.naturalWidth / img.naturalHeight
-      const isWide16x9 = frameAspect > 1.7 && frameAspect < 1.85
-      const scale =
-        isMobile && isWide16x9
-          ? containScale + (coverScale - containScale) * 0.32
-          : containScale
-      const drawW = img.naturalWidth * scale
-      const drawH = img.naturalHeight * scale
-      const dx = (targetW - drawW) * 0.5
-      const dy = (targetH - drawH) * (isMobile && isWide16x9 ? 0.53 : 0.5)
+      const { drawW, drawH, dx, dy } = metrics
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.clearRect(0, 0, targetW, targetH)

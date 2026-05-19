@@ -147,7 +147,12 @@ function SequenceDetailPage({ product }) {
         </div>
       </section>
 
-      <InfoSection info={info} name={name} />
+      <InfoSection
+        info={info}
+        name={name}
+        layout={product.infoLayout}
+        section={product.infoSection}
+      />
     </main>
   )
 }
@@ -219,24 +224,97 @@ function StaticDetailPage({ product }) {
         </div>
       </section>
 
-      <InfoSection info={info} name={name} />
+      <InfoSection
+        info={info}
+        name={name}
+        layout={product.infoLayout}
+        section={product.infoSection}
+      />
     </main>
   )
 }
 
 /* ── Shared info + buy sections ─────────────────────────────────────── */
-function InfoSection({ info, name }) {
+function InfoSection({ info, name, layout, section }) {
+  const isTrack = layout === 'track'
+  const trackLoop = isTrack ? [...info, ...info] : info
+
   return (
     <>
-      <section id="technology" className="meso-info">
-        <div className="container meso-info-grid">
-          {info.map((item) => (
-            <article key={item.title}>
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
-            </article>
-          ))}
-        </div>
+      <section
+        id="technology"
+        className={`meso-info${isTrack ? ' meso-info--track' : ''}`}
+      >
+        <motion.div className="container">
+          {isTrack && section && (
+            <motion.div
+              className="section-header meso-info-head"
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="section-tag">{section.tag}</div>
+              <h2>
+                {section.title}
+                <br />
+                <span className="gradient-text">{section.highlight}</span>
+              </h2>
+            </motion.div>
+          )}
+
+          {isTrack ? (
+            <motion.div
+              className="test-modes-marquee"
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+            >
+              <div className="test-modes-track" aria-label={`${name} test modes`}>
+                {trackLoop.map((item, idx) => (
+                  <article
+                    className={`test-mode-card${item.image ? ' test-mode-card--image' : ''}`}
+                    key={`${item.title}-${idx}`}
+                  >
+                    {item.image ? (
+                      <>
+                        <h3>{item.title}</h3>
+                        <img src={item.image} alt="" loading="lazy" decoding="async" />
+                      </>
+                    ) : (
+                      <>
+                        <h3>{item.title}</h3>
+                        {item.text && <p>{item.text}</p>}
+                      </>
+                    )}
+                  </article>
+                ))}
+              </div>
+            </motion.div>
+          ) : (
+            <div className="meso-info-grid">
+              {info.map((item) => (
+                <article
+                  key={item.title}
+                  className={item.image ? 'meso-info-card--image' : undefined}
+                >
+                  {item.image ? (
+                    <>
+                      <h3>{item.title}</h3>
+                      <img src={item.image} alt="" loading="lazy" decoding="async" />
+                    </>
+                  ) : (
+                    <>
+                      <h3>{item.title}</h3>
+                      {item.text && <p>{item.text}</p>}
+                    </>
+                  )}
+                </article>
+              ))}
+            </div>
+          )}
+        </motion.div>
       </section>
 
       <section id="buy" className="meso-buy">

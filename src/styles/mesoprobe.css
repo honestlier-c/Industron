@@ -32,6 +32,15 @@
   height: 100vh;
   overflow: hidden;
   background: #ffffff;
+  container-type: size;
+  container-name: meso;
+  /* Set by useScrollSequence from canvas draw rect; fallbacks until first frame */
+  --meso-canvas-w: 100vw;
+  --meso-canvas-h: 100vh;
+  --meso-img-w: 72vw;
+  --meso-img-h: 40.5vw;
+  --meso-img-x: 14vw;
+  --meso-img-y: 10vh;
 }
 .meso-sticky canvas {
   width: 100%;
@@ -41,7 +50,7 @@
 
 .meso-copy {
   position: absolute;
-  max-width: 540px;
+  max-width: min(540px, calc(var(--meso-img-w) * 0.46));
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -61,66 +70,85 @@
   transition: none;
 }
 .meso-copy--center {
-  left: 50%;
+  left: calc(var(--meso-img-x) + var(--meso-img-w) * 0.5);
   transform: translateX(-50%);
   text-align: center;
-  top: 19vh;
+  top: calc(var(--meso-img-y) + var(--meso-img-h) * 0.1);
+  max-width: min(560px, calc(var(--meso-img-w) * 0.72));
 }
 .meso-copy--left {
-  left: min(8vw, 108px);
-  top: 30vh;
+  left: calc(var(--meso-img-x) + var(--meso-img-w) * 0.04);
+  top: calc(var(--meso-img-y) + var(--meso-img-h) * 0.12);
+  max-width: min(520px, calc(var(--meso-img-w) * 0.44));
 }
 .meso-copy--right {
-  right: min(8vw, 108px);
-  top: 30vh;
+  left: calc(var(--meso-img-x) + var(--meso-img-w) * 0.52);
+  right: auto;
+  top: calc(var(--meso-img-y) + var(--meso-img-h) * 0.12);
   text-align: left;
+  max-width: min(520px, calc(var(--meso-img-w) * 0.44));
 }
 .meso-copy--final {
   top: auto;
-  bottom: 14vh;
+  left: calc(var(--meso-img-x) + var(--meso-img-w) * 0.04);
+  bottom: calc(var(--meso-canvas-h) - var(--meso-img-y) - var(--meso-img-h) + var(--meso-img-h) * 0.1);
+  max-width: min(520px, calc(var(--meso-img-w) * 0.5));
 }
 .meso-copy--center.is-active {
   transform: translateX(-50%);
 }
 .meso-kicker {
-  margin: 0 0 0.65rem;
+  margin: 0 0 calc(var(--meso-img-h) * 0.04);
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  font-size: 0.68rem;
+  font-size: clamp(0.55rem, calc(var(--meso-img-w) * 0.011), 0.68rem);
   color: var(--accent);
 }
 .meso-copy h1,
 .meso-copy h2 {
   margin: 0;
   letter-spacing: -0.02em;
-  line-height: 1.03;
-  font-size: clamp(2rem, 4.6vw, 4.2rem);
+  line-height: 1.08;
+  font-size: clamp(1.05rem, calc(var(--meso-img-w) * 0.042), 2.7rem);
   color: var(--text);
   text-wrap: balance;
 }
 .meso-copy h2 {
-  font-size: clamp(1.45rem, 3vw, 2.7rem);
+  font-size: clamp(1.05rem, calc(var(--meso-img-w) * 0.042), 2.7rem);
 }
 .meso-sub,
 .meso-copy p {
-  margin-top: 0.9rem;
-  font-size: clamp(1rem, 1.34vw, 1.1rem);
-  line-height: 1.78;
+  margin-top: calc(var(--meso-img-h) * 0.035);
+  font-size: clamp(0.82rem, calc(var(--meso-img-w) * 0.0175), 1.1rem);
+  line-height: 1.65;
   color: var(--text-dim);
+}
+
+.meso-final-actions {
+  margin-top: calc(var(--meso-img-h) * 0.05);
+}
+.meso-cta {
+  font-size: clamp(0.72rem, calc(var(--meso-img-w) * 0.013), 0.8rem);
+  padding: calc(var(--meso-img-h) * 0.028) calc(var(--meso-img-w) * 0.024);
+}
+.meso-link {
+  font-size: clamp(0.78rem, calc(var(--meso-img-w) * 0.013), 0.9rem);
 }
 
 .meso-final-actions,
 .meso-buy-actions {
   display: flex;
-  gap: 0.9rem;
+  gap: calc(var(--meso-img-w) * 0.014);
   flex-wrap: wrap;
-  margin-top: 1.3rem;
   justify-content: center;
+}
+.meso-buy-actions {
+  gap: 0.9rem;
+  margin-top: 1.3rem;
 }
 .meso-link {
   display: inline-flex;
   align-items: center;
-  font-size: 0.9rem;
   font-weight: 600;
   color: var(--accent);
 }
@@ -153,6 +181,115 @@
   line-height: 1.72;
 }
 
+/* μProbe test modes — customers-track style marquee */
+.meso-info--track {
+  overflow: hidden;
+}
+.meso-info-head {
+  margin-bottom: 2.75rem;
+}
+.meso-info-head h2 {
+  margin-bottom: 0;
+}
+.test-modes-marquee {
+  position: relative;
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+}
+.test-modes-track {
+  display: flex;
+  align-items: stretch;
+  gap: 1rem;
+  width: max-content;
+  animation: test-modes-marquee 48s linear infinite;
+}
+.test-modes-track:hover {
+  animation-play-state: paused;
+}
+.test-mode-card {
+  flex: 0 0 auto;
+  width: min(380px, 82vw);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 1.35rem 1.4rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+}
+.test-mode-card h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.test-mode-card p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.72;
+  color: var(--text-dim);
+  white-space: normal;
+}
+.test-mode-card--image {
+  width: auto;
+  max-width: min(320px, 82vw);
+  padding: 1rem 1.1rem 1.15rem;
+  align-items: stretch;
+}
+.test-mode-card--image h3 {
+  font-size: 1rem;
+  text-align: center;
+  width: 100%;
+}
+.test-mode-card--image img {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  margin: 0 auto;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #fff;
+}
+.meso-info-card--image {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.65rem;
+}
+.meso-info-card--image h3 {
+  margin: 0;
+}
+.meso-info-card--image img {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+@keyframes test-modes-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .test-modes-track {
+    animation: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .test-modes-marquee {
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+}
+
 .meso-buy {
   padding: 4.5rem 0 5.4rem;
   text-align: center;
@@ -170,14 +307,7 @@
   line-height: 1.74;
 }
 
-@media (max-width: 1100px) {
-  .meso-copy--left,
-  .meso-copy--right {
-    left: 7vw;
-    right: 7vw;
-    max-width: 560px;
-  }
-}
+/* Tablet/desktop use same --meso-img-* from JS; no separate overrides needed */
 
 @media (max-width: 760px) {
   /* ── Sequence & sticky ───────────────────────────── */
@@ -186,13 +316,12 @@
   }
 
   /*
-   * 3840×2160 frames are 16:9. At full viewport width the intrinsic height is
-   * 100vw × 9/16. A fixed 58vh canvas leaves a large letterbox band above the
-   * text — use the smaller of 58vh and that intrinsic height so the image sits
-   * flush with the copy panel.
+   * 16:9 frames — canvas height matches intrinsic width so the image fills the band.
+   * Text panel uses --meso-panel-top (canvas bottom from JS).
    */
   .meso-sticky {
-    --meso-canvas-h: min(58vh, calc(100vw * 9 / 16));
+    --meso-canvas-h: min(52vh, calc(100vw * 9 / 16));
+    --meso-panel-top: var(--meso-canvas-h);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -205,32 +334,31 @@
     display: block;
   }
 
-  /* White panel fills everything below the canvas (no fixed 42vh gap) */
   .meso-sticky::after {
     content: '';
     position: absolute;
     left: 0;
     right: 0;
-    top: var(--meso-canvas-h);
+    top: var(--meso-panel-top, var(--meso-canvas-h));
     bottom: 0;
     background: #fff;
     border-top: 1px solid var(--border);
-    border-radius: 18px 18px 0 0;
+    border-radius: 16px 16px 0 0;
     pointer-events: none;
     z-index: 0;
   }
 
-  /* ── Bottom-sheet text panels ────────────────────── */
+  /* ── Full-width bottom sheet (reset desktop overlay positioning) ── */
   .meso-copy {
     position: absolute;
-    left: 0;
-    right: 0;
-    top: var(--meso-canvas-h);
-    bottom: auto;
-    max-width: 100%;
-    padding: 0.85rem 1.15rem 1.35rem;
+    inset: auto 0 0 0;
+    top: var(--meso-panel-top, var(--meso-canvas-h));
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0.75rem 1rem 1.1rem;
+    box-sizing: border-box;
     background: transparent;
-    border-radius: 0;
     border: none;
     box-shadow: none;
     text-align: left;
@@ -240,68 +368,83 @@
     visibility: visible;
     transition: none;
   }
-  .meso-copy.is-active {
-    transform: translateY(0);
-  }
 
-  /* All positional variants → bottom panel */
   .meso-copy--left,
   .meso-copy--right,
   .meso-copy--center,
   .meso-copy--final {
     left: 0;
     right: 0;
-    top: var(--meso-canvas-h);
+    top: var(--meso-panel-top, var(--meso-canvas-h));
     bottom: auto;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0.75rem 1rem 1.1rem;
     text-align: left;
+    transform: none;
   }
-  .meso-copy--left.is-active,
-  .meso-copy--right.is-active,
-  .meso-copy--center.is-active,
-  .meso-copy--final.is-active {
-    transform: translateY(0);
+  .meso-copy--center {
+    transform: none;
   }
 
-  /* ── Typography ──────────────────────────────────── */
-  .meso-copy h1 {
-    font-size: clamp(1.15rem, 5vw, 1.4rem);
-    line-height: 1.2;
+  /* Typography — scale with viewport, not desktop overlay ratios */
+  .meso-kicker {
+    margin: 0 0 0.35rem;
+    font-size: clamp(0.5rem, 2.8vw, 0.58rem);
+    letter-spacing: 0.1em;
   }
+  .meso-copy h1,
   .meso-copy h2 {
-    font-size: clamp(1rem, 4.2vw, 1.2rem);
-    line-height: 1.22;
+    font-size: clamp(0.9rem, 4.1vw, 1.1rem);
+    line-height: 1.2;
   }
   .meso-sub,
   .meso-copy p {
-    margin-top: 0.45rem;
-    font-size: clamp(0.82rem, 3.1vw, 0.92rem);
-    line-height: 1.45;
-  }
-  .meso-kicker {
-    margin-bottom: 0.4rem;
-    font-size: 0.6rem;
-    letter-spacing: 0.11em;
+    margin-top: 0.4rem;
+    font-size: clamp(0.72rem, 3.15vw, 0.82rem);
+    line-height: 1.48;
   }
 
-  /* ── CTAs ────────────────────────────────────────── */
-  .meso-cta {
-    padding: 0.5rem 0.9rem;
-    font-size: 0.75rem;
-  }
   .meso-final-actions {
-    margin-top: 0.85rem;
+    margin-top: 0.65rem;
     justify-content: flex-start;
-    gap: 0.6rem;
+    gap: 0.5rem;
+  }
+  .meso-cta {
+    font-size: clamp(0.68rem, 2.8vw, 0.75rem);
+    padding: 0.45rem 0.85rem;
   }
   .meso-link {
-    font-size: 0.78rem;
+    font-size: clamp(0.7rem, 2.8vw, 0.78rem);
   }
 
-  /* ── Info grid ───────────────────────────────────── */
   .meso-info {
     padding: 3rem 0;
   }
   .meso-info-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Very narrow phones (e.g. 352px preview) */
+@media (max-width: 400px) {
+  .meso-sticky {
+    --meso-canvas-h: min(48vh, calc(100vw * 9 / 16));
+  }
+  .meso-copy,
+  .meso-copy--left,
+  .meso-copy--right,
+  .meso-copy--center,
+  .meso-copy--final {
+    padding: 0.65rem 0.85rem 1rem;
+  }
+  .meso-copy h2 {
+    font-size: clamp(0.85rem, 3.9vw, 1rem);
+  }
+  .meso-sub,
+  .meso-copy p {
+    font-size: clamp(0.68rem, 3vw, 0.78rem);
+    line-height: 1.42;
   }
 }

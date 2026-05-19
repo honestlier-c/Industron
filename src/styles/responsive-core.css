@@ -45,7 +45,6 @@
   .footer-grid     { grid-template-columns: 1fr 1fr; }
   .brand-logo-image { height: 36px; }
   .nav-brand-logo-image { height: 38px; }
-  .hero-content    { padding-left: 0; }
 }
 
 @media (max-width: 960px) {
@@ -75,33 +74,33 @@
 }
 
 @media (max-width: 860px) {
-  /* Mobile: no 3D scene — keep hero lean and text-focused. */
   .hero {
-    height: auto;
     min-height: 0;
-    display: block;
-    padding-bottom: 3rem;
+    padding-top: 6.5rem;
+    padding-bottom: 2.5rem;
   }
-  .hero::before {
-    display: none;
-  }
-  .hero-canvas {
-    display: none;
+  .hero-media {
+    width: 100%;
+    max-width: min(765px, 100%);
+    border-radius: 10px;
   }
   .hero-content {
-    padding-top: 6.75rem;
-    padding-bottom: 0.5rem;
+    padding-left: clamp(0.5rem, 2vw, 1rem);
+    padding-right: clamp(0.5rem, 2vw, 1rem);
+  }
+  .hero-actions {
+    justify-content: flex-start;
   }
 }
 
 @media (max-width: 600px) {
   .section         { padding: 5rem 0; }
   .form-row        { grid-template-columns: 1fr; }
-  .hero h1         { margin-bottom: 1.5rem; font-size: clamp(2.1rem, 9vw, 3rem); }
-  .hero-sub        { margin-bottom: 1.3rem; }
+  .hero h1         { margin-bottom: 1rem; font-size: clamp(1.25rem, 6.5vw, 2rem); }
+  .hero-sub        { margin-bottom: 1.1rem; font-size: clamp(0.88rem, 3.5vw, 0.98rem); }
   .hero-actions    { gap: 0.75rem; }
   .hero-actions .btn-primary,
-  .hero-actions .btn-ghost { width: 100%; justify-content: center; }
+  .hero-actions .btn-ghost { width: 100%; justify-content: flex-start; }
   .hero-content    { padding-top: 7.25rem; }
   .footer-grid     { grid-template-columns: 1fr; }
   .footer-bottom   { flex-direction: column; gap: 1.2rem; text-align: center; }

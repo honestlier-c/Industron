@@ -83,6 +83,8 @@ function p({
   beats: beatsOverride,
   hero: heroOverride,
   info,
+  infoLayout,
+  infoSection,
   externalUrl,
   cardLogo,
   cardLogoAlt,
@@ -102,6 +104,8 @@ function p({
     hero: heroOverride ?? defaultHero(name, highlight, lead, badges),
     beats: beatsOverride ?? defaultBeats(short, beatsTagline || shortDesc),
     info: info || defaultInfo,
+    ...(infoLayout ? { infoLayout } : {}),
+    ...(infoSection ? { infoSection } : {}),
     cardLogo: cardLogo ?? DEFAULT_CARD_LOGO,
     cardLogoAlt: cardLogoAlt ?? 'Industron',
     // Only include sequence fields when the product has a scroll animation
@@ -327,26 +331,24 @@ export const PRODUCTS = [
           'μProbe 500 — discuss probes, automation grids, software training, and lab integration with our applications team.',
       },
     },
+    infoLayout: 'track',
+    infoSection: {
+      tag: 'Test modes',
+      title: 'Three core',
+      highlight: 'measurement routines',
+    },
     info: [
       {
-        title: 'Mechanical specifications',
-        text:
-          'Indentation load range 0–500 mN. Maximum displacement 18 µm. Frame stiffness 8×10⁷ N/m. Digital control and data acquisition: 600 MHz embedded processor at 30 kHz. ADC resolution 24-bit.',
+        title: 'Partial Unload Test',
+        image: '/Uprobe/Partial-Unload-300x182.webp',
       },
       {
-        title: 'Stage & optics',
-        text:
-          'X-axis travel 100 mm; Y-axis travel 50 mm; Z-axis travel 50 mm with 1 nm encoder resolution. Optics 10× to 40×.',
+        title: 'Micro Indentation',
+        image: '/Uprobe/NanoIndetation.png',
       },
       {
-        title: 'Applications',
-        text:
-          'Hardness and modulus measurement, depth profiling and partial unload testing, advanced materials and thin-film research, structure–property correlation, biomechanics, creep, and fracture toughness.',
-      },
-      {
-        title: 'Automation',
-        text:
-          'Unattended testing, grid-based automation, inline automation, and multiple automated indents for high-throughput microstructural mapping.',
+        title: 'Method Automation',
+        image: '/Uprobe/method-automation-300x225.webp',
       },
     ],
   }),
