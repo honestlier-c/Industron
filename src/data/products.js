@@ -1,22 +1,35 @@
 /* ============================================================
    PRODUCTS — listing + detail pages (/products/:slug)
 
-   framesFolder → public folder for ezgif-frame-###.jpg sequences
-   Omit framesFolder to use /MesoProbe until a product-specific folder exists.
+   framesFolder → public folder for scroll frame sequences
+   frameNaming    indexed-png (frame_000000.png) | ezgif (ezgif-frame-001.jpg)
+   sourceFrameCount / playbackFrameCount → subsample long exports for web playback
    scrollBeats    → text-only windows; frames always play 1…frameCount linearly
    Card images    → public/Products_Image/ (see `image` on each product)
    ============================================================ */
 
 import { DEFAULT_SCROLL_BEATS } from './scrollBeats'
+import { scaleScrollBeats } from '../utils/scrollFrameUrls'
 
 /** Default scroll-sequence folder — placeholder until product-specific assets exist */
 const DEFAULT_FRAMES_FOLDER = '/MesoProbe'
 
-/** Shared scroll-sequence defaults (MesoProbe, NG50, NG80, μProbe 500, …) */
+/** Shared scroll-sequence defaults (NG50, NG80, μProbe 500 placeholders, …) */
 const SCROLL_SEQUENCE = {
   frameCount: 64,
   framesFolder: DEFAULT_FRAMES_FOLDER,
+  frameNaming: 'ezgif',
   scrollBeats: DEFAULT_SCROLL_BEATS,
+}
+
+/** MesoProbe — 1380× PNG sequence in public/MesoProbe (evenly sampled for playback) */
+const MESOPROBE_SCROLL_SEQUENCE = {
+  framesFolder: '/MesoProbe',
+  frameNaming: 'indexed-png',
+  sourceFrameCount: 1380,
+  playbackFrameCount: 96,
+  frameCount: 96,
+  scrollBeats: scaleScrollBeats(DEFAULT_SCROLL_BEATS, 64, 96),
 }
 
 /** Product card thumbnails — files in public/Products_Image/ */
@@ -95,6 +108,9 @@ function p({
   image,
   frameCount,
   framesFolder: framesFolderOverride,
+  frameNaming,
+  sourceFrameCount,
+  playbackFrameCount,
   scrollBeats: scrollBeatsOverride,
 }) {
   const short = beatsHeading || name.split(/[–-]/)[0].trim()
@@ -116,6 +132,9 @@ function p({
     ...(frameCount ? {
       frameCount,
       framesFolder: framesFolderOverride ?? DEFAULT_FRAMES_FOLDER,
+      ...(frameNaming ? { frameNaming } : {}),
+      ...(sourceFrameCount ? { sourceFrameCount } : {}),
+      ...(playbackFrameCount ? { playbackFrameCount } : {}),
       scrollBeats: scrollBeatsOverride ?? DEFAULT_SCROLL_BEATS,
     } : {}),
     ...(externalUrl ? { externalUrl } : {}),
@@ -361,7 +380,7 @@ export const PRODUCTS = [
     slug: 'mesoprobe',
     name: 'MesoProbe',
     image: `${IMG}/MesoProbe.png`,
-    ...SCROLL_SEQUENCE,
+    ...MESOPROBE_SCROLL_SEQUENCE,
     category: 'Education and Research',
     shortDesc:
       'Versatile, high-throughput meso-scale mechanical testing with in-situ optical microscopy, DIC, nanometre resolution, large actuation distance, and large force range—up to 600 °C.',

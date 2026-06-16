@@ -7,6 +7,7 @@ import { PRODUCT_BY_SLUG } from '../data/products'
 import { DEFAULT_SCROLL_BEATS, getBeatOpacity } from '../data/scrollBeats'
 import { useScrollSequence } from '../hooks/useScrollSequence'
 import { fadeUp, stagger } from '../motion/presets'
+import { buildScrollFrameUrls } from '../utils/scrollFrameUrls'
 
 function BeatCopy({ beatKey, beatFrames, totalFrames, progress, className, children }) {
   const opacity = useTransform(progress, (p) => getBeatOpacity(p, beatFrames, beatKey, totalFrames))
@@ -62,11 +63,20 @@ function SequenceDetailPage({ product }) {
 
   const frameUrls = useMemo(
     () =>
-      Array.from({ length: product.frameCount }, (_, i) => {
-        const id = String(i + 1).padStart(3, '0')
-        return `${product.framesFolder}/ezgif-frame-${id}.jpg`
+      buildScrollFrameUrls({
+        framesFolder: product.framesFolder,
+        frameCount: product.frameCount,
+        frameNaming: product.frameNaming ?? 'ezgif',
+        sourceFrameCount: product.sourceFrameCount,
+        playbackFrameCount: product.playbackFrameCount,
       }),
-    [product.frameCount, product.framesFolder],
+    [
+      product.frameCount,
+      product.framesFolder,
+      product.frameNaming,
+      product.sourceFrameCount,
+      product.playbackFrameCount,
+    ],
   )
 
   const beatFrames = product.scrollBeats ?? DEFAULT_SCROLL_BEATS
