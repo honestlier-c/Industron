@@ -29,6 +29,9 @@ export const DEFAULT_CARD_LOGO = '/industron-logo.png'
 export const BRUKER_CARD_LOGO = '/Bruker-logo.png'
 export const BRUKER_CARD_LOGO_ALT = 'Bruker'
 
+/** Product brochure PDF in public/ — used on detail page CTAs */
+export const DEFAULT_BROCHURE_URL = '/Ammuu_Latest.pdf'
+
 function defaultHero(name, highlight, lead, badges) {
   return { tag: 'Product', title: name, highlight, lead, badges }
 }
@@ -86,6 +89,7 @@ function p({
   infoLayout,
   infoSection,
   externalUrl,
+  brochureUrl,
   cardLogo,
   cardLogoAlt,
   image,
@@ -115,6 +119,7 @@ function p({
       scrollBeats: scrollBeatsOverride ?? DEFAULT_SCROLL_BEATS,
     } : {}),
     ...(externalUrl ? { externalUrl } : {}),
+    ...(!externalUrl ? { brochureUrl: brochureUrl ?? DEFAULT_BROCHURE_URL } : {}),
   }
 }
 
@@ -140,7 +145,7 @@ export const BRUKER_URLS = {
     'https://www.bruker.com/en/products-and-solutions/test-and-measurement/nanomechanical-test-systems/hysitron-ti-premier-nanoindenter.html',
 }
 
-/** Categories: Standalone | In-Situ | Education and Research | Desktop */
+/** Categories: Standalone | In-Situ | Education and Research */
 export const PRODUCTS = [
   // —— Standalone ——
   p({
@@ -426,13 +431,13 @@ export const PRODUCTS = [
     ],
   }),
 
-  // —— Desktop ——
+  // —— Education and Research (desktop platforms) ——
   p({
     slug: 'ng50',
     name: 'NG50',
     image: `${IMG}/NG50.png`,
     ...SCROLL_SEQUENCE,
-    category: 'Desktop',
+    category: 'Education and Research',
     shortDesc:
       'NanoGuru® turnkey nanomechanical education: instrumentation plus Practicum© curriculum, samples, and experiments for undergraduate nanoscale science and materials.',
     highlight: 'NanoGuru® education system',
@@ -502,7 +507,7 @@ export const PRODUCTS = [
     name: 'NG80',
     image: `${IMG}/NG80.png`,
     ...SCROLL_SEQUENCE,
-    category: 'Desktop',
+    category: 'Education and Research',
     shortDesc:
       'High-throughput nanomechanical test platform: scanning nanoWear, high-speed indentation, nanoScratch, quasistatic nanoindentation, fracture toughness, and in-situ SPM imaging.',
     highlight: 'high-throughput nanomechanics',

@@ -13,47 +13,48 @@ const JUMP_LINKS = [
   { id: 'support', label: 'Technical support' },
 ]
 
-const SMART_PRODUCT_CAPS = [
-  'Precision mechanical design',
-  'CAD for parts and assemblies',
-  'Finite Element Analysis (FEA)',
-  'Electro-mechanical system design',
-  'Mechatronic sensors and actuators',
-  'Embedded hardware and software integration',
-]
-
-const MATERIAL_DEV_ITEMS = [
-  'New materials',
-  'Thin films and coatings',
-  'Heat treatment processes',
-]
-
-const MATERIAL_ANALYSIS = [
-  'Mechanical strength and hardness',
-  'Elastic and viscoelastic properties',
-  'Fracture toughness',
-  'Creep resistance',
-  'Structure–property correlation',
+const NRL_CAPABILITIES = [
+  'Nanomechanical characterization',
+  'Structure–property analysis',
   'Failure analysis',
+  'In-situ / operando testing',
+  'Customized experimental design',
+]
+
+const SMART_EXPERTISE = [
+  'Precision mechanical design',
+  'CAD & FEA analysis',
+  'Mechatronics',
+  'Sensors & actuators',
+  'Embedded hardware & software',
+]
+
+const MATERIAL_ANALYSIS_AREAS = [
+  'Mechanical strength & hardness',
+  'Elastic and viscoelastic properties',
+  'Fracture toughness & creep',
+  'Heat treatment studies',
+  'Structure–property correlation',
 ]
 
 const TRAINING_FEATURES = [
-  'Programs for both industry and academia',
-  'Hands-on training and practical exposure',
-  'Focus on real-world applications',
+  'Industry & academic programs',
+  'Hands-on practical training',
+  'Real-world application focus',
 ]
 
-const SERVICE_AGREEMENTS = [
-  'Preventive maintenance support',
+const SERVICE_AGREEMENT_INCLUDES = [
+  'Preventive maintenance',
   'Reduced downtime',
-  'Streamlined servicing process',
-  'Quick response for urgent system needs',
+  'Fast service response',
+  'Structured support workflows',
 ]
 
-const TECH_SUPPORT = [
-  'Easy access to technical information',
-  'Assistance in system operation and data analysis',
-  'Continuous improvements for better usability',
+const TECH_SUPPORT_SERVICES = [
+  'Technical assistance',
+  'System guidance',
+  'Data analysis support',
+  'Continuous product improvement assistance',
 ]
 
 function DocCard({ id, children, className = '' }) {
@@ -76,16 +77,16 @@ export default function ServicesPage() {
     <main className="services-page">
       <SEOMeta
         title="Services"
-        description="Industron services: Nanomechanics Research Lab testing, R&D consultancy, instrument training, service agreements, and technical support for global customers."
+        description="Industron: NRL advanced materials testing, R&D consultancy, training programs, service agreements, and technical support for global research and industry."
         canonical="https://www.industronnano.com/services"
       />
       <PageHero
         size="lg"
         tag="Industron Technical Services"
         title="Services"
-        highlight="testing, consultancy & customer care"
-        lead="From the Nanomechanics Research Laboratory (NRL) to product engineering and long-term support — one team aligned with global research and instrumentation goals."
-        badges={['NRL', 'Smart product engineering', 'Training', 'Service agreements']}
+        highlight="Testing, Consultancy & Technical Support"
+        lead="From advanced materials testing to product engineering and long-term technical support, Industron Technical Services Pvt. Ltd. delivers integrated solutions for global research and industrial needs."
+        badges={['NRL', 'R&D consultancy', 'Training', 'Service agreements', 'Support']}
       />
 
       <div className="services-jump-wrap">
@@ -103,26 +104,25 @@ export default function ServicesPage() {
       <section className="page-section services-doc-wrap">
         <div className="container services-doc-layout">
           <DocCard id="nrl-testing" className="services-doc-card--feature">
-            <span className="services-doc-kicker">Laboratory</span>
-            <h2>Advanced Material Testing</h2>
+            <span className="services-doc-kicker">Nanomechanics Research Lab</span>
+            <h2>NRL – Advanced Material Testing</h2>
             <p>
-              Team Industron supports the materials research community using advanced
-              nanomechanical technologies. The{' '}
-              <strong>Nanomechanics Research Laboratory (NRL)</strong> has executed
-              numerous R&amp;D projects in collaboration with leading research
-              organizations, academic institutions, and industries worldwide.
+              The <strong>Nanomechanics Research Laboratory (NRL)</strong> supports academia and
+              industry with high-precision micro and nanoscale materials testing.
             </p>
+            <h3 className="services-doc-inline-h3">Capabilities</h3>
+            <ul className="services-doc-list services-doc-list--checks services-doc-list--tight">
+              {NRL_CAPABILITIES.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
             <p>
-              The laboratory is equipped with state-of-the-art infrastructure to deliver
-              high-quality experimental results. The team specializes in designing
-              experiments based on specific research requirements and provides deep
-              insights into material behavior.
+              Our state-of-the-art facility is available to researchers and industries for
+              collaborative and chargeable testing services.
             </p>
             <div className="services-callout" role="note">
-              <strong>Facility access.</strong>{' '}
-              Industron offers access to its testing facilities to both academic and
-              industrial researchers on a <strong>chargeable basis</strong>, enabling
-              high-quality research at minimal cost.{' '}
+              <strong>Enquire for access.</strong>{' '}
+              Share your sample and study details to scope feasibility and next steps.{' '}
               <Link to="/testing-form" className="services-callout-link">
                 Open sample testing enquiry form →
               </Link>
@@ -131,10 +131,7 @@ export default function ServicesPage() {
 
           <DocCard id="consultancy" className="services-doc-card--consult">
             <span className="services-doc-kicker">Consultancy</span>
-            <h2>R&amp;D Consultancy Support</h2>
-            <p className="services-doc-lead">
-              Industron provides consultancy across two major verticals:
-            </p>
+            <h2>R&amp;D Consultancy</h2>
 
             <div className="services-consultancy-grid">
               <div className="services-consultancy-col">
@@ -143,12 +140,12 @@ export default function ServicesPage() {
                   Smart Product Engineering
                 </h3>
                 <p>
-                  A multidisciplinary approach integrating mechanical, electrical, and
-                  software engineering to bring products from concept to production.
+                  End-to-end product development integrating mechanical, electrical, and software
+                  systems.
                 </p>
-                <p className="services-doc-list-title">Capabilities include</p>
+                <p className="services-doc-list-title">Expertise includes</p>
                 <ul className="services-doc-list services-doc-list--checks">
-                  {SMART_PRODUCT_CAPS.map((item) => (
+                  {SMART_EXPERTISE.map((item) => (
                     <li key={item}>{item}</li>
                   ))}
                 </ul>
@@ -159,22 +156,15 @@ export default function ServicesPage() {
                   <span className="services-consultancy-icon" aria-hidden="true">◈</span>
                   Material Development &amp; Testing
                 </h3>
-                <p className="services-doc-list-title">Support for development and evaluation of</p>
-                <ul className="services-doc-list services-doc-list--checks">
-                  {MATERIAL_DEV_ITEMS.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-                <p className="services-doc-list-title">Key analysis areas</p>
-                <ul className="services-doc-list services-doc-list--checks">
-                  {MATERIAL_ANALYSIS.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-                <p className="services-consultancy-foot">
-                  Industron also offers <strong>in-situ / operando testing</strong>, enabling
-                  real-time material behavior analysis.
+                <p>
+                  Support for advanced materials, coatings, and process evaluation.
                 </p>
+                <p className="services-doc-list-title">Analysis areas</p>
+                <ul className="services-doc-list services-doc-list--checks">
+                  {MATERIAL_ANALYSIS_AREAS.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
               </div>
             </div>
           </DocCard>
@@ -182,10 +172,10 @@ export default function ServicesPage() {
           <div className="services-mini-grid">
             <DocCard id="training" className="services-doc-card--mini">
               <span className="services-doc-kicker">Learning</span>
-              <h2>Training Courses</h2>
+              <h2>Training Programs</h2>
               <p>
-                Specialized programs in <strong>nanomechanical testing</strong>, backed by
-                over <strong>30 years of expertise</strong> from R&amp;D leadership.
+                Specialized training in nanomechanics and materials characterization led by
+                experienced R&amp;D experts.
               </p>
               <p className="services-doc-list-title">Key features</p>
               <ul className="services-doc-list services-doc-list--checks">
@@ -198,28 +188,33 @@ export default function ServicesPage() {
             <DocCard id="agreements" className="services-doc-card--mini">
               <span className="services-doc-kicker">Uptime</span>
               <h2>Service Agreements</h2>
-              <p className="services-doc-lead">Reliability and uptime:</p>
+              <p>
+                Comprehensive support programs designed for maximum system reliability and uptime.
+              </p>
+              <p className="services-doc-list-title">Includes</p>
               <ul className="services-doc-list services-doc-list--checks">
-                {SERVICE_AGREEMENTS.map((item) => (
+                {SERVICE_AGREEMENT_INCLUDES.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
               </ul>
-              <p className="services-mini-foot">
-                <strong>High customer satisfaction</strong> through structured service support.
-              </p>
             </DocCard>
 
             <DocCard id="support" className="services-doc-card--mini">
               <span className="services-doc-kicker">Help desk</span>
               <h2>Technical Support Center</h2>
-              <p className="services-doc-lead">Dedicated support for:</p>
+              <p>
+                Dedicated expert support for instrument operation, troubleshooting, and data
+                analysis.
+              </p>
+              <p className="services-doc-list-title">Support services</p>
               <ul className="services-doc-list services-doc-list--checks">
-                {TECH_SUPPORT.map((item) => (
+                {TECH_SUPPORT_SERVICES.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
               </ul>
               <p className="services-mini-foot">
-                <strong>Product specialists</strong> are available when you need direct, expert help.
+                Our product specialists are always available to support your research and
+                operational needs.
               </p>
             </DocCard>
           </div>

@@ -7,8 +7,8 @@ const SERVICES = [
     icon: '◈',
     title: 'Research & Development',
     paragraphs: [
-      'Industron established its R&D center in 2011 with a strategic focus on designing, developing, and engineering advanced nanomechanical testing systems. With a strong foundation in precision instrumentation and applied materials science, the team continues to advance nano-, micro-, and meso-scale mechanical characterization technologies for global users.',
-      'Following the acquisition of Hysitron by Bruker Corporation in 2017, the R&D operations transitioned under Industron Technical Services, continuing as a critical technology development and engineering partner. Industron has since contributed to multiple state-of-the-art nanomechanical testing platforms through in-house innovation, collaborative research, and high-level technical consultancy for global product programs.',
+      'Industron established its R&D center in 2011 to design and develop advanced nanomechanical testing systems. Backed by strong expertise in precision instrumentation and applied materials science, the team continues to innovate nano-, micro-, and meso-scale mechanical characterization technologies for global academic and industrial applications.',
+      'Following the acquisition of Hysitron by Bruker Corporation in 2017, the R&D operations continued under Industron Technical Services as a key engineering and technology development partner. Industron has since contributed to multiple state-of-the-art nanomechanical testing platforms through in-house innovation, collaborative research, and global technical consultancy.',
     ],
   },
   {
@@ -16,9 +16,8 @@ const SERVICES = [
     icon: '⊙',
     title: 'Mechanical Testing Instruments & Anti‑Vibration Tables',
     paragraphs: [
-        "Today, Industron is a leading solution provider for mechanical testing and materials characterization, addressing length scales from nano to meso. The company takes pride in developing the world\u2019s first affordable depth\u2011sensing indentation system spanning the micro\u2011 to meso\u2011scale, effectively bridging a critical gap in advanced materials characterization.",
-        "In addition to high\u2011performance research\u2011grade systems, Industron is actively developing educational and training instruments to support fundamental research, hands\u2011on learning, and routine laboratory operations. Complementing its indigenous innovations, Industron offers state\u2011of\u2011the\u2011art nanomechanical testing solutions from Bruker\u2019s Hysitron portfolio, including flagship platforms such as the TI 990, TI 980, and TI Premier II.",
-      'Further strengthening its product ecosystem, Industron is indigenously developing anti‑vibration tables and essential surface‑characterization accessories, enabling high‑precision measurements and stable experimental environments.',
+      'Industron provides advanced mechanical testing and materials characterization solutions covering nano- to meso-scale applications. The company developed the world’s first affordable depth-sensing indentation system for micro- to meso-scale testing, bridging a major gap in modern materials characterization while also developing educational and training systems for research and laboratory use.',
+      'In addition to indigenous innovations, Industron offers advanced nanomechanical testing systems from Bruker’s Hysitron portfolio, including TI 990, TI 980, and TI Premier II. The company is also developing anti-vibration tables and surface-characterization accessories for highly stable and precise experimental environments.',
     ],
   },
   {
@@ -26,8 +25,8 @@ const SERVICES = [
     icon: '◇',
     title: 'Advanced Material Testing',
     paragraphs: [
-      'Our leadership is committed to contributing to the research community from both academia and industry through the setup of the "Nanomechanics Research Lab (NRL)".',
-      'The lab is equipped with advanced nanoindentation techniques and an experienced application team. Our specialists support customers worldwide with application-focused guidance for both academia and industry.',
+      'Industron’s leadership contributes to the research community through the establishment of the Nanomechanics Research Lab (NRL), supporting both academic and industrial research initiatives in advanced material characterization.',
+      'The lab is equipped with advanced nanoindentation technologies and supported by an experienced applications team that provides application-focused technical guidance and support to customers worldwide.',
     ],
   },
 ]

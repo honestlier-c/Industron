@@ -82,8 +82,8 @@
 /* Fixed-size video panel — right column, soft blend into page (no shadow) */
 .hero-media {
   position: relative;
-  width: 900px;
-  height: 700px;
+  width: 765px;
+  height: 545px;
   flex-shrink: 0;
   justify-self: end;
   overflow: hidden;
@@ -198,5 +198,94 @@
     max-width: none;
     padding-left: clamp(1rem, 4vw, 2rem);
     padding-right: clamp(1rem, 4vw, 2rem);
+  }
+}
+
+/* Phone — compact copy, video stays beside flow without dominating */
+@media (max-width: 768px) {
+  .hero {
+    min-height: auto;
+    padding: 5.25rem 0 2rem;
+    align-items: flex-start;
+  }
+
+  .hero-inner {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .hero-content {
+    order: 1;
+    max-width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .hero h1 {
+    font-size: clamp(1.2rem, 5.2vw, 1.65rem);
+    line-height: 1.12;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-sub {
+    font-size: clamp(0.8rem, 3.2vw, 0.9rem);
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    max-width: 100%;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.55rem;
+  }
+
+  .hero-actions .btn-primary,
+  .hero-actions .btn-ghost {
+    width: 100%;
+    justify-content: center;
+    font-size: 0.82rem;
+    padding: 0.5rem 0.9rem;
+  }
+
+  .hero-media {
+    order: 2;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: 240px;
+    aspect-ratio: 765 / 545;
+    margin: 0;
+    justify-self: stretch;
+    -webkit-mask-image: none;
+    mask-image: none;
+    border-radius: 10px;
+  }
+
+  .hero-media::after {
+    display: none;
+  }
+
+  .hero-media video {
+    object-fit: cover;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding-top: 4.75rem;
+  }
+
+  .hero h1 {
+    font-size: clamp(1.1rem, 4.8vw, 1.45rem);
+  }
+
+  .hero-sub {
+    font-size: 0.78rem;
+  }
+
+  .hero-media {
+    max-height: 200px;
   }
 }

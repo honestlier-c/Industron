@@ -7,7 +7,7 @@ import { PRODUCTS } from '../data/products'
 import { fadeUp } from '../motion/presets'
 import SEOMeta from '../components/SEOMeta'
 
-const CATEGORIES = ['All', 'Standalone', 'In-Situ', 'Education and Research', 'Desktop']
+const CATEGORIES = ['All', 'Standalone', 'In-Situ', 'Education and Research']
 
 export default function ProductsPage() {
   const [active, setActive] = useState('All')

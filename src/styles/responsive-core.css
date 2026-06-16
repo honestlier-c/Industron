@@ -57,6 +57,7 @@
   .about-block--reverse .about-block-content { order: 2; }
   .about-comp-grid    { grid-template-columns: repeat(2, 1fr); }
   .about-leader-grid  { grid-template-columns: 1fr; }
+  .about-team-grid    { grid-template-columns: repeat(2, 1fr); }
   .about-cta          { grid-template-columns: 1fr; padding: 2.25rem; }
   .about-cta-actions  { justify-content: flex-start; }
   .products-grid      { grid-template-columns: 1fr; }
@@ -65,43 +66,19 @@
   .applications-two-col    { grid-template-columns: 1fr; }
   .applications-tech-grid  { grid-template-columns: repeat(2, 1fr); }
   .contact-page-grid       { grid-template-columns: 1fr; }
+  .inquiry-routes-grid     { grid-template-columns: 1fr; }
   .contact-page-offices    { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 720px) {
   .about-comp-grid    { grid-template-columns: 1fr; }
+  .about-team-grid    { grid-template-columns: 1fr; }
   .applications-tech-grid { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 860px) {
-  .hero {
-    min-height: 0;
-    padding-top: 6.5rem;
-    padding-bottom: 2.5rem;
-  }
-  .hero-media {
-    width: 100%;
-    max-width: min(765px, 100%);
-    border-radius: 10px;
-  }
-  .hero-content {
-    padding-left: clamp(0.5rem, 2vw, 1rem);
-    padding-right: clamp(0.5rem, 2vw, 1rem);
-  }
-  .hero-actions {
-    justify-content: flex-start;
-  }
 }
 
 @media (max-width: 600px) {
   .section         { padding: 5rem 0; }
   .form-row        { grid-template-columns: 1fr; }
-  .hero h1         { margin-bottom: 1rem; font-size: clamp(1.25rem, 6.5vw, 2rem); }
-  .hero-sub        { margin-bottom: 1.1rem; font-size: clamp(0.88rem, 3.5vw, 0.98rem); }
-  .hero-actions    { gap: 0.75rem; }
-  .hero-actions .btn-primary,
-  .hero-actions .btn-ghost { width: 100%; justify-content: flex-start; }
-  .hero-content    { padding-top: 7.25rem; }
   .footer-grid     { grid-template-columns: 1fr; }
   .footer-bottom   { flex-direction: column; gap: 1.2rem; text-align: center; }
   .testing-modal { padding: 1rem; border-radius: 14px; }

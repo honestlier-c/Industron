@@ -3,35 +3,19 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import PageHero from '../components/PageHero'
 import SEOMeta from '../components/SEOMeta'
+import {
+  INQUIRY_CHANNELS,
+  openTestingInquiryMailto,
+} from '../config/inquiryEmails'
 
-const TESTING_EMAIL = 'kp@industronnano.com'
-
-function buildMailtoBody(form) {
-  const fd = new FormData(form)
-  const lines = []
-  for (const [key, value] of fd.entries()) {
-    if (typeof value === 'string' && value.trim()) {
-      lines.push(`${key}: ${value.trim()}`)
-    }
-  }
-  return lines.join('\n')
-}
+const TESTING_EMAIL = INQUIRY_CHANNELS.testing.email
 
 export default function TestingFormPage() {
   const [notice, setNotice] = useState(null)
 
   const handleSubmit = (event) => {
     event.preventDefault()
-    const form = event.currentTarget
-    const bodyRaw = buildMailtoBody(form)
-    const subject = encodeURIComponent('First-hand sample testing enquiry')
-    let body = encodeURIComponent(bodyRaw)
-    if (body.length > 3200) {
-      body = encodeURIComponent(
-        `${bodyRaw.slice(0, 2800)}\n\n[Message truncated — please add any missing details in your email.]`,
-      )
-    }
-    window.location.href = `mailto:${TESTING_EMAIL}?subject=${subject}&body=${body}`
+    openTestingInquiryMailto(event.currentTarget)
     setNotice(
       'Your email app should open with this enquiry as a draft. If it does not, copy your answers and send them manually.',
     )
@@ -66,6 +50,9 @@ export default function TestingFormPage() {
                 <h2 className="testing-form-panel-title">First-hand sample information form</h2>
                 <p className="testing-form-panel-intro">
                   For enquiries to <strong>Advanced Material Testing</strong> and NRL access.
+                  Submissions are addressed to{' '}
+                  <a href={`mailto:${TESTING_EMAIL}`}>{TESTING_EMAIL}</a>
+                  {' '}with subject tag <strong>{INQUIRY_CHANNELS.testing.subjectPrefix}</strong>.
                   Questions?{' '}
                   <Link to="/contact">Contact us</Link>
                   {' · '}
@@ -148,8 +135,8 @@ export default function TestingFormPage() {
 
               <p className="testing-form-hint">
                 Submitting opens your default email app with this information addressed to{' '}
-                <strong>{TESTING_EMAIL}</strong> (Application Engineer — material testing). You can
-                edit the message before sending.
+                <strong>{TESTING_EMAIL}</strong> (NRL / material testing desk). You can edit the
+                message before sending.
               </p>
 
               <div className="testing-modal-actions">

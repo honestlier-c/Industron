@@ -150,8 +150,10 @@ function SequenceDetailPage({ product }) {
       <InfoSection
         info={info}
         name={name}
+        slug={slug}
         layout={product.infoLayout}
         section={product.infoSection}
+        brochureUrl={product.brochureUrl}
       />
     </main>
   )
@@ -227,15 +229,17 @@ function StaticDetailPage({ product }) {
       <InfoSection
         info={info}
         name={name}
+        slug={product.slug}
         layout={product.infoLayout}
         section={product.infoSection}
+        brochureUrl={product.brochureUrl}
       />
     </main>
   )
 }
 
 /* ── Shared info + buy sections ─────────────────────────────────────── */
-function InfoSection({ info, name, layout, section }) {
+function InfoSection({ info, name, slug, layout, section, brochureUrl }) {
   const isTrack = layout === 'track'
   const trackLoop = isTrack ? [...info, ...info] : info
 
@@ -327,6 +331,14 @@ function InfoSection({ info, name, layout, section }) {
           </p>
           <div className="meso-buy-actions">
             <Link to="/contact" className="meso-cta">Request Technical Consultation</Link>
+            {brochureUrl && (
+              <Link
+                to={`/brochure-form?product=${slug}`}
+                className="meso-cta meso-cta--brochure"
+              >
+                Get Brochure
+              </Link>
+            )}
             <Link to="/products" className="meso-link">Back to Product Portfolio</Link>
           </div>
         </div>

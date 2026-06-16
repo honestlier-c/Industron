@@ -1,7 +1,9 @@
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import PageHero from '../components/PageHero'
 import { fadeUp, stagger } from '../motion/presets'
 import SEOMeta from '../components/SEOMeta'
+import { INQUIRY_CHANNELS, INQUIRY_ROUTES } from '../config/inquiryEmails'
 
 const OFFICES = [
   {
@@ -47,6 +49,58 @@ export default function ContactPage() {
         lead="General enquiries, technical support, product guidance, and advanced material testing — connect with the right global team below."
         badges={['Response < 1 business day', 'India · USA', 'Lab services', 'Founder access']}
       />
+
+      {/* Dedicated inquiry mailboxes */}
+      <section className="page-section page-section-alt">
+        <motion.div
+          className="container"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={stagger}
+        >
+          <motion.div className="page-section-head" variants={fadeUp}>
+            <motion.div className="section-tag" variants={fadeUp}>
+              Enquiry routing
+            </motion.div>
+            <motion.h2 variants={fadeUp}>Structured enquiries</motion.h2>
+            <motion.p variants={fadeUp}>
+              Use the dedicated inbox or online form for each type of request so we can track
+              contacts, sort messages, and forward sales leads to the right team.
+            </motion.p>
+          </motion.div>
+
+          <motion.div className="inquiry-routes-grid" variants={stagger}>
+            {INQUIRY_ROUTES.map((route) => (
+              <motion.article key={route.id} className="inquiry-route-card" variants={fadeUp}>
+                <p className="inquiry-route-tag">{route.subjectPrefix}</p>
+                <h3>{route.label}</h3>
+                <p className="inquiry-route-desc">{route.description}</p>
+                <dl className="contact-page-dl inquiry-route-dl">
+                  <dt>Email</dt>
+                  <dd>
+                    <a href={`mailto:${route.email}?subject=${encodeURIComponent(route.subjectPrefix)}`}>
+                      {route.email}
+                    </a>
+                  </dd>
+                </dl>
+                {route.formPath ? (
+                  <Link to={route.formPath} className="btn-ghost inquiry-route-cta">
+                    {route.formLabel}
+                  </Link>
+                ) : (
+                  <a
+                    href={`mailto:${route.email}?subject=${encodeURIComponent(`${route.subjectPrefix} `)}`}
+                    className="btn-ghost inquiry-route-cta"
+                  >
+                    Email {route.label.toLowerCase()}
+                  </a>
+                )}
+              </motion.article>
+            ))}
+          </motion.div>
+        </motion.div>
+      </section>
 
       {/* Primary contacts */}
       <section className="page-section">
@@ -106,13 +160,19 @@ export default function ContactPage() {
               <div className="contact-page-card-icon" aria-hidden="true">◈</div>
               <h3>Advanced material testing</h3>
               <p className="contact-page-card-sub">
-                For lab services, sample testing, and application discussions.
+                For lab services, sample testing, and application discussions. Use the{' '}
+                <Link to="/testing-form">NRL testing form</Link> or{' '}
+                <a href={`mailto:${INQUIRY_CHANNELS.testing.email}`}>
+                  {INQUIRY_CHANNELS.testing.email}
+                </a>{' '}
+                for
+                structured sample enquiries.
               </p>
               <div className="contact-page-person">
                 <p className="contact-page-name">Kiran Raphael</p>
                 <p className="contact-page-role">Application Engineer</p>
                 <dl className="contact-page-dl">
-                  <dt>Email</dt>
+                  <dt>Direct email</dt>
                   <dd><a href="mailto:kp@industronnano.com">kp@industronnano.com</a></dd>
                   <dt>Phone</dt>
                   <dd><a href="tel:+919447311243">+91 9447311243</a></dd>

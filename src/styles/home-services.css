@@ -217,3 +217,84 @@
   text-decoration: underline;
 }
 
+/* Brochure download form (same theme as testing-form) */
+.brochure-form-panel {
+  padding: 0 0 2.25rem;
+  overflow: hidden;
+}
+.brochure-form-panel-head {
+  margin: 0;
+  padding: 1.15rem 2rem 1.1rem;
+  background: #e9ecef;
+  border-bottom: 1px solid var(--border);
+}
+.brochure-form-panel-title {
+  margin: 0.25rem 0 0;
+  font-size: clamp(1.15rem, 2.4vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #3d4450;
+  line-height: 1.25;
+}
+.brochure-form-panel-intro {
+  margin: 0;
+  padding: 1rem 2rem 0;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--text-dim);
+}
+.brochure-form-panel-intro a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+.brochure-form-panel-intro a:hover {
+  text-decoration: underline;
+}
+.brochure-form-panel .testing-form-notice,
+.brochure-form-panel form {
+  margin-left: 2rem;
+  margin-right: 2rem;
+}
+.brochure-form-panel .testing-form-notice {
+  margin-top: 1rem;
+}
+.testing-modal-form--brochure {
+  grid-template-columns: 1fr;
+  margin-top: 1.25rem;
+}
+.brochure-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.brochure-form-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+.brochure-form-required {
+  color: #dc2626;
+  font-weight: 700;
+}
+.testing-form-name-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem 1rem;
+}
+.testing-form-sublabel {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  opacity: 0.85;
+}
+.testing-modal-form--brochure label:has(select) {
+  gap: 0.35rem;
+}
+.testing-modal-form--brochure label:has(select) .testing-form-sublabel {
+  margin-top: 0.15rem;
+}
+.brochure-form-actions {
+  justify-content: flex-start;
+}
+

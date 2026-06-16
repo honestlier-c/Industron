@@ -111,3 +111,51 @@
 .contact-founder-meta .contact-page-name { margin-bottom: 0.15rem; }
 .contact-founder-meta .contact-page-role { margin: 0; }
 
+/* Structured enquiry routing (contact page) */
+.inquiry-routes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+.inquiry-route-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.35rem 1.4rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+}
+.inquiry-route-card:hover {
+  border-color: rgba(37, 99, 235, 0.45);
+  box-shadow: 0 12px 32px rgba(37, 99, 235, 0.08);
+  transform: translateY(-3px);
+}
+.inquiry-route-tag {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.inquiry-route-card h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+.inquiry-route-desc {
+  margin: 0 0 0.5rem;
+  flex: 1;
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: var(--text-dim);
+}
+.inquiry-route-dl {
+  margin-bottom: 0.65rem;
+}
+.inquiry-route-cta {
+  align-self: flex-start;
+  margin-top: auto;
+}
+

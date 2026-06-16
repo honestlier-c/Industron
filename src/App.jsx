@@ -11,7 +11,8 @@ const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'))
 const ServicesPage     = lazy(() => import('./pages/ServicesPage'))
 const ApplicationsPage = lazy(() => import('./pages/ApplicationsPage'))
 const ContactPage      = lazy(() => import('./pages/ContactPage'))
-const TestingFormPage  = lazy(() => import('./pages/TestingFormPage'))
+const TestingFormPage   = lazy(() => import('./pages/TestingFormPage'))
+const BrochureFormPage  = lazy(() => import('./pages/BrochureFormPage'))
 
 function PageLoader() {
   return (
@@ -47,6 +48,7 @@ export default function App() {
             <Route path="/applications"          element={<ApplicationsPage />} />
             <Route path="/contact"               element={<ContactPage />} />
             <Route path="/testing-form"          element={<TestingFormPage />} />
+            <Route path="/brochure-form"         element={<BrochureFormPage />} />
             <Route path="/mesoprobe"             element={<Navigate to="/products/mesoprobe" replace />} />
           </Routes>
         </Suspense>
