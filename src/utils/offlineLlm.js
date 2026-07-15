@@ -1,12 +1,13 @@
 /**
  * Offline in-browser LLM via WebLLM (MLC).
- * Default model: Llama-3.2-1B-Instruct (q4f16) — best speed/quality for local web chat.
+ * Default model: Qwen2.5-0.5B-Instruct (q4f16) — ~300 MB weights, fast first-load,
+ * 4096 context, coherent when grounded by the site's knowledge base.
  * Falls back gracefully when WebGPU is unavailable.
  */
 
-/** Best default for offline product chat on typical laptops */
-export const OFFLINE_MODEL_ID = 'Llama-3.2-1B-Instruct-q4f16_1-MLC'
-export const OFFLINE_MODEL_LABEL = 'Llama 3.2 1B (offline)'
+/** Small, fast-to-download model for offline support chat */
+export const OFFLINE_MODEL_ID = 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC'
+export const OFFLINE_MODEL_LABEL = 'Qwen2.5 0.5B (offline)'
 
 let enginePromise = null
 let engine = null
