@@ -286,10 +286,28 @@ function deterministicAnswer(userMessage) {
   return null
 }
 
+/**
+ * Reveal a knowledge-base reply progressively through `onToken`, so instant
+ * answers get the same typing animation as the streamed model replies.
+ */
+async function streamText(text, onToken, signal) {
+  if (!onToken) return
+  // Reveal in small bursts (~similar cadence to the model's token stream).
+  const chunk = Math.max(1, Math.ceil(text.length / 180))
+  let shown = ''
+  for (let i = 0; i < text.length; i += chunk) {
+    if (signal?.aborted) break
+    shown = text.slice(0, i + chunk)
+    onToken(shown)
+    await new Promise((resolve) => setTimeout(resolve, 12))
+  }
+  onToken(text)
+}
+
 export async function answerWithBestEngine(userMessage, history = [], { onToken, preferLlm = true, signal } = {}) {
   const exact = deterministicAnswer(userMessage)
   if (exact) {
-    onToken?.(exact.text)
+    await streamText(exact.text, onToken, signal)
     return exact
   }
 
@@ -336,7 +354,9 @@ export async function answerWithBestEngine(userMessage, history = [], { onToken,
     ensureOfflineLlm().catch(() => {})
   }
 
-  return generateChatReply(userMessage)
+  const reply = generateChatReply(userMessage)
+  await streamText(reply.text, onToken, signal)
+  return reply
 }
 
 export function getWelcomeMessage() {

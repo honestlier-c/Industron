@@ -163,6 +163,17 @@
   background: #86efac;
   box-shadow: 0 0 0 3px rgba(134, 239, 172, 0.25);
 }
+.chatbot-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.05rem 0.44rem;
+  border-radius: 999px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  background: rgba(103, 232, 249, 0.16);
+  border: 1px solid rgba(103, 232, 249, 0.5);
+  color: #cffafe;
+}
 .chatbot-icon-btn {
   width: 32px;
   height: 32px;

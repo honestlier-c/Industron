@@ -91,18 +91,18 @@ export default function ChatBot() {
 
   useEffect(() => subscribeOfflineLlm(setLlmStatus), [])
 
-  /* Answers are always instant from the built-in knowledge base. The first
-     time the chat opens, quietly warm up the enhanced engine in the background
-     (only where WebGPU exists) so it can take over on later messages — never
-     blocking, and never downloading for visitors who don't open the chat. */
+  /* Start downloading the enhanced engine automatically as soon as the page
+     loads (where WebGPU exists). It's non-blocking: every message is answered
+     instantly from the built-in offline knowledge base while the model
+     downloads, and the enhanced engine takes over once it's ready. */
   useEffect(() => {
-    if (!open || bootstrapped.current) return undefined
+    if (bootstrapped.current) return undefined
     bootstrapped.current = true
     if (isWebGpuAvailable()) {
       ensureOfflineLlm().catch(() => {})
     }
     return undefined
-  }, [open])
+  }, [])
 
   useEffect(() => {
     if (!open) return undefined
@@ -189,8 +189,6 @@ export default function ChatBot() {
     ask(input)
   }
 
-  const statusLabel = 'Online'
-
   return (
     <div className="chatbot-root">
       <AnimatePresence>
@@ -213,7 +211,11 @@ export default function ChatBot() {
                   <p className="chatbot-title">Industron Support</p>
                   <p className="chatbot-status">
                     <span className={`chatbot-status-dot ${llmStatus.ready ? 'chatbot-status-dot--llm' : ''}`} />
-                    {statusLabel}
+                    {llmStatus.ready ? (
+                      <span className="chatbot-status-badge">Online</span>
+                    ) : (
+                      'Online'
+                    )}
                   </p>
                 </div>
               </div>
