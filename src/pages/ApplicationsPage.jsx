@@ -4,151 +4,7 @@ import PageHero from '../components/PageHero'
 import PageCTA from '../components/PageCTA'
 import { fadeUp } from '../motion/presets'
 import SEOMeta from '../components/SEOMeta'
-
-const INDUSTRIES = [
-  {
-    title: 'Steel Industry',
-    accent: 'cyan',
-    techniques: ['Nanoindentation & Tribology', 'Property Mapping', 'Scanning Probe Microscopy'],
-    notes: [
-      'Investigating wear and nanomechanics of thin hard coatings on steel',
-      'Correlative microscopy and XPM steel',
-      'Local work hardening of steel',
-      'Oxide dispersion strengthened steel tested up to 700°C',
-      'Hardness mapping of a DP980 steel sample',
-      'Nanoindentation of duplex stainless steel using EBSD and PI 88',
-    ],
-  },
-  {
-    title: 'Foundry, Metal Forming & Joining',
-    accent: 'purple',
-    techniques: ['Nanoindentation & Tribology', 'Property Mapping', 'Scanning Probe Microscopy'],
-    notes: [
-      'Targeted nanoindentation of a high entropy alloy in SEM',
-      'Material joining characterization of laser beam welding',
-    ],
-  },
-  {
-    title: 'Pharmaceutical',
-    accent: 'cyan',
-    techniques: ['Mechanical properties of molecular crystals', 'Property mapping'],
-    notes: ['Indentation-induced structural changes using Raman spectroscopy'],
-  },
-  {
-    title: 'Automotive & Aerospace',
-    accent: 'purple',
-    techniques: [
-      'Nanoindentation & Nanotribology',
-      'High-temperature property mapping',
-      'Scanning Probe Microscopy',
-      'Creep testing',
-    ],
-    notes: [
-      'Tape test vs nanoindentation',
-      'Polymer thin film characterization at low temperature',
-      'Strength engineering in nickel-based superalloys',
-      'Tire materials testing in harsh environments',
-      'High-temperature creep testing of superalloy bond coat',
-      'In-situ high-temperature study of Ni-based superalloys',
-    ],
-  },
-  {
-    title: 'Food & Beverages',
-    accent: 'cyan',
-    techniques: [
-      'Adhesion strength of thin coatings',
-      'Mechanical characterization of corrosion-resistant coatings',
-      'Wear testing',
-    ],
-    notes: ['Mechanical characterization of corrosion-resistant coatings'],
-  },
-  {
-    title: 'Surface Protection & Paint Coatings',
-    accent: 'purple',
-    techniques: [
-      'Adhesion strength of coatings',
-      'Depth-dependent property measurement',
-      'Thin film measurement (as low as 1 nm)',
-    ],
-    notes: [
-      'Polymer thin film characterization',
-      'Corrosion-resistant coating analysis',
-      'Tape test vs nanoindentation',
-    ],
-  },
-  {
-    title: 'Biomaterials',
-    accent: 'cyan',
-    techniques: [
-      'Nanoindentation & Tribology',
-      'Viscoelastic property measurement',
-      'Dynamic Mechanical Analysis',
-    ],
-    notes: [
-      'Indentation of contact lenses',
-      'Hydrogel characterization using in-situ indenter',
-      'Raman and indentation mapping of biological tissues',
-      'Compression testing of living cells',
-      'Characterization of aortic valve tissue',
-      'Nanoindentation of marine teeth',
-      'Elastic properties of cartilage tissue',
-    ],
-  },
-  {
-    title: 'Polymer & Plastic',
-    accent: 'purple',
-    techniques: [
-      'Dynamic Mechanical Analysis (DMA)',
-      'Time/frequency-dependent behavior',
-      'Temperature sweep & glass transition analysis',
-    ],
-    notes: [
-      'Polymer thin film characterization',
-      'Tire materials testing',
-      'High-throughput material screening',
-      'Time-dependent deformation of PMMA',
-    ],
-  },
-]
-
-const TESTING_TECHNIQUES = [
-  {
-    title: 'Nanoindentation',
-    desc: 'Mechanical testing to measure hardness and modulus at the nanoscale by applying force and measuring indentation depth.',
-  },
-  {
-    title: 'Scanning Probe Microscopy (SPM)',
-    desc: 'Nanometer-resolution 3D surface imaging through raster scanning. Enables precise site-specific testing (~±10 nm accuracy).',
-  },
-  {
-    title: 'NanoScratch',
-    desc: 'Measures scratch resistance, adhesion, friction, and coating behavior using force-displacement monitoring.',
-  },
-  {
-    title: 'Scanning Wear',
-    desc: 'Evaluates wear rate and volume at sub-microstructural levels with in-situ imaging capability.',
-  },
-  {
-    title: 'High Temperature Testing',
-    desc: 'Material characterization up to 800 °C, enabling analysis under extreme operating conditions.',
-  },
-  {
-    title: 'Creep Testing',
-    desc: 'Measures time-dependent deformation of materials under load, even at elevated temperatures.',
-  },
-  {
-    title: 'Modulus Mapping',
-    desc: 'DMA-based technique that maps stiffness, modulus, and viscoelastic properties across surfaces.',
-  },
-  {
-    title: 'Dynamic Mechanical Analysis (DMA)',
-    desc: 'Analyzes viscoelastic materials by applying sinusoidal forces to study time-dependent mechanical behavior.',
-  },
-  {
-    title: 'Accelerated Property Mapping (XPM)',
-    desc: 'Rapid large-scale mapping of mechanical properties with multiple indentations per second.',
-  },
-]
+import { APPLICATION_INDUSTRIES as INDUSTRIES, TESTING_TECHNIQUES } from '../data/applicationNotes'
 
 export default function ApplicationsPage() {
   const [active, setActive] = useState('Steel Industry')
@@ -232,7 +88,21 @@ export default function ApplicationsPage() {
                       <h4 className="applications-sublabel">Application notes</h4>
                       <ol className="applications-notes-list">
                         {ind.notes.map((n) => (
-                          <li key={n}>{n}</li>
+                          <li key={n.label}>
+                            {n.pdf ? (
+                              <a
+                                className="applications-note-link"
+                                href={n.pdf}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <span className="applications-note-label">{n.label}</span>
+                                <span className="applications-note-pdf" aria-hidden="true">PDF</span>
+                              </a>
+                            ) : (
+                              n.label
+                            )}
+                          </li>
                         ))}
                       </ol>
                     </div>

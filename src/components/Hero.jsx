@@ -13,6 +13,13 @@ const fadeUp = {
 export default function Hero() {
   return (
     <section className="hero" id="hero">
+      <div className="hero-bg" aria-hidden="true">
+        <div className="hero-orb hero-orb--a" />
+        <div className="hero-orb hero-orb--b" />
+        <div className="hero-orb hero-orb--c" />
+        <div className="hero-bg-grid" />
+      </div>
+
       <motion.div
         className="container hero-inner"
         initial="hidden"
@@ -20,6 +27,11 @@ export default function Hero() {
         variants={{ visible: { transition: { staggerChildren: 0.12 } } }}
       >
         <div className="hero-content">
+          <motion.div className="hero-tag" variants={fadeUp} initial="hidden" animate="visible" custom={0}>
+            <span className="hero-tag-dot" />
+            Nanomechanics · Precision Instruments
+          </motion.div>
+
           <motion.h1 variants={fadeUp} initial="hidden" animate="visible" custom={1}>
             High-Performance<br />
             Nanomechanical Testing Instruments<br />
@@ -29,18 +41,6 @@ export default function Hero() {
           <motion.p className="hero-sub" variants={fadeUp} initial="hidden" animate="visible" custom={2}>
             Chosen by research institutions, engineering teams, and advanced manufacturers worldwide for high-precision nanomechanical characterization across next-generation materials and devices.
           </motion.p>
-
-          <motion.div className="hero-actions" variants={fadeUp} initial="hidden" animate="visible" custom={3}>
-            <a href="#about" className="btn-primary">
-              Explore Solutions <span aria-hidden="true">→</span>
-            </a>
-            <Link to="/contact" className="btn-ghost">
-              Request Global Demo
-            </Link>
-            <Link to="/testing-form" className="btn-ghost">
-              Get Your Material Tested
-            </Link>
-          </motion.div>
         </div>
 
         <motion.div
@@ -48,7 +48,7 @@ export default function Hero() {
           variants={fadeUp}
           initial="hidden"
           animate="visible"
-          custom={4}
+          custom={3}
           aria-hidden="true"
         >
           <video
@@ -58,6 +58,18 @@ export default function Hero() {
             loop
             playsInline
           />
+        </motion.div>
+
+        <motion.div className="hero-actions" variants={fadeUp} initial="hidden" animate="visible" custom={4}>
+          <a href="#about" className="btn-primary">
+            Explore Solutions <span aria-hidden="true">→</span>
+          </a>
+          <Link to="/contact" className="btn-ghost">
+            Request Global Demo
+          </Link>
+          <Link to="/testing-form" className="btn-ghost">
+            Get Your Material Tested
+          </Link>
         </motion.div>
       </motion.div>
     </section>

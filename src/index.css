@@ -41,6 +41,7 @@
 @import './styles/applications-extras.css';
 @import './styles/contact-extras.css';
 @import './styles/mesoprobe.css';
+@import './styles/chatbot.css';
 
 /* Responsive overrides for the shared page system ---------------- */
 @import './styles/responsive-shared.css';

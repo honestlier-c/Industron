@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
+import ChatBot from './components/ChatBot'
 
 const HomePage         = lazy(() => import('./pages/HomePage'))
 const AboutPage        = lazy(() => import('./pages/AboutPage'))
@@ -55,6 +56,7 @@ export default function App() {
       </div>
 
       <Footer />
+      <ChatBot />
     </>
   )
 }
