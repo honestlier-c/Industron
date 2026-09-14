@@ -6,6 +6,76 @@ import { PRODUCTS } from './products'
 import { getApplicationNotes } from './applicationNotes'
 import { retrieveRelevantFaq, buildFaqQuestionList } from './technicalFaq'
 
+/**
+ * Curated, source-grounded key facts per product. Every value is drawn from
+ * the product's own page content (specs, test modes, positioning) — nothing
+ * invented — so the assistant can answer spec/application questions precisely.
+ */
+export const PRODUCT_FACTS = {
+  mesoprobe: {
+    specs:
+      'Max actuation load 20 N · max displacement 60 mm · displacement resolution 1 nm · camera 4024×3036 px · temperature up to 600 °C · motorized stages X 150 mm / Y 50 mm · optics 0.2× (1×/5×/10× optional). Meso scale: 10 μm – 5 mm (nano: 1 nm – 10 μm; macro: > 5 mm).',
+    tests:
+      'Indentation (spherical tip — hardness, elastic modulus, load–displacement, depth sensing); compression (polymers, hydrogels, rubber, foams — μN-level force); three-point & cantilever bending with DIC strain overlay; tensile; fracture; fatigue; creep. Integrated DIC for full-field strain mapping.',
+    strengths:
+      'Next-generation meso-scale testing: nanometre precision, integrated DIC, high throughput. Bridges nano–macro gap so small samples yield bulk-relevant insights. Workflow: small sample → mechanical loading → in-situ optical imaging → DIC → stress/strain/modulus/creep/fatigue.',
+    bestFor:
+      'Automotive, aerospace, battery materials, thin films & coatings, semiconductors & MEMS, biomaterials & medical devices, and education & research labs — especially limited sample volume, high-temperature (to 600 °C), and DIC workflows.',
+  },
+  'uprobe-500': {
+    specs:
+      'Indentation load 0–500 mN · max displacement 18 μm · ADC 24-bit · frame stiffness 8 × 10⁷ N/m · control 600 MHz embedded processor @ 30 kHz · motorized stages X 100 mm / Y 50 mm / Z 50 mm (1 nm encoder) · optics 10×–40×.',
+    tests:
+      'Micro indentation (hardness, elastic modulus, depth sensing); method automation (automated grid indentation with stage control); partial unload testing for accurate modulus and reduced indentation effects.',
+    strengths:
+      'Research-grade depth-sensing micro indenter: nanometre-scale precision; high-precision actuator + digital microscope + XYZ stage on a natural granite base (high stiffness, low vibration); automated high-throughput testing and powerful analysis software.',
+    bestFor:
+      'Materials research, thin films & coatings, metals & alloys, polymers & composites, biomaterials & medical devices, semiconductors & microelectronics, advanced coatings, and education & training.',
+  },
+  ng80: {
+    specs:
+      'HSI up to 4 indents/s (300× faster than conventional). Force: noise floor < 200 nN, resolution 1 nN, max 10 mN. Displacement resolution 0.006 mm, max 5 μm. Stages 100 × 50 × 50 mm (XY step 50 nm, Z step 10 nm). SPM image 50 μm × 50 μm @ 256 × 256; site-specific ±10 nm. Optics 10× (20× optional), 1 μm resolution, 34 mm WD, coaxial illumination, 5 MP camera. Optional high-T stage to 600 °C (as configured).',
+    tests:
+      'Nanoindentation (hardness & elastic modulus, load/displacement control); in-situ SPM imaging (3D topography, site-specific); scanning nanowear (wear volume/rate, multi-pass, friction & wear mapping); high-speed indentation for rapid property mapping and statistics.',
+    strengths:
+      'Multi-technique compact platform: 300× faster HSI, research-grade nanometre precision, reliable low-noise stability, optional high temperature, and intuitive automated software.',
+    bestFor:
+      'Automotive, aerospace, battery materials, thin films & coatings, semiconductors & MEMS, biomaterials & medical devices, and education & research labs.',
+  },
+  'pneumatic-air-isolation-table': {
+    specs:
+      'Table / working surface 600 × 600 mm · granite tabletop · payload 40–150 kg (max 150 kg) · pneumatic air suspension · natural frequency 6 Hz · air supply 0–4 bar (payload-dependent).',
+    tests:
+      'Passive vibration isolation platform for instruments — not a mechanical test mode; supports precision inspection, metrology, and optical systems.',
+    strengths:
+      'Stable foundation for higher precision: high-stiffness granite, pneumatic isolation at 6 Hz, adjustable air pressure, wide payload range, reliable performance in challenging environments.',
+    bestFor:
+      'Precision inspection, metrology, optical systems, and other vibration-sensitive equipment.',
+  },
+  'dic-software': {
+    specs:
+      'Digital Image Correlation software for full-field displacement and strain mapping from optical image sequences; exports stress–strain, modulus, and time-dependent metrics when paired with load data.',
+    tests:
+      'Full-field strain mapping for bending, tensile, compression, fracture, fatigue, and creep — with strain overlays on optical imagery.',
+    strengths:
+      'Quantifies deformation where point gauges fall short; designed to work with MesoProbe optical meso-scale testing and related Industron imaging workflows.',
+    bestFor:
+      'Heterogeneous materials, limited sample volumes, high-temperature optical tests, and localisation / crack-path studies.',
+  },
+}
+
+/** Render a product's curated facts as a compact, chat-friendly block. */
+export function buildProductFacts(slug) {
+  const f = PRODUCT_FACTS[slug]
+  if (!f) return ''
+  const lines = []
+  if (f.specs) lines.push(`**Key specs:** ${f.specs}`)
+  if (f.tests) lines.push(`**Test types:** ${f.tests}`)
+  if (f.strengths) lines.push(`**Strengths:** ${f.strengths}`)
+  if (f.bestFor) lines.push(`**Best for:** ${f.bestFor}`)
+  return lines.join('\n')
+}
+
 export function getProductKnowledge() {
   return PRODUCTS.map((p) => {
     const beatBits = p.beats
@@ -16,6 +86,7 @@ export function getProductKnowledge() {
     const infoBits = (p.info || [])
       .map((i) => [i.title, i.text].filter(Boolean).join(': '))
       .join(' | ')
+    const facts = buildProductFacts(p.slug)
 
     return {
       slug: p.slug,
@@ -26,13 +97,16 @@ export function getProductKnowledge() {
       lead: p.hero?.lead,
       badges: p.hero?.badges ?? [],
       path: `/products/${p.slug}`,
+      external: Boolean(p.externalUrl),
+      externalUrl: p.externalUrl || null,
+      facts,
       detail: [beatBits, infoBits].filter(Boolean).join('\n'),
-      keywords: buildKeywords(p, beatBits, infoBits),
+      keywords: buildKeywords(p, beatBits, infoBits, facts),
     }
   })
 }
 
-function buildKeywords(p, beatBits, infoBits) {
+function buildKeywords(p, beatBits, infoBits, facts = '') {
   const base = [
     p.name,
     p.slug,
@@ -43,21 +117,34 @@ function buildKeywords(p, beatBits, infoBits) {
     ...(p.hero?.badges ?? []),
     beatBits,
     infoBits,
+    facts,
   ]
     .filter(Boolean)
     .join(' ')
     .toLowerCase()
 
   const extras = []
-  if (/mesoprobe/i.test(p.name)) extras.push('meso dic high-temperature 600 bending creep')
-  if (/μprobe|uprobe|micro/i.test(p.name + p.slug)) extras.push('microindentation hardness modulus education 500mn')
-  if (/ng50|ng80|nanoguru/i.test(p.name + p.slug)) extras.push('nanoguru desktop education spm nanoindentation')
-  if (/sem|picoindenter|pi /i.test(p.name)) extras.push('sem in-situ picoindenter')
-  if (/tem/i.test(p.name)) extras.push('tem transmission')
-  if (/tribo/i.test(p.name)) extras.push('tribology friction wear')
-  if (/biosoft/i.test(p.name)) extras.push('soft-matter biological hydrated')
+  if (/mesoprobe/i.test(p.name)) extras.push('meso dic high-temperature 600 bending creep fatigue tensile spherical indentation compression hydrogel automotive aerospace battery mems biomaterials')
+  if (/μprobe|uprobe|micro/i.test(p.name + p.slug)) extras.push('microindentation hardness modulus education 500mn 24-bit granite automation partial unload thin film coating semiconductor biomaterial')
+  if (/ng80|nanoguru/i.test(p.name + p.slug)) extras.push('nanoguru desktop education spm nanoindentation topography nanowear hsi high-speed 300x high-temperature')
+  if (/pneumatic|isolation|granite/i.test(p.name + p.slug)) extras.push('vibration isolation pneumatic air table granite metrology optical payload 150kg 6hz')
+  if (/dic|software/i.test(p.name + p.slug)) extras.push('digital image correlation strain mapping full-field modulus creep bending')
+  if (/sem|picoindenter|pi /i.test(p.name)) extras.push('sem in-situ picoindenter electron microscope')
+  if (/tem/i.test(p.name)) extras.push('tem transmission electron microscope')
+  if (/tribo/i.test(p.name)) extras.push('tribology friction wear scratch coefficient')
+  if (/biosoft/i.test(p.name)) extras.push('soft-matter biological hydrated cells tissue')
 
-  return `${base} ${extras.join(' ')}`
+  // General domain synonyms so everyday phrasing still matches the right product.
+  const syn = []
+  if (/modulus|elastic/.test(base)) syn.push("young's modulus elastic modulus stiffness elasticity")
+  if (/hardness/.test(base)) syn.push('microhardness nanohardness')
+  if (/creep/.test(base)) syn.push('time-dependent viscoelastic relaxation')
+  if (/fracture/.test(base)) syn.push('crack toughness brittle cracking')
+  if (/scratch|wear|tribo/.test(base)) syn.push('friction abrasion delamination adhesion')
+  if (/high.?temp|600|thermal/.test(base)) syn.push('high temperature heat elevated thermal')
+  if (/thin.?film|coating/.test(base)) syn.push('thin film coating substrate')
+
+  return `${base} ${extras.join(' ')} ${syn.join(' ')}`
 }
 
 export const COMPANY_FACTS = {
@@ -72,7 +159,7 @@ export const COMPANY_FACTS = {
     'Nanomechanics Research Lab (NRL) testing services',
     'Training programs and instrument service agreements',
   ],
-  flagship: ['MesoProbe', 'μProbe 500', 'NG50 / NanoGuru®', 'NG80'],
+  flagship: ['MesoProbe', 'μProbe 500', 'NG80', 'Pneumatic Air Isolation Table', 'DIC Software'],
   founder: {
     name: 'Dr. Syed Asif S A',
     role: 'Managing Director & Founder',
@@ -119,7 +206,7 @@ export const WEBSITE_PAGES = {
     text: [
       'Industron provides high-performance nanomechanical testing instruments for research and industry — nanoindentation, in-situ SEM/TEM, tribology, and meso-scale testing for global R&D and industry.',
       'Homepage stats: founded 2011; 40+ global installations; 13+ IIT & IISc collaborations; 30+ years of R&D expertise.',
-      'Flagship / featured products: MesoProbe — high-temperature in-situ optical meso mechanical testing with DIC strain analysis (indentation, compression, tensile, bending, fatigue up to 600 °C). μProbe 500 — depth-sensing micro-indenter for hardness, modulus, partial unload, and materials characterization up to 500 mN with automated multi-point mapping. NG80 — high-precision desktop NanoGuru® platform with in-situ SPM for surface topography and nanoscale property mapping.',
+      'Flagship / featured products: MesoProbe — next-generation meso-scale mechanical testing (10 μm – 5 mm) with nanometre precision, integrated DIC, and high throughput; indentation, compression, tensile, bending, fracture, fatigue, and creep up to 600 °C. μProbe 500 — precision depth-sensing micro indenter (0–500 mN, 18 μm, 24-bit ADC) with automated grid mapping, partial unload, and optics 10×–40×. NG80 — high-throughput nanomechanical platform (nanoindentation, SPM, scanning nanowear, HSI at 4 indents/s / 300× faster; optional high-T to 600 °C).',
       'Explore the full portfolio at /products.',
     ].join(' '),
   },
@@ -219,7 +306,7 @@ export const WEBSITE_PAGES = {
     text: [
       'Standalone: TI 980 TriboIndenter, TI Premier, TS 77 Select.',
       'In-Situ (SEM/TEM): PI 85L SEM PicoIndenter, PI 89 SEM PicoIndenter, PI 95 TEM PicoIndenter, IntraSpect 360, TS 75 TriboScope, BioSoft In-Situ Indenter.',
-      'Education & Research: μProbe 500 (depth-sensing micro-indenter, up to 500 mN), MesoProbe (meso-scale optical + DIC, up to 600 °C), NG50 (NanoGuru® education system), NG80 (high-throughput desktop nanomechanics with in-situ SPM).',
+      'Education & Research: μProbe 500 (precision depth-sensing micro indenter, 0–500 mN, 18 μm, 24-bit ADC, automated mapping, optics 10×–40×), MesoProbe (next-gen meso-scale 10 μm–5 mm, nanometre precision + integrated DIC + high throughput, up to 600 °C), NG80 (high-throughput nanoindentation + SPM + scanning nanowear + HSI 4 indents/s / 300× faster; optional high-T to 600 °C). Accessories: Pneumatic Air Isolation Table (600×600 mm granite, 40–150 kg, 6 Hz pneumatic isolation). Software: DIC Software (full-field strain mapping).',
       'Bruker Hysitron systems are offered alongside Industron’s own instruments. Product pages live at /products/<name>; request literature via /brochure-form.',
     ].join(' '),
   },
@@ -368,8 +455,9 @@ export function retrieveRelevantProducts(query, k = 3) {
       })
       if (/meso/.test(q) && /mesoprobe/.test(p.slug)) score += 10
       if (/(uprobe|micro.?probe|μprobe)/.test(q) && /uprobe/.test(p.slug)) score += 10
-      if (/\bng\s?50\b|nanoguru/.test(q) && p.slug === 'ng50') score += 10
       if (/\bng\s?80\b/.test(q) && p.slug === 'ng80') score += 10
+      if (/pneumatic|isolation table|air isolation|vibration/.test(q) && /pneumatic/.test(p.slug)) score += 10
+      if (/\bdic\b|digital image correlation|strain map/.test(q) && /dic/.test(p.slug)) score += 10
       return { p, score }
     })
     .filter((x) => x.score > 0)
@@ -410,10 +498,15 @@ export function buildSystemPrompt(relevantProducts = [], query = '', noteExcerpt
   const rag =
     relevantProducts.length > 0
       ? relevantProducts
-          .map(
-            (p) =>
-              `### ${p.name}\nCategory: ${p.category}\nSummary: ${p.shortDesc}\n${p.lead ? `Overview: ${p.lead}\n` : ''}${p.detail ? `Details: ${p.detail.slice(0, 350)}\n` : ''}Page: ${p.path}`,
-          )
+          .map((p) => {
+            // Products with curated facts: facts already cover specs/tests/
+            // strengths/best-for, so skip the redundant prose. Others (Bruker):
+            // give lead + a detail snippet + the official link.
+            const body = p.facts
+              ? `${p.facts}\n`
+              : `${p.lead ? `Overview: ${p.lead}\n` : ''}${p.detail ? `Details: ${p.detail.slice(0, 350)}\n` : ''}${p.external ? `Note: Bruker/Hysitron product — full specs at ${p.externalUrl}\n` : ''}`
+            return `### ${p.name}\nCategory: ${p.category}\nSummary: ${p.shortDesc}\n${body}Page: ${p.path}`
+          })
           .join('\n\n')
       : 'No specific product matched — use only the website pages and product catalog below.'
 
@@ -449,6 +542,7 @@ CRITICAL DATA RULES (must follow):
 4. Prefer short, clear answers with page links from the website when helpful.
 5. When a question relates to an application note / case study, answer using the "APPLICATION NOTE EXCERPTS" (verbatim PDF text) and share the exact PDF link from the "RELEVANT APPLICATION NOTES" section (e.g. [Title](/PDF/File.pdf)). Never invent PDF names, numbers, or findings — only use the excerpts and links provided below.
 6. For nanoindentation / instrumentation how-to questions (tip selection, minimum depth, fracture toughness, dynamic nanoindentation, noise floor, thin-film/substrate, surface roughness), use the "TECHNICAL FAQ" answers and keep their exact figures (angles like 142.35°, radii, R/3, ISO 14577-4, 40 Hz, formulas).
+7. NEVER invent people, job titles, or org charts. The only named Industron contacts you may mention are those listed in COMPANY OVERVIEW / Leadership. If asked about other names or a full employee roster, say those details are not listed on the website and point to /contact.
 
 === COMPANY OVERVIEW (always true) ===
 ${buildCompanyOverview()}
@@ -494,9 +588,28 @@ export const FAQ_INTENTS = [
   },
   {
     id: 'team',
-    patterns: [/\bteam\b/, /who (are|is) (the )?(people|staff|members)/, /sales (person|contact|manager)/, /application engineer/, /contact person/, /pratyank|kiran|asif/],
+    patterns: [
+      /\bteam\b/,
+      /\bstaff\b/,
+      /\bemployee/,
+      /who (are|is) (the )?(people|staff|members|contacts)/,
+      /who works (at|for|with)/,
+      /(our|your|the) (people|staff|employees|contacts)/,
+      /sales (person|contact|manager)/,
+      /application engineer/,
+      /contact person/,
+      /org(anisation|anization)? chart|leadership team/,
+      /pratyank|kiran|asif/,
+    ],
     answer: () =>
-      `Key Industron contacts:\n\n• **${COMPANY_FACTS.founder.name}** — ${COMPANY_FACTS.founder.role} (${COMPANY_FACTS.founder.email})\n• **Pratyank Rastogi** — Manager, Sales & Service (pratyank@industronnano.com · +91 9048542221)\n• **Kiran Raphael** — Application Engineer, material testing (kp@industronnano.com · +91 9447311243)\n\nFull details: [/contact](/contact)`,
+      `Key Industron contacts listed on the website:\n\n` +
+      COMPANY_FACTS.team
+        .map((m) => {
+          const phone = m.phone ? ` · ${m.phone}` : ''
+          return `• **${m.name}** — ${m.role} (${m.email}${phone})`
+        })
+        .join('\n') +
+      `\n\nWe do not publish a full employee directory online. For other enquiries: [/contact](/contact)`,
   },
   {
     id: 'about',

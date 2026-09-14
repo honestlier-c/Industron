@@ -9,6 +9,18 @@ export default defineConfig({
       'Cross-Origin-Opener-Policy': 'same-origin',
       'Cross-Origin-Embedder-Policy': 'credentialless',
     },
+    // Don't watch huge static folders (MesoProbe alone is ~625MB / 1380 frames).
+    // Watching them can freeze Vite so the browser spins forever on localhost.
+    watch: {
+      ignored: [
+        '**/public/MesoProbe/**',
+        '**/public/PDF/**',
+        '**/public/Brochure/**',
+        '**/public/Products_Image/**',
+        '**/public/**/*.mp4',
+        '**/public/**/*.mov',
+      ],
+    },
   },
   optimizeDeps: {
     exclude: ['@mlc-ai/web-llm'],

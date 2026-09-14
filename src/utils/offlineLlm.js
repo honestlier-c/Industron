@@ -47,6 +47,28 @@ export function isWebGpuAvailable() {
 }
 
 /**
+ * Rough phone/tablet detection. Used to avoid auto-downloading the ~300 MB
+ * model over mobile data — phones still get the instant offline knowledge chat.
+ */
+export function isMobileDevice() {
+  if (typeof navigator === 'undefined') return false
+  const ua = navigator.userAgent || ''
+  if (/Android|iPhone|iPad|iPod|Windows Phone|IEMobile|BlackBerry|Opera Mini/i.test(ua)) {
+    return true
+  }
+  // iPadOS reports as desktop Safari but exposes touch + Mac platform.
+  if (/Macintosh/.test(ua) && typeof document !== 'undefined' && 'ontouchend' in document) {
+    return true
+  }
+  return typeof navigator.maxTouchPoints === 'number' && navigator.maxTouchPoints > 1 && /Mobi/i.test(ua)
+}
+
+/** Only auto-load the model where it's sensible (WebGPU + not a phone). */
+export function shouldAutoLoadModel() {
+  return isWebGpuAvailable() && !isMobileDevice()
+}
+
+/**
  * Lazily create / reuse the WebLLM engine.
  * First load downloads ~0.9GB model (cached in browser for later visits).
  */

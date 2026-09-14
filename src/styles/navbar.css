@@ -27,6 +27,22 @@
   box-shadow: 0 1px 0 var(--border);
 }
 
+/* Home hero is dark video — keep nav readable before scroll */
+.navbar.over-dark .nav-links a {
+  color: rgba(241, 245, 249, 0.88);
+}
+.navbar.over-dark .nav-links a:hover,
+.navbar.over-dark .nav-links a.nav-link-active {
+  color: #fff;
+}
+.navbar.over-dark .nav-brand-logo-image {
+  filter: brightness(0) invert(1);
+  opacity: 0.95;
+}
+.navbar.over-dark .hamburger span {
+  background: #f8fafc;
+}
+
 .nav-inner {
   width: min(1200px, 92vw);
   margin: 0 auto;

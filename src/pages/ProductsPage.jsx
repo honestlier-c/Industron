@@ -7,7 +7,7 @@ import { PRODUCTS } from '../data/products'
 import { fadeUp } from '../motion/presets'
 import SEOMeta from '../components/SEOMeta'
 
-const CATEGORIES = ['All', 'Standalone', 'In-Situ', 'Education and Research']
+const CATEGORIES = ['All', 'Standalone', 'In-Situ', 'Education and Research', 'Accessories', 'Software']
 
 export default function ProductsPage() {
   const [active, setActive] = useState('All')
@@ -21,7 +21,7 @@ export default function ProductsPage() {
     <main className="products-page">
       <SEOMeta
         title="Product Portfolio"
-        description="Browse Industron's full portfolio of nanomechanical testing instruments — nanoindentation, in-situ SEM/TEM picoindentation, triboscopy, meso-scale testing, and education systems."
+        description="Browse Industron's full portfolio of nanomechanical testing instruments — nanoindentation, in-situ SEM/TEM, meso-scale testing, accessories, and analysis software."
         canonical="https://www.industronnano.com/products"
       />
       <PageHero

@@ -5,7 +5,7 @@ import { answerWithBestEngine, getWelcomeMessage } from '../utils/chatEngine'
 import {
   ensureOfflineLlm,
   getOfflineLlmStatus,
-  isWebGpuAvailable,
+  shouldAutoLoadModel,
   subscribeOfflineLlm,
 } from '../utils/offlineLlm'
 
@@ -92,13 +92,15 @@ export default function ChatBot() {
   useEffect(() => subscribeOfflineLlm(setLlmStatus), [])
 
   /* Start downloading the enhanced engine automatically as soon as the page
-     loads (where WebGPU exists). It's non-blocking: every message is answered
+     loads — but only on capable, non-phone devices (so we don't spend a
+     visitor's mobile data). It's non-blocking: every message is answered
      instantly from the built-in offline knowledge base while the model
-     downloads, and the enhanced engine takes over once it's ready. */
+     downloads, and the enhanced engine takes over once it's ready. Phones
+     simply use the instant offline chat. */
   useEffect(() => {
     if (bootstrapped.current) return undefined
     bootstrapped.current = true
-    if (isWebGpuAvailable()) {
+    if (shouldAutoLoadModel()) {
       ensureOfflineLlm().catch(() => {})
     }
     return undefined

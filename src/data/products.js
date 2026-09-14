@@ -10,11 +10,12 @@
 
 import { DEFAULT_SCROLL_BEATS } from './scrollBeats'
 import { scaleScrollBeats } from '../utils/scrollFrameUrls'
+import { getBrochureUrl } from './brochures'
 
 /** Default scroll-sequence folder — placeholder until product-specific assets exist */
 const DEFAULT_FRAMES_FOLDER = '/MesoProbe'
 
-/** Shared scroll-sequence defaults (NG50, NG80, μProbe 500 placeholders, …) */
+/** Shared scroll-sequence defaults (NG80, μProbe 500 placeholders, …) */
 const SCROLL_SEQUENCE = {
   frameCount: 64,
   framesFolder: DEFAULT_FRAMES_FOLDER,
@@ -138,7 +139,9 @@ function p({
       scrollBeats: scrollBeatsOverride ?? DEFAULT_SCROLL_BEATS,
     } : {}),
     ...(externalUrl ? { externalUrl } : {}),
-    ...(!externalUrl ? { brochureUrl: brochureUrl ?? DEFAULT_BROCHURE_URL } : {}),
+    ...(!externalUrl
+      ? { brochureUrl: brochureUrl ?? getBrochureUrl(slug) ?? DEFAULT_BROCHURE_URL }
+      : {}),
   }
 }
 
@@ -311,42 +314,42 @@ export const PRODUCTS = [
     ...SCROLL_SEQUENCE,
     category: 'Education and Research',
     shortDesc:
-      'Depth-sensing micro-indenter for education and research: hardness and modulus, depth profiling, partial unload, automation, and advanced materials characterization up to 500 mN.',
-    highlight: 'education & research micro-indenter',
+      'Precision depth-sensing micro indenter for advanced material characterization — nanometre-scale accuracy, 500 mN load capacity, automated testing & mapping, and powerful analysis software.',
+    highlight: 'accurate · reliable · advanced · innovative',
     lead:
-      'The ultimate tool for education and research—automated methods, multi-point mapping, load and displacement control, and a scalable software suite for acquisition and analysis.',
-    badges: ['Education', 'Research', '500 mN'],
+      'A research-grade depth-sensing micro indenter designed for accurate measurement of hardness, elastic modulus, and other mechanical properties across a wide range of engineering materials — engineered for accuracy, designed for discovery.',
+    badges: ['500 mN', 'Automated', '24-bit ADC'],
     beatsHeading: 'μProbe 500',
     hero: defaultHero(
       'μProbe 500',
-      'The ultimate tool for education and research',
-      'Material hardness and modulus, depth profiling, partial unload testing, structure–property studies, biomechanics, creep, and fracture toughness—with state-of-the-art precision for teaching labs and advanced R&D.',
-      ['Education', 'Research', '500 mN'],
+      'Precision depth-sensing micro indenter',
+      'Accurate nanometre-scale precision. Reliable, robust design. Advanced depth-sensing nanotechnology. Innovative tools empowering research and education.',
+      ['Accurate', 'Reliable', 'Advanced', 'Innovative'],
     ),
     beats: {
       intro: {
-        kicker: 'μProbe 500',
-        heading: 'Depth-sensing micro-indentation for labs that teach and discover',
+        kicker: 'Product overview',
+        heading: 'Meet μProbe 500 — engineered for accuracy, designed for discovery',
         sub:
-          'Measure hardness and modulus, run depth-profiling and partial-unload programmes, and support research in advanced materials, thin films, structure–property correlation, biomechanics, creep, and fracture toughness—all from one depth-sensing micro-indenter platform.',
+          'The μProbe 500 is a research-grade depth-sensing micro indenter for accurate hardness, elastic modulus, and related mechanical properties across engineering materials. Built around a high-precision actuator, digital microscope, motorized X-Y-Z stage, and a natural granite base for high stiffness and low vibration.',
       },
       engineering: {
-        kicker: 'Depth-sensing micro indenter',
-        heading: 'Precision mechanics from micro-indentation technology',
+        kicker: 'Platform',
+        heading: 'Actuator, optics, stage, and granite stability',
         text:
-          'The system delivers state-of-the-art precision testing, mechanical property evaluation, and hardness measurement using depth-sensing nanoindentation principles scaled for the micro regime: maximum force capacity 500 mN, maximum displacement 18 µm, reliable micro-level hardness data, sub-nanometre precision, and advanced indentation technology suited to research and education.',
+          'High-precision actuator for force application and displacement sensing. Digital microscope for high-resolution observation and measurement. Motorized X-Y-Z stage for high-accuracy positioning and repeatability. Natural granite base for high stiffness and low vibration — maximum stability for consistent micro-indentation results.',
       },
       control: {
-        kicker: 'Key features',
-        heading: 'Automated methods, control modes, and advanced software',
+        kicker: 'Key features & specs',
+        heading: '500 mN · 18 μm · 24-bit · automated mapping',
         text:
-          'Automated methods support multi-point testing, microstructural mapping, and hardness and modulus evaluation. Control modes include load control and displacement control. An advanced, scalable, intuitive software suite covers data acquisition and analysis so unattended, grid-based, and inline automation—including multiple automated indents—fits naturally into your workflow.',
+          'Indentation load range 0–500 mN; maximum displacement 18 μm; ADC resolution 24-bit; frame stiffness 8 × 10⁷ N/m; digital control & data acquisition via 600 MHz embedded processor @ 30 kHz; motorized stages X 100 mm / Y 50 mm / Z 50 mm with 1 nm encoder resolution; optics 10× to 40×. Automated testing & mapping with intelligent high-throughput workflows and powerful analysis software.',
       },
       performance: {
-        kicker: 'Test modes',
-        heading: 'Partial unload, Berkovich & Vickers, Oliver–Pharr',
+        kicker: 'Measurement capabilities & applications',
+        heading: 'Micro indentation, method automation, and partial unload',
         text:
-          'Partial unload testing runs multiple load–unload cycles at the same location: the probe partially unloads after each segment, reloads to higher force, and continues to maximum load—ideal for hardness vs depth and modulus vs depth. Micro-indentation uses instrumented depth-sensing indentation with Berkovich and Vickers probes under load or displacement control; modulus uses the Oliver–Pharr method with optional optical residual indent measurement.',
+          '01 Micro indentation — depth-sensing indentation for hardness, elastic modulus, and related properties. 02 Method automation — automated grid indentation with stage control for repeatable results. 03 Partial unload testing — instrumented partial unload for accurate elastic modulus and reduced indentation effects. Applications: materials research; thin films & coatings; metals & alloys; polymers & composites; biomaterials & medical devices; semiconductors & microelectronics; advanced coatings; education & training.',
       },
       final: {
         kicker: 'Next step',
@@ -357,15 +360,11 @@ export const PRODUCTS = [
     },
     infoLayout: 'track',
     infoSection: {
-      tag: 'Test modes',
+      tag: 'Measurement capabilities',
       title: 'Three core',
-      highlight: 'measurement routines',
+      highlight: 'testing modes',
     },
     info: [
-      {
-        title: 'Partial Unload Test',
-        image: '/Uprobe/Partial-Unload-300x182.webp',
-      },
       {
         title: 'Micro Indentation',
         image: '/Uprobe/NanoIndetation.png',
@@ -373,6 +372,10 @@ export const PRODUCTS = [
       {
         title: 'Method Automation',
         image: '/Uprobe/method-automation-300x225.webp',
+      },
+      {
+        title: 'Partial Unload Test',
+        image: '/Uprobe/Partial-Unload-300x182.webp',
       },
     ],
   }),
@@ -383,42 +386,42 @@ export const PRODUCTS = [
     ...MESOPROBE_SCROLL_SEQUENCE,
     category: 'Education and Research',
     shortDesc:
-      'Versatile, high-throughput meso-scale mechanical testing with in-situ optical microscopy, DIC, nanometre resolution, large actuation distance, and large force range—up to 600 °C.',
-    highlight: 'meso-scale optical & DIC',
+      'The next generation of meso-scale mechanical testing — nanometre precision, integrated DIC, and high throughput on small samples with bulk-relevant insights, up to 600 °C.',
+    highlight: 'nanometre precision · integrated DIC · high throughput',
     lead:
-      'Industron MesoProbe bridges nano/micro testing and conventional bulk instruments: indentation, compression, tensile, bending, fracture, and fatigue—with integrated DIC strain analysis for limited-volume and high-throughput programmes.',
-    badges: ['Meso scale', 'DIC', 'High throughput'],
+      'MesoProbe bridges the gap between nano and macro testing — enabling accurate mechanical characterization on small samples with bulk-relevant insights across indentation, compression, tensile, bending, fracture, fatigue, and creep with full-field DIC strain mapping.',
+    badges: ['Nanometre precision', 'Integrated DIC', 'High throughput'],
     beatsHeading: 'MesoProbe',
     hero: defaultHero(
       'MesoProbe',
-      'Versatile · high throughput · DIC · nanometre precision',
-      'Large actuation distance and force range for meso mechanical characterization: in-situ optical microscopy and digital image correlation from tens of microns through millimetre and sub-millimetre multi-grain fields, including high-temperature testing to 600 °C.',
-      ['Meso scale', 'DIC', 'High throughput'],
+      'The next generation of meso-scale mechanical testing',
+      'Nanometre precision, integrated DIC, and high throughput — the bridging meso-scale range (10 μm – 5 mm) for small samples, multiple test modes, and high-temperature testing up to 600 °C.',
+      ['Nanometre precision', 'Integrated DIC', 'High throughput'],
     ),
     beats: {
       intro: {
-        kicker: 'Why meso scale?',
-        heading: 'Between nano/micro and bulk—where applications live',
+        kicker: 'Why choose MesoProbe',
+        heading: 'The bridging meso-scale range between nano and macro',
         sub:
-          'Mechanical testing spans more than a century of techniques across length scales. Nano and micro tests reveal fundamental deformation mechanisms, yet bulk response drives many applications. Scale-dependent properties mean measured values change with sample size; understanding scale-appropriate, bulk-relevant behaviour matters for models and design. Traditional bulk methods struggle when sample volume is limited, throughput is high, materials are nuclear, or conditions are extreme. Industron MesoProbe sits between nano/micro platforms and conventional bulk instruments to meet those needs.',
+          'MesoProbe is designed to bridge the gap between nano and macro testing — enabling accurate mechanical characterization on small samples with bulk-relevant insights. Nano scale (1 nm – 10 μm) offers high resolution but limited representation of bulk behaviour. Macro scale (> 5 mm) captures bulk properties but needs large sample volumes and low spatial resolution. Meso scale (10 μm – 5 mm) is the bridging length-scale range: connects micro and macro, small sample volume, high-throughput data, integrated DIC, high-temperature testing, and multiple test modes.',
       },
       engineering: {
-        kicker: 'MesoProbe',
-        heading: 'High-temperature, in-situ optical meso mechanical testing',
+        kicker: 'How it works',
+        heading: 'Small samples. Big insights.',
         text:
-          'MesoProbe is a high-temperature (up to 600 °C), in-situ optical-based meso mechanical testing instrument for high-throughput mechanical characterization. Supported experiments include cantilever bending creep, indentation, compression, tensile, fracture, and fatigue. The system combines in-situ optical microscopy with digital image correlation (DIC) to study deformation from tens of microns through single-grain scale to millimetre and sub-millimetre multi-grain fields across temperatures. Configurations cover indentation, cantilever bending, DIC-based creep analysis, high-throughput experiments, and integrated DIC strain analysis.',
+          '01 Small sample — minimal material requirement. 02 Mechanical loading — indentation, compression, tensile, or bending. 03 High-resolution imaging — real-time in-situ optical observation. 04 Digital image correlation — full-field strain mapping with high accuracy. 05 Mechanical properties — stress, strain, modulus, creep, fatigue, and more. MesoProbe supports a wide range of mechanical tests with integrated DIC for full-field strain analysis and high-throughput data generation.',
       },
       control: {
-        kicker: 'Applications',
-        heading: 'Microindentation, compression, and soft-matrix mechanics',
+        kicker: 'Experiments',
+        heading: 'Indentation, compression, and soft-matrix mechanics',
         text:
-          'Microindentation measures localized properties such as micro-hardness and elastic modulus using load–displacement analysis, depth-sensing microindentation, hardness, elastic recovery, and localized deformation—suited to thin coatings, small samples, and heterogeneous materials. Compression addresses soft materials including polymers, hydrogels, and rubber, with very low force sensitivity (µN level) on the soft material matrix.',
+          'Indentation (spherical tip): hardness, elastic modulus, load–displacement analysis, and depth-sensing indentation. Compression on a soft material matrix: polymers, hydrogels, rubber, and foams with low force sensitivity (μN level). One platform covers multiple experiments with integrated DIC for full-field strain analysis.',
       },
       performance: {
-        kicker: 'Bending & DIC analysis',
-        heading: 'Three-point, cantilever, stress–strain, and creep at scale',
+        kicker: 'Bending & DIC',
+        heading: 'Three-point and cantilever bending with full-field strain',
         text:
-          'Three-point bending supports the specimen on two spans with load at mid-span for beam bending under load. Cantilever bending fixes one end and loads the free end. DIC plus mechanical analysis computes strain from DIC software and bending stress in Industron software; Young’s modulus follows from stress–strain curves. High-throughput bending creep can yield thousands of creep curves from one experiment—valuable for limited material quantity and nuclear reactor aged-material studies.',
+          'Three-point bending with DIC strain overlay: Young’s modulus, stress & strain mapping, full-field strain from DIC, and fracture & failure analysis. Cantilever bending with DIC overlay: creep & fatigue analysis, strain evolution, high-throughput creep testing — ideal when sample material is limited. Test modes also include tensile, fracture, fatigue, and creep.',
       },
       final: {
         kicker: 'Next step',
@@ -429,98 +432,28 @@ export const PRODUCTS = [
     },
     info: [
       {
-        title: 'Salient features',
+        title: 'Industries & research areas',
         text:
-          'Smaller sample volume requirements; DIC-based strain mapping at hundreds of points; multi-experiment single platform supporting indentation, compression, tensile, bending, and high-temperature testing.',
+          'Automotive; aerospace; battery materials; thin films & coatings; semiconductors & MEMS; biomaterials & medical devices; education & research labs.',
       },
       {
-        title: 'Advantages',
+        title: 'Test modes',
         text:
-          'High-throughput data generation with roughly 3–10× reduction in testing time versus many conventional approaches; mechanical characterization from micro to meso scale; nanometre-resolution measurements where the optical chain and DIC allow.',
+          'Indentation, compression, three-point bending, cantilever bending, tensile, fracture, fatigue, and creep — with integrated digital image correlation (DIC) for full-field strain mapping.',
       },
       {
         title: 'Technical specifications',
         text:
-          'Maximum actuation load 20 N; maximum displacement 60 mm; displacement resolution 1 nm; X-axis travel 150 mm; Y-axis travel 50 mm; optics 0.2× with 1× / 5× / 10× optional; camera resolution 4024 × 3036 px.',
+          'Maximum actuation load 20 N; maximum displacement 60 mm; displacement resolution 1 nm; camera resolution 4024 × 3036 px; temperature capability up to 600 °C; motorized stages X-axis 150 mm / Y-axis 50 mm; optics 0.2× (1× / 5× / 10× optional).',
       },
       {
         title: 'Support',
-        text: 'Industron specialists for lab setup, DIC integration, fixturing, and curriculum- or programme-aligned guidance.',
+        text: 'Industron specialists for lab setup, DIC integration, fixturing, and programme-aligned guidance.',
       },
     ],
   }),
 
   // —— Education and Research (desktop platforms) ——
-  p({
-    slug: 'ng50',
-    name: 'NG50',
-    image: `${IMG}/NG50.png`,
-    ...SCROLL_SEQUENCE,
-    category: 'Education and Research',
-    shortDesc:
-      'NanoGuru® turnkey nanomechanical education: instrumentation plus Practicum© curriculum, samples, and experiments for undergraduate nanoscale science and materials.',
-    highlight: 'NanoGuru® education system',
-    lead:
-      'A modern education platform built on proven R&D 100 Award-winning technology—bridging nano and macroscales so students understand how material properties originate at the nanoscale.',
-    badges: ['Desktop', 'Education', 'NanoGuru®'],
-    beatsHeading: 'NG50',
-    hero: defaultHero(
-      'NG50',
-      'NanoGuru® Nanomechanical Education System',
-      'Turnkey instrumentation and a Practicum© based curriculum—samples and experiments designed to involve undergraduate engineering students deeply in nanoscale science and materials.',
-      ['Desktop', 'Education', 'NanoGuru®'],
-    ),
-    beats: {
-      intro: {
-        kicker: 'Introduction',
-        heading: 'NanoGuru® for educators and students',
-        sub:
-          'The NanoGuru® Nanomechanical Education System is a modern, turnkey system consisting of instrumentation and a Practicum© based curriculum. The curriculum, samples, and experiments are designed to extensively involve undergraduate engineering students in the study of nanoscale science and materials. The NanoGuru® suite gives educators the tools to instruct nanotechnology fundamentals efficiently. Understanding the nanoscale is essential for comprehending how material properties originate. NanoGuru® provides a complete education system based on proven R&D 100 Award-winning technology bridging nano and macroscales.',
-      },
-      engineering: {
-        kicker: 'What is NanoGuru®?',
-        heading: 'Nanoindentation, SPM, and nanoscale mechanics',
-        text:
-          'A scientific tool built on nanoindentation technology for studying mechanical properties of materials at the nanoscale—measured at single or multiple locations as a function of indentation depth. It incorporates in-situ Scanning Probe Microscopy (SPM) for high-resolution 3D surface topography mapping, enables real-time pre- and post-indent analysis, includes built-in vibration isolation for portability and reduced noise, and uses a 24-bit DSP-based controller for data acquisition and control.',
-      },
-      control: {
-        kicker: 'Why NanoGuru®?',
-        heading: 'Structure–property correlation at the nanoscale',
-        text:
-          'NanoGuru® combines nanoindentation with high-resolution in-situ SPM so students can relate structure to properties where it matters most. Material properties are determined by nanoscale structure; understanding that structure helps determine suitable applications. Users learn to analyze nanoscale structural properties to inform better material design.',
-      },
-      performance: {
-        kicker: 'Key features',
-        heading: 'Portable, easy to use, and cost-effective',
-        text:
-          'Portable footprint (12" × 12"), weight 32 kg / 70 lbs. No expert knowledge required—Practicum© based workflow and a quick learning curve with setup in about five minutes. An affordable, cost-effective route to nanoscale material characterization in the teaching lab.',
-      },
-      final: {
-        kicker: 'Next step',
-        heading: 'Configure with Industron.',
-        text:
-          'NG50 / NanoGuru® — our team helps with curriculum alignment, lab setup, training, and ongoing support.',
-      },
-    },
-    info: [
-      {
-        title: 'Portable',
-        text: 'Footprint 12" × 12"; weight 32 kg (70 lbs). Built-in vibration isolation supports portability and lower noise.',
-      },
-      {
-        title: 'Easy to use',
-        text: 'No expert knowledge required. Practicum© based workflow guides students and instructors through each experiment.',
-      },
-      {
-        title: 'Quick learning curve',
-        text: 'Typical setup in about five minutes so lab time stays focused on learning, not logistics.',
-      },
-      {
-        title: 'Affordable',
-        text: 'A cost-effective nanoscale material characterization solution for education budgets.',
-      },
-    ],
-  }),
   p({
     slug: 'ng80',
     name: 'NG80',
@@ -528,70 +461,213 @@ export const PRODUCTS = [
     ...SCROLL_SEQUENCE,
     category: 'Education and Research',
     shortDesc:
-      'High-throughput nanomechanical test platform: scanning nanoWear, high-speed indentation, nanoScratch, quasistatic nanoindentation, fracture toughness, and in-situ SPM imaging.',
-    highlight: 'high-throughput nanomechanics',
+      'High-throughput nanomechanical testing platform — nanoindentation, in-situ SPM imaging, scanning nanowear, and 300× faster high-speed indentation for rapid property mapping and statistics.',
+    highlight: '300× faster · SPM · multi-technique',
     lead:
-      'Quantify wear at sub-micron scale, map microstructure hundreds of times faster than conventional indentation, and correlate mechanics with nanometer-resolution topography—all in one instrument workflow.',
-    badges: ['Desktop', 'High speed', 'SPM imaging'],
+      'NG80 brings multiple advanced technologies into one compact platform for fast, accurate, and repeatable nanomechanical testing — engineered for today, advancing tomorrow.',
+    badges: ['High speed', 'SPM imaging', 'Multi-technique'],
     beatsHeading: 'NG80',
     hero: defaultHero(
       'NG80',
-      'A High Throughput Nanomechanical Test Instrument',
-      'From scanning nanoWear and nanoScratch to quasistatic indentation, fracture toughness, and in-situ SPM—built for rapid property mapping and statistically meaningful datasets.',
-      ['Desktop', 'High speed', 'SPM imaging'],
+      'High throughput nanomechanical testing platform',
+      'Nanoindentation for hardness and elastic modulus. SPM imaging for 3D topography and site-specific analysis. High-speed indentation — 300× faster property mapping and statistics.',
+      ['Nanoindentation', 'SPM imaging', '300× faster HSI'],
     ),
     beats: {
       intro: {
-        kicker: 'Overview',
-        heading: 'NG80 — throughput across nanoscale test modes',
+        kicker: 'Why choose NG80?',
+        heading: 'Fast, accurate, and repeatable nanomechanics in one platform',
         sub:
-          'NG80 is a high-throughput nanomechanical test instrument engineered for laboratories that need quantitative wear, indentation, scratch, fracture, and topography data without long cycle times between techniques.',
+          'NG80 integrates nanoindentation, SPM imaging, scanning nanowear, high-speed indentation (HSI), and optional high-temperature testing (up to 600 °C as configured). Force resolution 1 nN and displacement resolution 0.006 mm deliver research-grade accuracy with superior stability, low noise, and easy-to-use software with automated workflows.',
       },
       engineering: {
-        kicker: 'Scanning nanoWear',
-        heading: 'Quantify wear volumes and wear rate at sub-micron scale',
+        kicker: 'Key technologies',
+        heading: 'Nanoindentation and in-situ SPM imaging',
         text:
-          'Scanning nanoWear helps quantify wear volumes and wear rate at the sub-micron level together with in-situ SPM imaging. Multiple-pass wear tests can be run at different normal scanning forces on the material under test, so you can relate contact conditions to evolving surface damage.',
+          'Nanoindentation measures hardness and elastic modulus at the nanometer scale with load and displacement control — ideal for thin films, coatings, and bulk materials. In-situ SPM imaging provides high-resolution 3D topography for site-specific analysis and targeting: site-specific indentation with ±10 nm accuracy, surface roughness and feature analysis, and image sizes up to 50 μm × 50 μm (256 × 256 resolution).',
       },
       control: {
-        kicker: 'High speed indentation',
-        heading: 'Microstructural mapping in a fraction of the time',
+        kicker: 'Scanning nanowear & HSI',
+        heading: 'Wear quantification and 300× faster property mapping',
         text:
-          'High-speed indentation runs roughly 300× faster than conventional indentation, enabling microstructural mapping and statistical distributions of mechanical properties in a short time—ideal when you need coverage, not just single indents.',
+          'Scanning nanowear quantifies wear behaviour with sub-micron resolution and in-situ imaging: wear volume and wear rate, multiple-pass tests at different normal forces, friction and wear mapping, and real-time wear-track analysis. High-speed indentation runs up to 4 indents per second — 300× faster than conventional indentation — for large-area property mapping and statistical distributions of mechanical properties.',
       },
       performance: {
-        kicker: 'nanoScratch & quasistatic indentation',
-        heading: 'Tribology, hardness, and modulus in one workflow',
+        kicker: 'Technical specifications',
+        heading: 'Force, displacement, stages, and optics',
         text:
-          'nanoScratch is a versatile mode for tribological characterization of thin films and bulk materials, with quantitative force and displacement in lateral and normal directions—for example bulk coefficient of friction and critical load for thin-film delamination. Quasistatic nanoindentation measures hardness and modulus at nanometer length scales by driving the indenter into the surface while recording depth through load and unload; tests support load-controlled mode and displacement-controlled feedback mode.',
+          'High-speed indentation: 4 indents/s. SPM image size 50 μm × 50 μm at 256 × 256. Optics: 10× infinity-corrected (20× optional), 1 μm optical resolution, 34 mm working distance, coaxial illumination, 5 MP camera, optional AutoFocus. Positioning: X×Y×Z travel 100 × 50 × 50 mm; XY step 50 nm; Z step 10 nm. Force: noise floor < 200 nN, resolution 1 nN, max normal force 10 mN. Displacement: resolution 0.006 mm, max normal displacement 5 μm. Optional high-temperature stage up to 600 °C (as configured).',
       },
       final: {
         kicker: 'Next step',
         heading: 'Configure with Industron.',
         text:
-          'NG80 — share your sample types, mapping resolution targets, and scratch or wear protocols. Our team helps with configuration, method setup, and integration.',
+          'NG80 — share your sample types, mapping targets, wear protocols, and temperature needs. Our team helps with configuration, method setup, and integration.',
       },
     },
     info: [
       {
-        title: 'nanoScratch',
+        title: 'Ideal for',
         text:
-          'Quantitative lateral and normal force and displacement for bulk coefficient of friction, critical load of thin-film delamination, and broader tribological characterization of films and bulk samples.',
+          'Automotive; aerospace; battery materials; thin films & coatings; semiconductors & MEMS; biomaterials & medical devices; education & research labs.',
       },
       {
-        title: 'Quasistatic nanoindentation',
+        title: 'High-speed indentation',
         text:
-          'Localized hardness and modulus at nanometer scales via controlled loading and unloading. Operates in load-controlled mode or displacement-controlled feedback mode.',
-      },
-      {
-        title: 'Fracture toughness',
-        text:
-          'Assess resistance to crack propagation in brittle bulk materials. Suited to thin-film fracture toughness, small-volume analysis, and reduced substrate-correction complexity versus large-force microindentation.',
+          'Up to 4 indents per second — 300× faster than conventional indentation for rapid microstructural mapping and statistical analysis.',
       },
       {
         title: 'In-situ SPM imaging',
         text:
-          'Nanometer-resolution 3D topographical imaging of the sample surface. Enables site-specific indentation experiments with positioning accuracy of approximately ±10 nm.',
+          '3D topography with nanometer resolution; site-specific indentation ±10 nm; image size up to 50 μm × 50 μm at 256 × 256.',
+      },
+      {
+        title: 'Platform highlights',
+        text:
+          'Research-grade performance; multi-technique platform (nanoindentation, SPM, scanning nanowear, HSI, optional high-T); intuitive automated software; built for durability with global support.',
+      },
+    ],
+  }),
+
+  // —— Accessories ——
+  p({
+    slug: 'pneumatic-air-isolation-table',
+    name: 'Pneumatic Air Isolation Table',
+    image: `${IMG}/Minus K Scale System.png`,
+    category: 'Accessories',
+    shortDesc:
+      'Vibration-free granite platform with pneumatic air suspension — isolate vibrations, enable precision, and support performance for metrology, optics, and sensitive instruments.',
+    highlight: 'stable · precise · reliable',
+    lead:
+      'A stable foundation for higher precision. The Pneumatic Air Isolation Table provides a vibration-free platform for precision inspection, metrology, optical systems, and other vibration-sensitive applications.',
+    badges: ['Granite', 'Pneumatic', '40–150 kg'],
+    beatsHeading: 'Pneumatic Air Isolation Table',
+    hero: defaultHero(
+      'Pneumatic Air Isolation Table',
+      'A stable foundation for higher precision',
+      'Isolate vibrations. Enable precision. Support performance. Precision granite tabletop with pneumatic air suspension for excellent stability and repeatable results — even in challenging environments.',
+      ['Stable', 'Precise', 'Reliable'],
+    ),
+    beats: {
+      intro: {
+        kicker: 'Why isolation matters',
+        heading: 'Precision starts with stability',
+        sub:
+          'Floor vibration and building noise limit what sensitive instruments can resolve. The Pneumatic Air Isolation Table isolates those disturbances so inspection, metrology, and optical systems can deliver trustworthy data.',
+      },
+      engineering: {
+        kicker: 'Key features',
+        heading: 'Granite stiffness with pneumatic isolation',
+        text:
+          'High-stiffness granite tabletop for dimensional stability. Pneumatic air suspension with a natural frequency of 6 Hz. Adjustable air pressure from 0 to 4 bar depending on payload. Wide payload range from 40 kg to 150 kg (maximum 150 kg). Built for precision and vibration-sensitive equipment.',
+      },
+      control: {
+        kicker: 'Specifications',
+        heading: '600 × 600 mm working surface',
+        text:
+          'Table size 600 mm × 600 mm; effective working surface 600 mm × 600 mm; tabletop material granite; payload capacity 40–150 kg (max 150 kg); isolation system pneumatic air suspension; natural / resonance frequency 6 Hz; air supply pressure range 0–4 bar (payload-dependent).',
+      },
+      performance: {
+        kicker: 'Applications',
+        heading: 'Built for vibration-sensitive workflows',
+        text:
+          'Ideal for precision inspection, metrology, optical systems, and other vibration-sensitive equipment where a quiet, stable foundation improves measurement quality and instrument uptime.',
+      },
+      final: {
+        kicker: 'Next step',
+        heading: 'Configure with Industron.',
+        text:
+          'Pneumatic Air Isolation Table — share your instrument footprint, payload, and lab vibration environment. Our team helps size air supply and setup.',
+      },
+    },
+    info: [
+      {
+        title: 'Granite tabletop',
+        text: 'High stiffness and dimensional stability for a reliable working surface.',
+      },
+      {
+        title: 'Pneumatic isolation',
+        text: 'Natural / resonance frequency of 6 Hz with adjustable air pressure 0–4 bar.',
+      },
+      {
+        title: 'Payload range',
+        text: 'Supports 40 kg to 150 kg (maximum 150 kg) for a wide class of instruments.',
+      },
+      {
+        title: 'Technical specifications',
+        text:
+          'Table / working surface 600 × 600 mm; granite top; pneumatic air suspension; 6 Hz natural frequency; air 0–4 bar; applications in inspection, metrology, optics, and vibration-sensitive systems.',
+      },
+    ],
+  }),
+
+  // —— Software ——
+  p({
+    slug: 'dic-software',
+    name: 'DIC Software',
+    image: `${IMG}/MesoProbe.png`,
+    category: 'Software',
+    shortDesc:
+      'Digital Image Correlation software for full-field strain mapping — pair optical imaging with mechanical testing for stress, strain, modulus, creep, and failure analysis.',
+    highlight: 'full-field strain · DIC',
+    lead:
+      'Turn in-situ optical imagery into quantitative mechanics. Industron DIC software delivers accurate full-field strain mapping for bending, tensile, compression, and creep workflows.',
+    badges: ['Full-field strain', 'DIC', 'Analysis'],
+    beatsHeading: 'DIC Software',
+    hero: defaultHero(
+      'DIC Software',
+      'Full-field strain mapping for precision mechanics',
+      'Digital Image Correlation correlates sequential images to measure displacement and strain across the sample surface — ideal with MesoProbe and other optical mechanical testing platforms.',
+      ['Strain mapping', 'Modulus', 'Creep & failure'],
+    ),
+    beats: {
+      intro: {
+        kicker: 'What is DIC?',
+        heading: 'See deformation as it happens — then quantify it',
+        sub:
+          'Digital Image Correlation tracks surface patterns through high-resolution imaging to compute displacement and strain fields. Combined with load data, it yields stress–strain response, modulus, and time-dependent behaviour.',
+      },
+      engineering: {
+        kicker: 'Capabilities',
+        heading: 'From image sequences to mechanical insight',
+        text:
+          'Full-field strain and displacement mapping. Stress–strain curves and Young’s modulus from DIC-based analysis. Support for bending, tensile, compression, fracture, fatigue, and creep studies. Overlay strain maps on optical imagery for clear reporting.',
+      },
+      control: {
+        kicker: 'Workflow',
+        heading: 'Built for lab and research throughput',
+        text:
+          'Acquire images during mechanical loading, run DIC correlation, export strain fields and summary metrics. Designed to work with Industron optical meso-scale testing platforms such as MesoProbe for high-accuracy, high-throughput programmes.',
+      },
+      performance: {
+        kicker: 'Best for',
+        heading: 'When point sensors are not enough',
+        text:
+          'Heterogeneous materials, limited sample volumes, high-temperature optical tests, and any experiment where strain localisation, crack paths, or full-field maps matter more than a single gauge reading.',
+      },
+      final: {
+        kicker: 'Next step',
+        heading: 'Configure with Industron.',
+        text:
+          'DIC Software — discuss camera setup, sample patterning, and analysis packages with our applications team.',
+      },
+    },
+    info: [
+      {
+        title: 'Full-field strain',
+        text: 'Map displacement and strain across the region of interest, not just at a single point.',
+      },
+      {
+        title: 'Mechanical outputs',
+        text: 'Stress, strain, modulus, creep, and failure metrics derived from correlated image sequences.',
+      },
+      {
+        title: 'Platform fit',
+        text: 'Pairs naturally with MesoProbe optical meso-scale testing and other Industron imaging workflows.',
+      },
+      {
+        title: 'Support',
+        text: 'Application guidance for patterning, lighting, calibration, and report-ready analysis.',
       },
     ],
   }),

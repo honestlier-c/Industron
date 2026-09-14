@@ -8,36 +8,33 @@ import SEOMeta from '../components/SEOMeta'
 import { fadeUp, stagger } from '../motion/presets'
 
 const STATS = [
-  { value: '2011', label: 'Year founded' },
-  { value: '40+', label: 'Global installations' },
-  { value: '13+', label: 'IIT & IISc collaborations' },
-  { value: '30+', label: 'Years of R&D expertise' },
+  { value: '2011', label: 'Founded' },
+  { value: '40+', label: 'Installations' },
+  { value: '13+', label: 'IIT & IISc partners' },
+  { value: '30+', label: 'Years of R&D' },
 ]
 
 const FEATURED_PRODUCTS = [
   {
     slug: 'mesoprobe',
     name: 'MesoProbe',
-    tag: 'Meso-scale testing',
-    desc: 'High-temperature in-situ optical meso mechanical testing with DIC strain analysis — indentation, compression, tensile, bending, and fatigue up to 600 °C.',
+    tag: 'Meso-scale',
+    desc: 'Nanometre precision and integrated DIC on small samples — up to 600 °C.',
     image: '/Products_Image/MesoProbe.png',
-    badge: 'DIC · High throughput',
   },
   {
     slug: 'uprobe-500',
     name: 'μProbe 500',
     tag: 'Education & research',
-    desc: 'Depth-sensing micro-indenter for hardness, modulus, partial unload, and advanced materials characterization at up to 500 mN — with automated multi-point mapping.',
+    desc: 'Depth-sensing micro indentation with automated mapping and 24-bit acquisition.',
     image: '/Products_Image/μProbe500.png',
-    badge: '500 mN · Automated',
   },
   {
     slug: 'ng80',
     name: 'NG80',
-    tag: 'Desktop NanoGuru®',
-    desc: 'High-precision desktop nanomechanical testing platform with in-situ SPM for surface topography, nanoscale property mapping, and undergraduate-to-research workflows.',
+    tag: 'High-throughput',
+    desc: 'Nanoindentation, SPM, and 300× faster high-speed indentation in one platform.',
     image: '/Products_Image/NG80.png',
-    badge: 'Desktop · NanoGuru®',
   },
 ]
 
@@ -52,17 +49,16 @@ export default function HomePage() {
 
       <Hero />
 
-      {/* Stats strip */}
       <div className="home-stats-strip">
         <div className="container home-stats-inner">
           {STATS.map((s, i) => (
             <motion.div
               key={s.label}
               className="home-stat-item"
-              initial={{ opacity: 0, y: 18 }}
+              initial={{ opacity: 0, y: 14 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: i * 0.08 }}
+              transition={{ duration: 0.55, delay: i * 0.06 }}
             >
               <span className="home-stat-value">{s.value}</span>
               <span className="home-stat-label">{s.label}</span>
@@ -73,11 +69,10 @@ export default function HomePage() {
 
       <About />
 
-      {/* Featured products */}
       <section className="section home-products-section" id="products-highlight">
         <div className="container">
           <motion.div
-            className="section-header"
+            className="section-header home-products-header"
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -85,9 +80,13 @@ export default function HomePage() {
           >
             <div className="section-tag">Instruments</div>
             <h2>
-              Our flagship<br />
-              <span className="gradient-text">products</span>
+              Flagship systems for
+              <br />
+              <span className="gradient-text">every length scale</span>
             </h2>
+            <p>
+              From education labs to high-throughput research — three platforms that define Industron’s portfolio.
+            </p>
           </motion.div>
 
           <motion.div
@@ -99,20 +98,19 @@ export default function HomePage() {
           >
             {FEATURED_PRODUCTS.map((p) => (
               <motion.article key={p.slug} className="home-product-card" variants={fadeUp}>
-                <div className="home-product-img-wrap">
-                  <img src={p.image} alt={p.name} className="home-product-img" />
-                </div>
-                <div className="home-product-body">
-                  <span className="home-product-tag">{p.tag}</span>
-                  <h3>{p.name}</h3>
-                  <p>{p.desc}</p>
-                  <div className="home-product-footer">
-                    <span className="home-product-badge">{p.badge}</span>
-                    <Link to={`/products/${p.slug}`} className="btn-primary home-product-cta">
-                      View details →
-                    </Link>
+                <Link to={`/products/${p.slug}`} className="home-product-link">
+                  <div className="home-product-img-wrap">
+                    <img src={p.image} alt={p.name} className="home-product-img" loading="lazy" />
                   </div>
-                </div>
+                  <div className="home-product-body">
+                    <span className="home-product-tag">{p.tag}</span>
+                    <h3>{p.name}</h3>
+                    <p>{p.desc}</p>
+                    <span className="home-product-cta-text">
+                      View details <span aria-hidden="true">→</span>
+                    </span>
+                  </div>
+                </Link>
               </motion.article>
             ))}
           </motion.div>

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { NavLink, Link } from 'react-router-dom'
+import { NavLink, Link, useLocation } from 'react-router-dom'
 
 const LINKS = [
   { label: 'About',        to: '/about' },
@@ -12,15 +12,18 @@ const LINKS = [
 const MENU_ID = 'nav-mobile-menu'
 
 export default function Navbar() {
+  const { pathname } = useLocation()
   const [scrolled,  setScrolled]  = useState(false)
   const [menuOpen,  setMenuOpen]  = useState(false)
   const hamburgerRef = useRef(null)
+  const overDarkHero = pathname === '/' && !scrolled && !menuOpen
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 60)
+    handler()
     window.addEventListener('scroll', handler, { passive: true })
     return () => window.removeEventListener('scroll', handler)
-  }, [])
+  }, [pathname])
 
   // Lock body scroll while menu is open
   useEffect(() => {
@@ -45,7 +48,7 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`navbar${scrolled ? ' scrolled' : ''}${menuOpen ? ' menu-open' : ''}`}
+      className={`navbar${scrolled ? ' scrolled' : ''}${menuOpen ? ' menu-open' : ''}${overDarkHero ? ' over-dark' : ''}`}
     >
       <div className="nav-inner">
         <Link to="/" className="nav-logo" onClick={close}>

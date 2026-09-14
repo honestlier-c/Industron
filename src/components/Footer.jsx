@@ -13,10 +13,11 @@ const COLS = [
   {
     title: 'Products',
     links: [
-      { label: 'NG50', href: '/products/ng50' },
       { label: 'NG80', href: '/products/ng80' },
       { label: 'μProbe', href: '/products/uprobe-500' },
       { label: 'MesoProbe', href: '/products/mesoprobe' },
+      { label: 'Pneumatic Isolation Table', href: '/products/pneumatic-air-isolation-table' },
+      { label: 'DIC Software', href: '/products/dic-software' },
       { label: 'Hysitron Instruments', href: '/products' },
     ],
   },

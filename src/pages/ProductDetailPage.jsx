@@ -1,13 +1,55 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { motion, useMotionValue, useTransform } from 'framer-motion'
 import PageHero from '../components/PageHero'
 import SEOMeta from '../components/SEOMeta'
 import { PRODUCT_BY_SLUG } from '../data/products'
+import { getBrochureUrl } from '../data/brochures'
 import { DEFAULT_SCROLL_BEATS, getBeatOpacity } from '../data/scrollBeats'
 import { useScrollSequence } from '../hooks/useScrollSequence'
 import { fadeUp, stagger } from '../motion/presets'
 import { buildScrollFrameUrls } from '../utils/scrollFrameUrls'
+
+const BrochureFlipbook = lazy(() => import('../components/BrochureFlipbook'))
+
+function useViewportMode() {
+  const [mode, setMode] = useState(null) // null | 'mobile' | 'desktop'
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    const sync = () => setMode(mq.matches ? 'mobile' : 'desktop')
+    sync()
+    mq.addEventListener?.('change', sync)
+    return () => mq.removeEventListener?.('change', sync)
+  }, [])
+  return mode
+}
+
+/** Mobile: brochure flipbook only (MesoProbe / μProbe / NG80). */
+function MobileBrochureOnlyPage({ product }) {
+  const url = getBrochureUrl(product.slug)
+  const { name, slug, shortDesc } = product
+
+  return (
+    <main className="meso-page meso-page--brochure-only">
+      <SEOMeta
+        title={name}
+        description={shortDesc}
+        canonical={`https://www.industronnano.com/products/${slug}`}
+        type="product"
+        jsonld={productJsonLd(product)}
+      />
+      <Suspense
+        fallback={
+          <div className="brochure-flip brochure-flip--full" aria-busy="true">
+            <p className="brochure-flip-status">Opening brochure…</p>
+          </div>
+        }
+      >
+        <BrochureFlipbook url={url} title={`${name} brochure`} />
+      </Suspense>
+    </main>
+  )
+}
 
 function BeatCopy({ beatKey, beatFrames, totalFrames, progress, className, children }) {
   const opacity = useTransform(progress, (p) => getBeatOpacity(p, beatFrames, beatKey, totalFrames))
@@ -361,6 +403,8 @@ function InfoSection({ info, name, slug, layout, section, brochureUrl }) {
 export default function ProductDetailPage() {
   const { productSlug } = useParams()
   const product = PRODUCT_BY_SLUG[productSlug]
+  const viewport = useViewportMode()
+  const brochureUrl = product ? getBrochureUrl(product.slug) : null
 
   useEffect(() => {
     if (product?.externalUrl) {
@@ -368,9 +412,40 @@ export default function ProductDetailPage() {
     }
   }, [product?.externalUrl])
 
+  useEffect(() => {
+    if (!brochureUrl || viewport === 'desktop') {
+      document.body.classList.remove('brochure-fullpage')
+      return undefined
+    }
+    document.body.classList.add('brochure-fullpage')
+    return () => document.body.classList.remove('brochure-fullpage')
+  }, [brochureUrl, viewport])
+
   if (!product) return <Navigate to="/products" replace />
 
   if (product.externalUrl) return <RedirectPage name={product.name} />
+
+  // Mobile + brochure PDF: show only the scroll-to-flip book (no hero / specs / CTAs).
+  if (brochureUrl && viewport === 'mobile') {
+    return <MobileBrochureOnlyPage product={product} />
+  }
+
+  // Avoid flashing the full desktop page before we know the viewport.
+  if (brochureUrl && viewport === null) {
+    return (
+      <main className="meso-page meso-page--brochure-only">
+        <SEOMeta
+          title={product.name}
+          description={product.shortDesc}
+          canonical={`https://www.industronnano.com/products/${product.slug}`}
+          type="product"
+        />
+        <div className="brochure-flip brochure-flip--full" aria-busy="true">
+          <p className="brochure-flip-status">Opening brochure…</p>
+        </div>
+      </main>
+    )
+  }
 
   if (product.frameCount) return <SequenceDetailPage product={product} />
 

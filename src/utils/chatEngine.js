@@ -19,7 +19,7 @@ import { retrieveRelevantFaq } from '../data/technicalFaq'
 import {
   ensureOfflineLlm,
   getOfflineLlmStatus,
-  isWebGpuAvailable,
+  shouldAutoLoadModel,
   streamOfflineChat,
 } from './offlineLlm'
 
@@ -73,11 +73,9 @@ function scoreProduct(query, product) {
 
   if (/meso/.test(q) && /mesoprobe/.test(hay)) score += 8
   if (/(uprobe|uprobes|micro.?probe|μprobe)/.test(q) && /uprobe/.test(product.slug)) score += 8
-  if (/\bng\s?50\b|\bng50\b|nanoguru/.test(q) && product.slug === 'ng50') score += 8
   if (/\bng\s?80\b|\bng80\b/.test(q) && product.slug === 'ng80') score += 8
-  if (/\bti\s?980\b/.test(q) && /ti-980/.test(product.slug)) score += 8
-  if (/\bpi\s?89\b/.test(q) && /pi-89/.test(product.slug)) score += 8
-  if (/\bpi\s?95\b/.test(q) && /pi-95/.test(product.slug)) score += 8
+  if (/pneumatic|isolation table|air isolation/.test(q) && /pneumatic/.test(product.slug)) score += 8
+  if (/\bdic\b|digital image correlation|strain map/.test(q) && /dic/.test(product.slug)) score += 8
   if (/biosoft/.test(q) && /biosoft/.test(product.slug)) score += 8
 
   return score
@@ -86,14 +84,19 @@ function scoreProduct(query, product) {
 function formatProductAnswer(product) {
   const badges = product.badges?.length ? `\n\n**Highlights:** ${product.badges.join(' · ')}` : ''
   const lead = product.lead ? `\n\n${product.lead}` : ''
+  const facts = product.facts ? `\n\n${product.facts}` : ''
+  const brochure = product.external
+    ? `→ Details: [${product.name} on Bruker](${product.externalUrl})\n`
+    : `→ Brochure: [/brochure-form?product=${product.slug}](/brochure-form?product=${product.slug})\n`
   return (
     `**${product.name}** (${product.category})\n\n` +
     `${product.shortDesc}` +
     lead +
+    facts +
     badges +
     `\n\n→ Product page: [${product.path}](${product.path})\n` +
-    `→ Brochure: [/brochure-form?product=${product.slug}](/brochure-form?product=${product.slug})\n\n` +
-    `Ask me about specs, applications, or how it compares to another instrument.`
+    brochure +
+    `\nAsk me about specs, applications, or how it compares to another instrument.`
   )
 }
 
@@ -256,7 +259,20 @@ function suggestionsFor(text) {
  * Prefer offline LLM when ready; otherwise knowledge engine.
  * Supports streaming via onToken.
  */
-/** Queries we answer exactly from data (never let the model guess counts/lists). */
+/** Queries we answer exactly from data (never let the model guess counts/lists/people). */
+function formatTeamAnswer() {
+  return (
+    `Key Industron contacts listed on the website:\n\n` +
+    COMPANY_FACTS.team
+      .map((m) => {
+        const phone = m.phone ? ` · ${m.phone}` : ''
+        return `• **${m.name}** — ${m.role} (${m.email}${phone})`
+      })
+      .join('\n') +
+    `\n\nWe do not publish a full employee directory online. For other enquiries: [/contact](/contact)`
+  )
+}
+
 function deterministicAnswer(userMessage) {
   const q = normalize(userMessage)
   const mentionsCatalog = /product|instrument|model|machine|device|catalog|portfolio/.test(q)
@@ -267,6 +283,21 @@ function deterministicAnswer(userMessage) {
     return {
       text: buildProductCountAnswer(),
       suggestions: ['Tell me about MesoProbe', 'μProbe 500', 'NG80', 'Contact sales'],
+      mode: 'knowledge',
+    }
+  }
+
+  // Never let the model invent staff names / org charts.
+  const asksPeople =
+    /\b(team|staff|employee|employees|people|members|contacts|directory|org(?:anisation|anization)? chart)\b/.test(q) ||
+    /who (works|are|is).*(industron|company|team|staff|here)/.test(q) ||
+    /(list|show|tell).*(team|staff|employee|people|contacts)/.test(q) ||
+    /sales (person|contact|manager)|application engineer|contact person/.test(q) ||
+    /\b(pratyank|kiran|asif)\b/.test(q)
+  if (asksPeople) {
+    return {
+      text: formatTeamAnswer(),
+      suggestions: ['Contact sales', 'NRL testing', 'Founder', 'Show products'],
       mode: 'knowledge',
     }
   }
@@ -348,9 +379,10 @@ export async function answerWithBestEngine(userMessage, history = [], { onToken,
     } catch {
       // Any streaming error — fall through silently to the instant reply.
     }
-  } else if (preferLlm && isWebGpuAvailable()) {
+  } else if (preferLlm && shouldAutoLoadModel()) {
     // Warm the enhanced engine up in the background so it can take over on a
     // later message. Fire-and-forget — this never delays the current answer.
+    // Skipped on phones to avoid using a visitor's mobile data.
     ensureOfflineLlm().catch(() => {})
   }
 

@@ -9,24 +9,20 @@ import {
   openInquiryMailto,
   resolveBrochureMailto,
 } from '../config/inquiryEmails'
+import { getBrochureUrl } from '../data/brochures'
 const PRODUCT_LABELS = {
   'uprobe-500':  'μProbe 500',
   'mesoprobe':   'MesoProbe',
-  'ng50':        'NG50 / NanoGuru®',
   'ng80':        'NG80',
-}
-const BROCHURE_FILES = {
-  'uprobe-500':  '/Ammuu_Latest.pdf',
-  'mesoprobe':   '/Ammuu_Latest.pdf',
-  'ng50':        '/Ammuu_Latest.pdf',
-  'ng80':        '/Ammuu_Latest.pdf',
+  'pneumatic-air-isolation-table': 'Pneumatic Air Isolation Table',
+  'dic-software': 'DIC Software',
 }
 
 export default function BrochureFormPage() {
   const [params] = useSearchParams()
   const slug    = params.get('product') ?? ''
   const product = PRODUCT_LABELS[slug] ?? 'Industron Instrument'
-  const file    = BROCHURE_FILES[slug] ?? '/Ammuu_Latest.pdf'
+  const file    = getBrochureUrl(slug) ?? '/Ammuu_Latest.pdf'
 
   const [done, setDone] = useState(false)
   const [notice, setNotice] = useState(null)

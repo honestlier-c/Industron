@@ -65,9 +65,9 @@ export default function About() {
                 <p key={j}>{text}</p>
               ))}
               {id === 'instruments' && (
-                <a href="#hero" className="btn-primary service-card-cta">
-                  Instruments
-                </a>
+                <Link to="/products" className="btn-primary service-card-cta">
+                  View instruments
+                </Link>
               )}
               {id === 'testing' && (
                 <Link to="/testing-form" className="btn-primary service-card-cta">
