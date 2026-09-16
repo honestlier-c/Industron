@@ -533,7 +533,7 @@ export const PRODUCTS = [
   p({
     slug: 'pneumatic-air-isolation-table',
     name: 'Pneumatic Air Isolation Table',
-    image: `${IMG}/Minus K Scale System.png`,
+    image: `${IMG}/Pneumatic-Air-Isolation-Table.png`,
     category: 'Accessories',
     shortDesc:
       'Vibration-free granite platform with pneumatic air suspension — isolate vibrations, enable precision, and support performance for metrology, optics, and sensitive instruments.',
