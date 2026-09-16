@@ -3,7 +3,8 @@
  *
  * naming:
  *   ezgif       → ezgif-frame-001.jpg (1-based, 3-digit)
- *   indexed-png → frame_000000.png (0-based, 6-digit)
+ *   indexed-png → frame_000000.jpg (0-based, 6-digit; JPEG for web size)
+ *   indexed-jpg → alias of indexed-png
  */
 
 export function sampleFrameIndices(sourceCount, playbackCount) {
@@ -16,8 +17,8 @@ export function sampleFrameIndices(sourceCount, playbackCount) {
 }
 
 function framePath(framesFolder, index, naming) {
-  if (naming === 'indexed-png') {
-    return `${framesFolder}/frame_${String(index).padStart(6, '0')}.png`
+  if (naming === 'indexed-png' || naming === 'indexed-jpg') {
+    return `${framesFolder}/frame_${String(index).padStart(6, '0')}.jpg`
   }
   const id = String(index + 1).padStart(3, '0')
   return `${framesFolder}/ezgif-frame-${id}.jpg`

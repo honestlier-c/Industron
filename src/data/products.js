@@ -23,7 +23,7 @@ const SCROLL_SEQUENCE = {
   scrollBeats: DEFAULT_SCROLL_BEATS,
 }
 
-/** MesoProbe — 1380× PNG sequence in public/MesoProbe (evenly sampled for playback) */
+/** MesoProbe — JPEG sequence in public/MesoProbe (evenly sampled for playback) */
 const MESOPROBE_SCROLL_SEQUENCE = {
   framesFolder: '/MesoProbe',
   frameNaming: 'indexed-png',
