@@ -1,12 +1,15 @@
 /**
  * Offline in-browser LLM via WebLLM (MLC).
- * Small instruct model + site RAG → natural answers without blocking chat.
+ * Tiny instruct model + site RAG → natural answers without blocking chat.
  * Falls back gracefully when WebGPU is unavailable.
  */
 
-/** Fast first-load (~300 MB); chat stays instant via knowledge corpus while this warms. */
-export const OFFLINE_MODEL_ID = 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC'
-export const OFFLINE_MODEL_LABEL = 'Qwen2.5 0.5B (offline)'
+/**
+ * SmolLM2-135M — smallest solid instruct model in WebLLM (~360 MB VRAM).
+ * Fast first download; chat stays instant from the knowledge base meanwhile.
+ */
+export const OFFLINE_MODEL_ID = 'SmolLM2-135M-Instruct-q0f16-MLC'
+export const OFFLINE_MODEL_LABEL = 'SmolLM2 135M (offline)'
 
 let enginePromise = null
 let engine = null
@@ -104,7 +107,7 @@ export async function ensureOfflineLlm(onProgress) {
     await checkModelCached()
     loadProgress = {
       progress: 0.01,
-      text: modelCached ? 'Starting tutor (cached)…' : 'Downloading tutor model…',
+      text: modelCached ? 'Starting tutor (cached)…' : 'Downloading small tutor model…',
     }
     notify()
 
@@ -138,10 +141,10 @@ export async function ensureOfflineLlm(onProgress) {
 }
 
 /**
- * Seamless background warm-up: never blocks the UI.
- * - Cached models: start almost immediately after idle
- * - First visit: wait longer so the page paints and chat works first
- * - Phones / no WebGPU: no-op
+ * Background warm-up — never blocks chat.
+ * - Cached: warm quickly on idle (return visits feel instant).
+ * - First visit: do NOT auto-download on page load (saves bandwidth);
+ *   download starts on chat open / FAB hover via prefetchOfflineLlm().
  */
 export function scheduleOfflineLlmWarmup(opts = {}) {
   if (engine || enginePromise || warmupScheduled) return
@@ -156,11 +159,18 @@ export function scheduleOfflineLlmWarmup(opts = {}) {
 
   const run = async () => {
     const cached = await checkModelCached()
-    const delayMs = preferSoon ? 0 : cached ? 400 : 2200
+
+    // First visit: skip page-load download unless explicitly asked (chat open).
+    if (!cached && !preferSoon) {
+      warmupScheduled = false
+      return
+    }
+
+    const delayMs = preferSoon ? 0 : 300
 
     const kick = () => {
       if (typeof window !== 'undefined' && typeof window.requestIdleCallback === 'function') {
-        window.requestIdleCallback(() => start(), { timeout: cached ? 1500 : 6000 })
+        window.requestIdleCallback(() => start(), { timeout: 2000 })
       } else {
         start()
       }
@@ -175,7 +185,7 @@ export function scheduleOfflineLlmWarmup(opts = {}) {
   })
 }
 
-/** Call on chat FAB hover / open — accelerates warm-up without waiting for idle. */
+/** Call on chat FAB hover / open — starts download only when the user shows intent. */
 export function prefetchOfflineLlm() {
   if (!shouldAutoLoadModel()) return
   if (engine || enginePromise) return

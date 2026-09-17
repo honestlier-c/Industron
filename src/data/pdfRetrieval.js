@@ -47,6 +47,14 @@ function tokenize(query) {
     .filter((t) => t.length > 2 && !STOPWORDS.has(t))
 }
 
+/** Skip copyright / ToC / publisher prelims that pollute answers. */
+function isFrontMatterJunk(text) {
+  const t = String(text || '').toLowerCase()
+  return /library of congress|cataloging in publication|isbn\s*0-?\d|john wiley & sons|all rights reserved|british library cataloguing|printed and bound in|integras\/kcg\/pagination|typeset in \d|acid-free paper|permission in writing of the publisher|customer service enquiries|jossey-bass|wiley-vch|etobicoke|distripark/.test(
+    t,
+  )
+}
+
 /**
  * Retrieve the most relevant PDF / Chatbotdata chunks for a query.
  * Returns [{ title, pdf, text, industries, public }].
@@ -61,8 +69,11 @@ export function retrieveNoteExcerpts(query, k = 3, opts = {}) {
 
   const preferPrivate = Boolean(opts.preferPrivate)
   const perSource = opts.perSource ?? (preferPrivate ? 3 : 2)
+  const q = String(query || '').toLowerCase()
 
   const scored = CHUNKS.map((chunk) => {
+    if (isFrontMatterJunk(chunk.text)) return { chunk, score: -1 }
+
     const hay = `${chunk.title} ${chunk.text}`.toLowerCase()
     let score = 0
     tokens.forEach((t) => {
@@ -70,13 +81,16 @@ export function retrieveNoteExcerpts(query, k = 3, opts = {}) {
       if (hay.includes(t)) score += 2
       else if (stem.length > 2 && hay.includes(stem)) score += 1
     })
-    // Soft boost for private nanotech corpus when teaching science topics.
     if (preferPrivate && chunk.public === false && score > 0) score += 1.5
-    // Title hits are strong signals.
     const titleHay = String(chunk.title || '').toLowerCase()
     tokens.forEach((t) => {
       if (titleHay.includes(t)) score += 3
     })
+    // Prefer real definition passages over ToC / prelims.
+    if (/what is nanotechnology\?/.test(hay) && /nanotechnology/.test(q)) score += 12
+    if (/nanotechnology is the term used to cover/.test(hay) && /nanotechnology/.test(q)) score += 14
+    if (/classification of nanostructures|nanoscale architecture/.test(hay) && /nano/.test(q)) score += 4
+    if (/\d\.\d\.\d/.test(chunk.text) && (chunk.text.match(/\d\.\d/g) || []).length > 8) score -= 6
     return { chunk, score }
   })
     .filter((x) => x.score > 0)

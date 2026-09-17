@@ -96,9 +96,15 @@ function formatProductAnswer(product) {
   )
 }
 
-/** Soft product CTA matched to the topic (helpful, not a hard sell). */
+/**
+ * Soft product CTA — only when the question is about measuring / instruments.
+ * Skip for pure “what is …” concept questions.
+ */
 function promoLineFor(query) {
   const q = normalize(query)
+  if (/^what is\b|^define\b|^meaning of\b/.test(q) && !/indent|probe|instrument|system|machine|product/.test(q)) {
+    return `Want to measure nanoscale mechanical properties? Ask about **NG80**, **μProbe 500**, or **MesoProbe**.`
+  }
   if (/meso|dic|strain map|compress|bend|tensile|fatigue|hydrogel|foam/.test(q)) {
     return `If you’re measuring this in the lab, **MesoProbe** is built for meso-scale loading with DIC strain mapping — [/products/mesoprobe](/products/mesoprobe).`
   }
@@ -114,23 +120,45 @@ function promoLineFor(query) {
   if (/soft|bio|lens|cell|tissue|cartilage/.test(q)) {
     return `For soft/biomaterials, Industron’s **BioSoft** / meso platforms are designed for gentle, precise testing — [/products](/products).`
   }
-  return `Industron builds systems for this kind of work — **NG80**, **μProbe 500**, and **MesoProbe**. See [/products](/products) or ask which fits your sample.`
+  if (/instrument|system|product|which (one|system)|recommend|buy|demo/.test(q)) {
+    return `Industron builds systems for this kind of work — **NG80**, **μProbe 500**, and **MesoProbe**. See [/products](/products).`
+  }
+  return ''
+}
+
+function isJunkChunk(text) {
+  const t = String(text || '').toLowerCase()
+  return (
+    /library of congress|cataloging in publication|isbn\s*0-?\d|john wiley|all rights reserved|copyright\s*\/?c|permission in writing of the publisher|british library cataloguing|printed and bound in|integras\/kcg\/pagination|typeset in|acid-free paper/.test(
+      t,
+    ) ||
+    (/contributor|chapter authors|preface|contents list/.test(t) && !/what is nanotechnology/.test(t))
+  )
 }
 
 /** Instant knowledge answer from corpus when the LLM is still loading. */
 function formatCorpusTutorAnswer(query, excerpts) {
   if (!excerpts?.length) return null
-  const top = excerpts[0]
-  const body = String(top.text || '')
+  const usable = excerpts.find((e) => !isJunkChunk(e.text)) || excerpts[0]
+  if (isJunkChunk(usable.text)) return null
+
+  let body = String(usable.text || '')
+    .replace(/\/\/INTEGRAS\/[^\s]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
-    .slice(0, 320)
-  const core = `${body}${body.length >= 300 ? '…' : ''}`
+
+  // Prefer the real definition sentence when present.
+  const def = body.match(/nanotechnology is the term used to cover[^.]{20,280}\./i)
+  if (def) body = def[0]
+  else body = body.slice(0, 320)
+
+  const core = `${body}${body.length >= 300 && !def ? '…' : ''}`
   const cite =
-    top.public && top.pdf
-      ? `\n\nRelated note: [${top.title}](${top.pdf}).`
+    usable.public && usable.pdf
+      ? `\n\nRelated note: [${usable.title}](${usable.pdf}).`
       : ''
-  return `${core}${cite}\n\n${promoLineFor(query)}`
+  const promo = promoLineFor(query)
+  return promo ? `${core}${cite}\n\n${promo}` : `${core}${cite}`
 }
 
 function matchFaq(query, products) {
@@ -382,10 +410,17 @@ export async function answerWithBestEngine(userMessage, history = [], { onToken,
     return exact
   }
 
+  // Instant FAQ / knowledge answers before corpus dumps (works offline).
+  const faqHit = matchFaq(userMessage, getProductKnowledge())
+  if (faqHit) {
+    await streamText(faqHit, onToken, signal)
+    return { text: faqHit, suggestions: suggestionsFor(userMessage), mode: 'knowledge' }
+  }
+
   const status = getOfflineLlmStatus()
   const science = isNanotechQuery(userMessage)
   const excerptOpts = science ? { preferPrivate: true, perSource: 3 } : {}
-  const excerptK = science ? 8 : 4
+  const excerptK = science ? 6 : 3
 
   // Instant-first: only use the enhanced engine when it is ALREADY loaded.
   // We never block a reply on the model download — the knowledge base answers

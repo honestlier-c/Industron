@@ -91,21 +91,21 @@ export default function ChatBot() {
 
   useEffect(() => subscribeOfflineLlm(setLlmStatus), [])
 
-  /* Seamless warm-up: chat answers instantly from the knowledge base.
-     The tutor model downloads/loads only in the background (idle + cache-aware). */
+  /* Chat answers instantly from the knowledge base.
+     Cached models warm on idle; first-visit download starts only when chat opens. */
   useEffect(() => {
     if (bootstrapped.current) return undefined
     bootstrapped.current = true
     scheduleOfflineLlmWarmup()
-    // Prefetch RAG chunk early so science answers stay snappy.
-    import('../data/pdfRetrieval').catch(() => {})
     return undefined
   }, [])
 
-  /* Opening the panel should accelerate model warm-up without blocking chat. */
+  /* Opening / hovering chat starts the small model download without blocking replies. */
   useEffect(() => {
     if (!open) return undefined
     prefetchOfflineLlm()
+    // Prefetch RAG only when chat is used (keeps first page paint lighter).
+    import('../data/pdfRetrieval').catch(() => {})
     const t = window.setTimeout(() => inputRef.current?.focus(), 180)
     return () => window.clearTimeout(t)
   }, [open])
@@ -210,12 +210,12 @@ export default function ChatBot() {
                 <div>
                   <p className="chatbot-title">NanoGuide</p>
                   <p className="chatbot-status">
-                    <span className={`chatbot-status-dot ${llmStatus.ready ? 'chatbot-status-dot--llm' : ''}`} />
                     {llmStatus.ready ? (
-                      <span className="chatbot-status-badge">Ready</span>
-                    ) : (
-                      'Ask anything — instant replies'
-                    )}
+                      <>
+                        <span className="chatbot-status-dot chatbot-status-dot--llm" />
+                        Online
+                      </>
+                    ) : null}
                   </p>
                 </div>
               </div>
@@ -228,18 +228,6 @@ export default function ChatBot() {
                 ✕
               </button>
             </header>
-
-            {llmStatus.loading && !llmStatus.ready && (
-              <div className="chatbot-llm-bar" aria-live="polite">
-                <p className="chatbot-llm-loading-title">
-                  {llmStatus.cached ? 'Warming cached tutor…' : 'Enhancing answers in background…'}
-                </p>
-                <div className="chatbot-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round((llmStatus.progress || 0) * 100)}>
-                  <div style={{ width: `${Math.max(4, Math.round((llmStatus.progress || 0) * 100))}%` }} />
-                </div>
-                <p className="chatbot-llm-hint">You can keep chatting — replies use the knowledge base now, then get richer when this finishes.</p>
-              </div>
-            )}
 
             <div className="chatbot-messages" ref={listRef}>
               {messages.map((m) => (

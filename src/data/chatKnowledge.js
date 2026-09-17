@@ -669,6 +669,17 @@ export const FAQ_INTENTS = [
       `Hi! I’m **NanoGuide** — ask me about nanotech, indentation, SPM/AFM, or materials testing, and I’ll give a clear, concise answer.\n\nWhen it fits, I’ll also recommend the right Industron system (**NG80**, **μProbe 500**, **MesoProbe**, and more).`,
   },
   {
+    id: 'what_is_nanotechnology',
+    patterns: [
+      /what is nanotechnology/,
+      /define nanotechnology/,
+      /nanotechnology (mean|definition|explained)/,
+      /^nanotechnology\??$/,
+    ],
+    answer: () =>
+      `**Nanotechnology** is the design, construction, and use of functional structures with at least one size in the **nanometre** range — roughly **1–100 nm**.\n\nAt that scale, materials can show physical, chemical, or biological behaviour very different from bulk matter, which opens new technologies (and new measurement challenges).\n\nIndustron instruments like **NG80** help characterise those materials mechanically at the nanoscale — ask if you want the right system for your sample.`,
+  },
+  {
     id: 'founder',
     patterns: [/founder/, /who (founded|started|owns|runs)/, /managing director|\bmd\b/, /ceo|owner|leadership|who is the (head|boss|director)/],
     answer: () =>
