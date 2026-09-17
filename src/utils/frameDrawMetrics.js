@@ -3,14 +3,24 @@ const MOBILE_BREAKPOINT = 760
 /**
  * Same geometry as useScrollSequence canvas draw — single source of truth
  * for overlay text position and fluid type scale.
+ *
+ * Desktop uses contain so the full frame is visible (not zoomed/cropped).
  */
-export function computeFrameDrawMetrics(targetW, targetH, img, isMobile = targetW <= MOBILE_BREAKPOINT) {
+export function computeFrameDrawMetrics(
+  targetW,
+  targetH,
+  img,
+  isMobile = targetW <= MOBILE_BREAKPOINT,
+) {
   if (!img?.naturalWidth || !targetW || !targetH) return null
 
   const containScale = Math.min(targetW / img.naturalWidth, targetH / img.naturalHeight)
   const coverScale = Math.max(targetW / img.naturalWidth, targetH / img.naturalHeight)
   const frameAspect = img.naturalWidth / img.naturalHeight
   const isWide16x9 = frameAspect > 1.7 && frameAspect < 1.85
+
+  // Mobile: slight zoom toward cover so the product fills the band better.
+  // Desktop: contain — show the full frame without cropping.
   const scale =
     isMobile && isWide16x9
       ? containScale + (coverScale - containScale) * 0.32

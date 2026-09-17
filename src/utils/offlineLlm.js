@@ -1,11 +1,10 @@
 /**
  * Offline in-browser LLM via WebLLM (MLC).
- * Default model: Qwen2.5-0.5B-Instruct (q4f16) — ~300 MB weights, fast first-load,
- * 4096 context, coherent when grounded by the site's knowledge base.
+ * Small instruct model + site RAG → natural answers without blocking chat.
  * Falls back gracefully when WebGPU is unavailable.
  */
 
-/** Small, fast-to-download model for offline support chat */
+/** Fast first-load (~300 MB); chat stays instant via knowledge corpus while this warms. */
 export const OFFLINE_MODEL_ID = 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC'
 export const OFFLINE_MODEL_LABEL = 'Qwen2.5 0.5B (offline)'
 
@@ -13,6 +12,9 @@ let enginePromise = null
 let engine = null
 let loadProgress = { progress: 0, text: 'Idle' }
 let listeners = new Set()
+let warmupScheduled = false
+let cacheChecked = false
+let modelCached = false
 
 function notify() {
   listeners.forEach((fn) => {
@@ -33,6 +35,7 @@ export function getOfflineLlmStatus() {
     modelId: OFFLINE_MODEL_ID,
     modelLabel: OFFLINE_MODEL_LABEL,
     webgpu: typeof navigator !== 'undefined' && Boolean(navigator.gpu),
+    cached: modelCached,
   }
 }
 
@@ -47,8 +50,8 @@ export function isWebGpuAvailable() {
 }
 
 /**
- * Rough phone/tablet detection. Used to avoid auto-downloading the ~300 MB
- * model over mobile data — phones still get the instant offline knowledge chat.
+ * Rough phone/tablet detection. Used to avoid auto-downloading the model
+ * over mobile data — phones still get the instant offline knowledge chat.
  */
 export function isMobileDevice() {
   if (typeof navigator === 'undefined') return false
@@ -56,7 +59,6 @@ export function isMobileDevice() {
   if (/Android|iPhone|iPad|iPod|Windows Phone|IEMobile|BlackBerry|Opera Mini/i.test(ua)) {
     return true
   }
-  // iPadOS reports as desktop Safari but exposes touch + Mac platform.
   if (/Macintosh/.test(ua) && typeof document !== 'undefined' && 'ontouchend' in document) {
     return true
   }
@@ -68,9 +70,27 @@ export function shouldAutoLoadModel() {
   return isWebGpuAvailable() && !isMobileDevice()
 }
 
+/** True when weights are already in the browser cache (near-instant warm). */
+export async function checkModelCached() {
+  if (cacheChecked) return modelCached
+  cacheChecked = true
+  if (!isWebGpuAvailable()) {
+    modelCached = false
+    return false
+  }
+  try {
+    const { hasModelInCache } = await import('@mlc-ai/web-llm')
+    modelCached = Boolean(await hasModelInCache(OFFLINE_MODEL_ID))
+  } catch {
+    modelCached = false
+  }
+  notify()
+  return modelCached
+}
+
 /**
  * Lazily create / reuse the WebLLM engine.
- * First load downloads ~0.9GB model (cached in browser for later visits).
+ * First visit downloads weights (then cached); later visits load from cache.
  */
 export async function ensureOfflineLlm(onProgress) {
   if (engine) return engine
@@ -81,7 +101,11 @@ export async function ensureOfflineLlm(onProgress) {
   }
 
   enginePromise = (async () => {
-    loadProgress = { progress: 0.01, text: 'Starting offline LLM…' }
+    await checkModelCached()
+    loadProgress = {
+      progress: 0.01,
+      text: modelCached ? 'Starting tutor (cached)…' : 'Downloading tutor model…',
+    }
     notify()
 
     const { CreateMLCEngine } = await import('@mlc-ai/web-llm')
@@ -90,7 +114,7 @@ export async function ensureOfflineLlm(onProgress) {
       initProgressCallback: (report) => {
         loadProgress = {
           progress: report.progress ?? 0,
-          text: report.text || 'Loading model…',
+          text: report.text || (modelCached ? 'Loading cached model…' : 'Downloading model…'),
         }
         notify()
         onProgress?.(loadProgress)
@@ -98,7 +122,8 @@ export async function ensureOfflineLlm(onProgress) {
     })
 
     engine = created
-    loadProgress = { progress: 1, text: 'Offline LLM ready' }
+    modelCached = true
+    loadProgress = { progress: 1, text: 'Tutor ready' }
     notify()
     return engine
   })().catch((err) => {
@@ -110,6 +135,52 @@ export async function ensureOfflineLlm(onProgress) {
   })
 
   return enginePromise
+}
+
+/**
+ * Seamless background warm-up: never blocks the UI.
+ * - Cached models: start almost immediately after idle
+ * - First visit: wait longer so the page paints and chat works first
+ * - Phones / no WebGPU: no-op
+ */
+export function scheduleOfflineLlmWarmup(opts = {}) {
+  if (engine || enginePromise || warmupScheduled) return
+  if (!shouldAutoLoadModel()) return
+
+  warmupScheduled = true
+  const preferSoon = Boolean(opts.preferSoon)
+
+  const start = () => {
+    ensureOfflineLlm().catch(() => {})
+  }
+
+  const run = async () => {
+    const cached = await checkModelCached()
+    const delayMs = preferSoon ? 0 : cached ? 400 : 2200
+
+    const kick = () => {
+      if (typeof window !== 'undefined' && typeof window.requestIdleCallback === 'function') {
+        window.requestIdleCallback(() => start(), { timeout: cached ? 1500 : 6000 })
+      } else {
+        start()
+      }
+    }
+
+    if (delayMs <= 0) kick()
+    else setTimeout(kick, delayMs)
+  }
+
+  run().catch(() => {
+    warmupScheduled = false
+  })
+}
+
+/** Call on chat FAB hover / open — accelerates warm-up without waiting for idle. */
+export function prefetchOfflineLlm() {
+  if (!shouldAutoLoadModel()) return
+  if (engine || enginePromise) return
+  warmupScheduled = true
+  ensureOfflineLlm().catch(() => {})
 }
 
 /**

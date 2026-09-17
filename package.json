@@ -11,6 +11,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "extract:pdf": "node scripts/extract-pdf-text.mjs",
+    "extract:chatbot": "node scripts/extract-chatbot-docs.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

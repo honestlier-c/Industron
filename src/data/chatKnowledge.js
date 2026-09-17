@@ -282,8 +282,8 @@ export const WEBSITE_PAGES = {
     path: '/applications',
     title: 'Application notes (downloadable PDFs)',
     text:
-      'Industron publishes downloadable application-note PDFs on the /applications page. Each note links to a PDF under /PDF/. When a user asks about one, share the matching PDF link. Available notes (Title [industries] → PDF link):\n' +
-      buildApplicationNotesDigest(),
+      'Industron publishes application-note PDFs on /applications (steel, coatings, biomaterials, polymers, aerospace, and more). ' +
+      'Do NOT list every note. Answer in a few crisp lines; at most one or two PDF links if the user named a topic. Otherwise point to /applications.',
   },
   techniques: {
     path: '/applications',
@@ -445,7 +445,7 @@ export function retrieveRelevantProducts(query, k = 3) {
     .replace(/[μµ]/g, 'u')
   const tokens = tokenizeQuery(query)
 
-  return getProductKnowledge()
+  const ranked = getProductKnowledge()
     .map((p) => {
       let score = 0
       const hay = p.keywords
@@ -458,12 +458,24 @@ export function retrieveRelevantProducts(query, k = 3) {
       if (/\bng\s?80\b/.test(q) && p.slug === 'ng80') score += 10
       if (/pneumatic|isolation table|air isolation|vibration/.test(q) && /pneumatic/.test(p.slug)) score += 10
       if (/\bdic\b|digital image correlation|strain map/.test(q) && /dic/.test(p.slug)) score += 10
+      // Soft topic → product boosts so replies can promote the right system.
+      if (/nanoindent|spm|afm|nanowear|hardness|modulus/.test(q) && p.slug === 'ng80') score += 4
+      if (/compress|bend|tensile|fatigue|hydrogel|meso/.test(q) && p.slug === 'mesoprobe') score += 4
+      if (/micro.?indent|education|teaching/.test(q) && /uprobe/.test(p.slug)) score += 4
       return { p, score }
     })
     .filter((x) => x.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, k)
     .map((x) => x.p)
+
+  // Always leave the model with at least one flagship to promote when empty.
+  if (!ranked.length) {
+    return getProductKnowledge()
+      .filter((p) => ['ng80', 'mesoprobe', 'uprobe-500'].includes(p.slug))
+      .slice(0, Math.min(2, k))
+  }
+  return ranked
 }
 
 /** Retrieve the website pages most relevant to a query (keyword overlap). */
@@ -494,21 +506,34 @@ export function retrieveRelevantPages(query, k = 3) {
   return scored.length ? scored : [WEBSITE_PAGES.home, WEBSITE_PAGES.about, WEBSITE_PAGES.contact]
 }
 
-export function buildSystemPrompt(relevantProducts = [], query = '', noteExcerpts = []) {
+/** Science / nanotech teaching questions (vs product-sales support). */
+export function isNanotechQuery(query) {
+  const q = String(query || '').toLowerCase()
+  return /nano|spm|afm|tribolog|indent|hardness|modulus|young|poisson|thin.?film|quantum|semiconductor|magneto|fabricat|bottom.?up|top.?down|probe|tip|wear|friction|ashby|materials? (science|engineer)|contact mechanic|characteri[sz]|microscop|lattice|band.?gap|mems|cnt|carbon nanotube|graphene|self.?assembl|nanowear|piezo|transducer|in-?situ|roughness|fracture toughness|hertz|oliver.?pharr|stress.?strain|dislocation|grain|coating|polymer|biomaterial|hydrogel|creep|fatigue|scratch|dma|xpm/.test(
+    q,
+  )
+}
+
+/**
+ * @param {object[]} relevantProducts
+ * @param {string} query
+ * @param {object[]} noteExcerpts
+ * @param {{ mode?: 'nanotech' | 'site' }} [opts]
+ */
+export function buildSystemPrompt(relevantProducts = [], query = '', noteExcerpts = [], opts = {}) {
+  const mode = opts.mode || (isNanotechQuery(query) ? 'nanotech' : 'site')
+
   const rag =
     relevantProducts.length > 0
       ? relevantProducts
           .map((p) => {
-            // Products with curated facts: facts already cover specs/tests/
-            // strengths/best-for, so skip the redundant prose. Others (Bruker):
-            // give lead + a detail snippet + the official link.
             const body = p.facts
               ? `${p.facts}\n`
               : `${p.lead ? `Overview: ${p.lead}\n` : ''}${p.detail ? `Details: ${p.detail.slice(0, 350)}\n` : ''}${p.external ? `Note: Bruker/Hysitron product — full specs at ${p.externalUrl}\n` : ''}`
             return `### ${p.name}\nCategory: ${p.category}\nSummary: ${p.shortDesc}\n${body}Page: ${p.path}`
           })
           .join('\n\n')
-      : 'No specific product matched — use only the website pages and product catalog below.'
+      : 'No specific product matched.'
 
   const relevantPages = retrieveRelevantPages(query)
   const stats = getProductStats()
@@ -518,59 +543,122 @@ export function buildSystemPrompt(relevantProducts = [], query = '', noteExcerpt
 
   const relevantNotes = retrieveRelevantNotes(query)
   const notesBlock = relevantNotes.length
-    ? relevantNotes.map((n) => `- ${n.label} [${n.industries.join(', ')}]: ${n.pdf}`).join('\n')
-    : 'No specific application note matched this question. If asked for the full list, point to /applications.'
+    ? relevantNotes
+        .slice(0, 2)
+        .map((n) => `- ${n.label}: ${n.pdf}`)
+        .join('\n')
+    : 'No specific application note matched this question.'
 
-  const excerptsBlock = noteExcerpts.length
-    ? noteExcerpts
-        .map((e) => `From "${e.title}" (${e.pdf}):\n"""${e.text.slice(0, 600)}"""`)
+  const publicExcerpts = noteExcerpts.filter((e) => e.public !== false && e.pdf)
+  const privateExcerpts = noteExcerpts.filter((e) => e.public === false || !e.pdf)
+  const excerptLen = mode === 'nanotech' ? 1100 : 600
+
+  const excerptsBlock = publicExcerpts.length
+    ? publicExcerpts
+        .map((e) => `From "${e.title}" (${e.pdf}):\n"""${e.text.slice(0, excerptLen)}"""`)
         .join('\n\n')
-    : 'No excerpt retrieved for this question — rely on the note titles/links above and suggest /applications.'
+    : 'No application-note excerpt retrieved.'
+
+  const privateBlock = privateExcerpts.length
+    ? privateExcerpts
+        .map((e) => `From "${e.title}":\n"""${e.text.slice(0, excerptLen)}"""`)
+        .join('\n\n')
+    : 'No internal reference excerpt for this question.'
 
   const relevantFaq = retrieveRelevantFaq(query)
   const faqBlock = relevantFaq.length
-    ? relevantFaq.map((f) => `Q: ${f.question}\nA: ${f.answer.slice(0, 520)}`).join('\n\n')
+    ? relevantFaq.map((f) => `Q: ${f.question}\nA: ${f.answer.slice(0, 700)}`).join('\n\n')
     : 'No specific FAQ matched this question.'
 
-  return `You are Industron Support, a helpful website assistant for ${COMPANY_FACTS.name}.
-Never mention that you are an AI, LLM, language model, or offline model. Speak as a normal support assistant.
+  if (mode === 'nanotech') {
+    return `You are **NanoGuide** — Industron's assistant for nanotechnology, nanomechanics, tribology, and materials testing.
 
-CRITICAL DATA RULES (must follow):
-1. Answer ONLY using the website content provided in this prompt (company overview + website pages + product catalog + relevant product details).
-2. Do NOT use general internet knowledge, training memory, competitor info, or invented specs/prices.
-3. If the answer is not in the website content below, say you do not have that detail on the website and suggest /contact or ${COMPANY_FACTS.contact.sales} / ${COMPANY_FACTS.contact.testing}.
-4. Prefer short, clear answers with page links from the website when helpful.
-5. When a question relates to an application note / case study, answer using the "APPLICATION NOTE EXCERPTS" (verbatim PDF text) and share the exact PDF link from the "RELEVANT APPLICATION NOTES" section (e.g. [Title](/PDF/File.pdf)). Never invent PDF names, numbers, or findings — only use the excerpts and links provided below.
-6. For nanoindentation / instrumentation how-to questions (tip selection, minimum depth, fracture toughness, dynamic nanoindentation, noise floor, thin-film/substrate, surface roughness), use the "TECHNICAL FAQ" answers and keep their exact figures (angles like 142.35°, radii, R/3, ISO 14577-4, 40 Hz, formulas).
-7. NEVER invent people, job titles, or org charts. The only named Industron contacts you may mention are those listed in COMPANY OVERVIEW / Leadership. If asked about other names or a full employee roster, say those details are not listed on the website and point to /contact.
+Write naturally: clear, confident, and easy to read. Never say you are an AI/LLM/offline model.
 
-=== COMPANY OVERVIEW (always true) ===
-${buildCompanyOverview()}
+MESSAGE STYLE (important):
+- Reply in short messages: 1 short opening sentence, then 2–4 tight sentences or bullets. Easy to read on mobile.
+- No walls of text. No catalogs. No dumping every PDF or industry list.
+- Use light markdown (**bold** for key terms). One blank line between short paragraphs is good.
 
-=== MOST RELEVANT WEBSITE PAGES FOR THIS QUESTION ===
-${buildWebsiteDigest(relevantPages)}
+PROMOTE INDUSTRON SYSTEMS (naturally):
+- After explaining the science, add ONE soft product line that fits the topic — like a helpful recommendation, not a hard sell.
+- Mapping guide:
+  • nanoindentation / SPM / AFM / nanowear / high-speed mapping → **NG80** [/products/ng80]
+  • meso-scale / DIC / compression / bend / larger soft samples → **MesoProbe** [/products/mesoprobe]
+  • microindentation / education labs → **μProbe 500** [/products/uprobe-500]
+  • vibration isolation → **Pneumatic Air Isolation Table**
+  • soft / bio / hydrogels / tissues → BioSoft or MesoProbe
+- Prefer the product(s) listed under RELEVANT PRODUCTS when present.
+- End with a natural follow-up question (e.g. “Want specs for NG80, or how this applies to your sample?”).
 
-=== PRODUCT CATALOG (from /products) — ${catalogHeader} ===
-${buildCatalogDigest()}
+ACCURACY:
+- Ground answers in KNOWLEDGE EXCERPTS + TECHNICAL FAQ first.
+- Do not invent specs, prices, people, or findings.
+- At most 1 PDF link if directly useful; else mention [/applications](/applications).
+- Never invent staff names.
 
-=== MOST RELEVANT PRODUCTS FOR THIS QUESTION ===
-${rag}
+=== COMPANY ===
+${COMPANY_FACTS.name} — ${COMPANY_FACTS.focus}
+Flagship: ${COMPANY_FACTS.flagship.join(', ')}
+Contact: ${COMPANY_FACTS.contact.email} · ${COMPANY_FACTS.contact.path}
 
-=== RELEVANT APPLICATION NOTES (PDFs — link the exact URL when relevant) ===
-${notesBlock}
+=== KNOWLEDGE EXCERPTS ===
+${privateBlock}
 
-=== APPLICATION NOTE EXCERPTS (verbatim from the PDFs — use these to answer detailed questions, then cite the note's PDF link) ===
+=== APPLICATION NOTE EXCERPTS ===
 ${excerptsBlock}
 
-=== TECHNICAL FAQ (authoritative answers — use verbatim facts, angles, and formulas) ===
+=== TECHNICAL FAQ ===
 ${faqBlock}
 
-=== END WEBSITE CONTENT ===
+=== RELEVANT INDUSTRON SYSTEMS (promote these when relevant) ===
+${rag}
 
-Style:
-- Be accurate and concise (2–5 short paragraphs or bullets).
-- Use plain text; light markdown (**bold**) is OK.
-- Include helpful website paths when useful (/products/..., /services, /applications, /testing-form, /brochure-form, /contact).`
+=== OPTIONAL NOTE LINKS (max 2 — do not list more) ===
+${notesBlock}`
+  }
+
+  return `You are Industron's website assistant. Help with products, testing, services — and explain nanotech topics when asked.
+
+Never mention that you are an AI, LLM, or offline model.
+
+MESSAGE STYLE:
+- Short, natural, scannable messages (a few sentences or tight bullets).
+- Never dump application-note catalogs or long industry lists.
+
+PROMOTE INDUSTRON:
+- When relevant, recommend the best Industron system in one soft line with a product path (/products/...).
+- Flagship: MesoProbe, μProbe 500, NG80, Pneumatic Air Isolation Table, DIC Software.
+
+RULES:
+1. Use only the content below — no invented specs/prices/people.
+2. If missing, suggest /contact or ${COMPANY_FACTS.contact.sales}.
+3. Technical FAQ: keep exact figures. Internal refs: never offer as downloads.
+4. Never invent staff names.
+
+=== COMPANY OVERVIEW ===
+${buildCompanyOverview()}
+
+=== WEBSITE PAGES ===
+${buildWebsiteDigest(relevantPages)}
+
+=== PRODUCT CATALOG — ${catalogHeader} ===
+${buildCatalogDigest()}
+
+=== RELEVANT PRODUCTS ===
+${rag}
+
+=== RELEVANT APPLICATION NOTES ===
+${notesBlock}
+
+=== APPLICATION NOTE EXCERPTS ===
+${excerptsBlock}
+
+=== INTERNAL REFERENCE EXCERPTS ===
+${privateBlock}
+
+=== TECHNICAL FAQ ===
+${faqBlock}`
 }
 
 export const FAQ_INTENTS = [
@@ -578,7 +666,7 @@ export const FAQ_INTENTS = [
     id: 'greeting',
     patterns: [/^hi\b/, /^hello\b/, /^hey\b/, /good (morning|afternoon|evening)/, /namaste/],
     answer: () =>
-      `Hello! Welcome to **Industron Support** — I can help with nanomechanical testing instruments, lab services, and technical support.\n\nAsk me about products like **MesoProbe**, **μProbe 500**, or **NG80**, or about testing, training, and how to contact our team.`,
+      `Hi! I’m **NanoGuide** — ask me about nanotech, indentation, SPM/AFM, or materials testing, and I’ll give a clear, concise answer.\n\nWhen it fits, I’ll also recommend the right Industron system (**NG80**, **μProbe 500**, **MesoProbe**, and more).`,
   },
   {
     id: 'founder',
@@ -657,6 +745,43 @@ export const FAQ_INTENTS = [
       `Happy to connect you with the right team:\n\n• **General:** ${COMPANY_FACTS.contact.email}\n• **India:** ${COMPANY_FACTS.contact.india}\n• **USA:** ${COMPANY_FACTS.contact.usa}\n• **Sales:** ${COMPANY_FACTS.contact.sales}\n• **Testing:** ${COMPANY_FACTS.contact.testing}\n\n→ Full contacts & offices: [/contact](/contact)\n→ Request a demo via the contact page or brochure form.`,
   },
   {
+    id: 'spm_vs_afm',
+    patterns: [
+      /in-?situ spm/,
+      /\bspm\b.*\bafm\b/,
+      /\bafm\b.*\bspm\b/,
+      /spm (imaging|vs|versus|different|compared)/,
+      /separate afm/,
+      /same (tip|probe|transducer).*(image|scan|spm)/,
+    ],
+    answer: () =>
+      `**In-situ SPM imaging** on Industron / Hysitron-style nanoindenters is not the same as using a separate AFM:\n\n` +
+      `• The **same transducer and diamond tip** used for indentation also scans the surface (piezo-mounted head), so imaging and indent share one reference frame — site-specific placement typically within **±10 nm**.\n` +
+      `• Pre-scan → indent → post-scan is **fully automated** and much faster than moving between two instruments.\n` +
+      `• You can image a **~1 μm** area and place arrays or custom indents inside it; also useful on **unpolished or curved** samples (bone, dental, tissue, concrete, geology).\n` +
+      `• Enables **scanning nanowear** and quantitative **modulus mapping** options; AFM tapping contrast alone is qualitative, not a substitute for calibrated indentation mechanics.`,
+  },
+  {
+    id: 'changing_probe',
+    patterns: [
+      /chang(e|ing) (the )?(probe|tip)/,
+      /mount(ing)? (the )?(probe|tip)/,
+      /install(ing)? (the )?(probe|tip)/,
+      /replace(ing)? (the )?(probe|tip)/,
+      /probe (tool|mount|install|change|replace)/,
+      /how (do i|to) (change|mount|install|replace).*(tip|probe)/,
+    ],
+    answer: () =>
+      `**Changing / mounting a nanoindentation probe** (service note T-014):\n\n` +
+      `Mounting is delicate — **do not overtighten** or apply **lateral forces**.\n\n` +
+      `1. Loosen (don’t fully remove) the **0.035″ hex screw** and remove the transducer from the TriboScanner.\n` +
+      `2. Lay the transducer on its side; remove the probe from its protective sheath.\n` +
+      `3. Seat the probe’s **square mount** in the probe tool (hold upright — gravity/friction only).\n` +
+      `4. Start the threaded end on the transducer at an angle, then level the tool.\n` +
+      `5. Turn **counter-clockwise** until a slight click (threads seated), then **clockwise** until the **torque-limiting tool** stops.\n` +
+      `6. Reverse steps to remove. **Never** let the probe tool hang unsupported on the transducer — that can damage the calibrated springs.`,
+  },
+  {
     id: 'applications',
     patterns: [/application(s)?/, /use case|used for|which industry/, /semiconductor|aerospace|biomedical|coating|thin film/],
     answer: () =>
@@ -699,7 +824,7 @@ export const QUICK_PROMPTS = [
   'Tell me about μProbe 500',
   'How do I get my material tested?',
   'Show me your products',
-  'Show me application notes',
+  'Steel coatings wear note',
   'Which indenter tip should I use?',
   'How can I contact sales?',
 ]

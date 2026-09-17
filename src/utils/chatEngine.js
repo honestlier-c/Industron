@@ -12,13 +12,13 @@ import {
   retrieveRelevantNotes,
   buildSystemPrompt,
   buildProductCountAnswer,
+  isNanotechQuery,
   COMMON_STOPWORDS,
 } from '../data/chatKnowledge'
-import { getApplicationNotes } from '../data/applicationNotes'
 import { retrieveRelevantFaq } from '../data/technicalFaq'
 import {
-  ensureOfflineLlm,
   getOfflineLlmStatus,
+  scheduleOfflineLlmWarmup,
   shouldAutoLoadModel,
   streamOfflineChat,
 } from './offlineLlm'
@@ -28,13 +28,13 @@ import {
  * so the ~180 KB of note text stays out of the initial page bundle.
  */
 let pdfRetrievalPromise = null
-async function getNoteExcerpts(query, k = 3) {
+async function getNoteExcerpts(query, k = 3, opts = {}) {
   try {
     if (!pdfRetrievalPromise) {
       pdfRetrievalPromise = import('../data/pdfRetrieval')
     }
     const { retrieveNoteExcerpts } = await pdfRetrievalPromise
-    return retrieveNoteExcerpts(query, k)
+    return retrieveNoteExcerpts(query, k, opts)
   } catch {
     return []
   }
@@ -82,22 +82,55 @@ function scoreProduct(query, product) {
 }
 
 function formatProductAnswer(product) {
-  const badges = product.badges?.length ? `\n\n**Highlights:** ${product.badges.join(' · ')}` : ''
-  const lead = product.lead ? `\n\n${product.lead}` : ''
-  const facts = product.facts ? `\n\n${product.facts}` : ''
-  const brochure = product.external
-    ? `→ Details: [${product.name} on Bruker](${product.externalUrl})\n`
-    : `→ Brochure: [/brochure-form?product=${product.slug}](/brochure-form?product=${product.slug})\n`
+  const lead = product.lead ? ` ${product.lead}` : ''
+  const highlights = product.badges?.length
+    ? `\n\nWhat stands out: ${product.badges.slice(0, 3).join(' · ')}.`
+    : ''
+  const next = product.external
+    ? `See details on [Bruker](${product.externalUrl}), or ask me how it compares to another system.`
+    : `More on the [${product.name} page](${product.path}), or request a [brochure](/brochure-form?product=${product.slug}).`
   return (
-    `**${product.name}** (${product.category})\n\n` +
-    `${product.shortDesc}` +
-    lead +
-    facts +
-    badges +
-    `\n\n→ Product page: [${product.path}](${product.path})\n` +
-    brochure +
-    `\nAsk me about specs, applications, or how it compares to another instrument.`
+    `**${product.name}** is Industron’s ${product.category.toLowerCase()} platform — ${product.shortDesc}${lead}` +
+    highlights +
+    `\n\n${next}`
   )
+}
+
+/** Soft product CTA matched to the topic (helpful, not a hard sell). */
+function promoLineFor(query) {
+  const q = normalize(query)
+  if (/meso|dic|strain map|compress|bend|tensile|fatigue|hydrogel|foam/.test(q)) {
+    return `If you’re measuring this in the lab, **MesoProbe** is built for meso-scale loading with DIC strain mapping — [/products/mesoprobe](/products/mesoprobe).`
+  }
+  if (/spm|afm|nanowear|high.?speed|hsi|site.?specific|ng80|nanoindent/.test(q)) {
+    return `On the instrument side, **NG80** combines nanoindentation, in-situ SPM, and high-speed mapping — [/products/ng80](/products/ng80).`
+  }
+  if (/micro.?indent|uprobe|μprobe|500 mN/.test(q)) {
+    return `For research-grade microindentation, **μProbe 500** is a strong fit — [/products/uprobe-500](/products/uprobe-500).`
+  }
+  if (/vibration|isolation|pneumatic|air table/.test(q)) {
+    return `For quiet lab floors, the **Pneumatic Air Isolation Table** helps protect nanometre measurements — [/products/pneumatic-air-isolation-table](/products/pneumatic-air-isolation-table).`
+  }
+  if (/soft|bio|lens|cell|tissue|cartilage/.test(q)) {
+    return `For soft/biomaterials, Industron’s **BioSoft** / meso platforms are designed for gentle, precise testing — [/products](/products).`
+  }
+  return `Industron builds systems for this kind of work — **NG80**, **μProbe 500**, and **MesoProbe**. See [/products](/products) or ask which fits your sample.`
+}
+
+/** Instant knowledge answer from corpus when the LLM is still loading. */
+function formatCorpusTutorAnswer(query, excerpts) {
+  if (!excerpts?.length) return null
+  const top = excerpts[0]
+  const body = String(top.text || '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 320)
+  const core = `${body}${body.length >= 300 ? '…' : ''}`
+  const cite =
+    top.public && top.pdf
+      ? `\n\nRelated note: [${top.title}](${top.pdf}).`
+      : ''
+  return `${core}${cite}\n\n${promoLineFor(query)}`
 }
 
 function matchFaq(query, products) {
@@ -110,39 +143,39 @@ function matchFaq(query, products) {
   return null
 }
 
-function formatNoteLinks(notes) {
-  return notes
-    .map(
-      (n) =>
-        `• [${n.label}](${n.pdf})${n.industries?.length ? ` — ${n.industries.join(', ')}` : ''}`,
-    )
-    .join('\n')
-}
-
+/** Short pointer to /applications — never dump the full note catalog. */
 function notesReply(notes, { all = false } = {}) {
-  const head = all
-    ? `Industron has **${notes.length} downloadable application notes** (PDFs):`
-    : `Here ${notes.length === 1 ? 'is a relevant application note' : 'are the most relevant application notes'} (PDF):`
-  return `${head}\n\n${formatNoteLinks(notes)}\n\nBrowse them all on [/applications](/applications).`
+  if (all || !notes?.length) {
+    return (
+      `We have application notes across steel, coatings, biomaterials, polymers, and more — all on [/applications](/applications).\n\n` +
+      `Tell me your material or test type and I’ll point you to the best note, plus the Industron system that fits.`
+    )
+  }
+  const top = notes.slice(0, 1)
+  return (
+    `Here’s a strong match: [${top[0].label}](${top[0].pdf}).\n\n` +
+    `Browse more on [/applications](/applications).\n\n` +
+    promoLineFor(top[0].label)
+  )
 }
 
-/** Detect application-note / PDF questions and answer with real links. */
+/** Detect application-note / PDF questions — keep answers crisp. */
 function matchApplicationNotes(query) {
   const q = normalize(query)
   const explicitNotes = /(application note|app ?note|case stud|white ?paper)/.test(q)
-  const genericDoc = /\bpdf\b|\bpdfs\b|download|whitepaper|\bpaper\b|\breport\b|\bdocument\b/.test(q)
-  const wantsAll = /\b(list|all|every|full|entire|show|see|which|what)\b/.test(q)
+  const genericDoc = /\bpdf\b|\bpdfs\b|download|whitepaper/.test(q)
+  const wantsAll = /\b(list|all|every|full|entire|show|catalog|available)\b/.test(q)
 
   if (explicitNotes && wantsAll) {
-    return notesReply(getApplicationNotes(), { all: true })
+    return notesReply([], { all: true })
   }
 
-  const matches = retrieveRelevantNotes(query, 6)
+  const matches = retrieveRelevantNotes(query, 2)
   if (matches.length && (explicitNotes || genericDoc)) {
     return notesReply(matches)
   }
   if (explicitNotes) {
-    return notesReply(getApplicationNotes(), { all: true })
+    return notesReply([], { all: true })
   }
   return null
 }
@@ -217,7 +250,7 @@ export function generateChatReply(userMessage) {
   if (notes) {
     return {
       text: notes,
-      suggestions: ['Show all application notes', 'NRL testing', 'View /applications', 'Contact'],
+      suggestions: ['Steel coatings wear', 'NRL testing', 'View /applications', 'Contact'],
       mode: 'knowledge',
     }
   }
@@ -249,10 +282,18 @@ export function generateChatReply(userMessage) {
 
 function suggestionsFor(text) {
   const t = normalize(text)
+  if (isNanotechQuery(text)) {
+    return [
+      'What is nanotechnology?',
+      'SPM vs AFM imaging',
+      'Explain contact mechanics',
+      'How do I change a probe?',
+    ]
+  }
   if (/test|nrl|sample/.test(t)) return ['Open testing form', 'Services', 'Contact']
   if (/brochure|pdf|spec/.test(t)) return ['Get brochure', 'Products', 'Contact sales']
   if (/contact|sales|demo|quote/.test(t)) return ['Contact page', 'Brochure', 'NRL testing']
-  return ['MesoProbe', 'μProbe 500', 'Show products', 'Contact']
+  return ['What is nanotechnology?', 'MesoProbe', 'μProbe 500', 'Contact']
 }
 
 /**
@@ -302,15 +343,14 @@ function deterministicAnswer(userMessage) {
     }
   }
 
-  // Only short-circuit enumeration ("list/show all notes"); let content
-  // questions ("what does the steel note find?") flow to the LLM + excerpts.
+  // Never dump the full application-note catalog — crisp redirect only.
   const explicitNotes = /(application note|app ?note|case stud|white ?paper)/.test(q)
-  const enumerate = /\b(list|all|every|full|entire|show|see|which|available)\b/.test(q)
-  const haveNotes = /(do you have|what.*(note|pdf)|which.*(note|pdf)|any (note|pdf|case stud))/.test(q)
+  const enumerate = /\b(list|all|every|full|entire|show|catalog|available)\b/.test(q)
+  const haveNotes = /(do you have|any).*(application note|app ?note|case stud)/.test(q)
   if ((explicitNotes && enumerate) || haveNotes) {
     return {
-      text: notesReply(getApplicationNotes(), { all: true }),
-      suggestions: ['Explain the steel wear note', 'Contact-lens findings', 'NRL testing', 'View /applications'],
+      text: notesReply([], { all: true }),
+      suggestions: ['Steel coatings wear', 'Contact-lens indentation', 'NRL testing', 'View /applications'],
       mode: 'knowledge',
     }
   }
@@ -343,21 +383,24 @@ export async function answerWithBestEngine(userMessage, history = [], { onToken,
   }
 
   const status = getOfflineLlmStatus()
+  const science = isNanotechQuery(userMessage)
+  const excerptOpts = science ? { preferPrivate: true, perSource: 3 } : {}
+  const excerptK = science ? 8 : 4
 
   // Instant-first: only use the enhanced engine when it is ALREADY loaded.
   // We never block a reply on the model download — the knowledge base answers
   // immediately, and the enhanced engine simply takes over once it's ready.
   if (preferLlm && status.ready) {
     try {
-      const relevant = retrieveRelevantProducts(userMessage, 2)
-      const noteExcerpts = await getNoteExcerpts(userMessage, 2)
-      const system = buildSystemPrompt(relevant, userMessage, noteExcerpts)
-      // Keep only the last few turns, and cap each so a long prior answer
-      // can't push the prompt past the model's context window.
+      const relevant = retrieveRelevantProducts(userMessage, science ? 2 : 2)
+      const noteExcerpts = await getNoteExcerpts(userMessage, excerptK, excerptOpts)
+      const system = buildSystemPrompt(relevant, userMessage, noteExcerpts, {
+        mode: science ? 'nanotech' : 'site',
+      })
       const recent = history
         .filter((m) => m.role === 'user' || m.role === 'assistant')
-        .slice(-4)
-        .map((m) => ({ role: m.role, content: String(m.text || '').slice(0, 500) }))
+        .slice(science ? -6 : -4)
+        .map((m) => ({ role: m.role, content: String(m.text || '').slice(0, science ? 800 : 500) }))
 
       const messages = [
         { role: 'system', content: system },
@@ -366,7 +409,11 @@ export async function answerWithBestEngine(userMessage, history = [], { onToken,
       ]
 
       let full = ''
-      for await (const delta of streamOfflineChat(messages, { signal, maxTokens: 420 })) {
+      for await (const delta of streamOfflineChat(messages, {
+        signal,
+        maxTokens: science ? 720 : 420,
+        temperature: science ? 0.45 : 0.2,
+      })) {
         full += delta
         onToken?.(full)
       }
@@ -375,15 +422,21 @@ export async function answerWithBestEngine(userMessage, history = [], { onToken,
       if (text) {
         return { text, suggestions: suggestionsFor(userMessage), mode: 'llm' }
       }
-      // Empty stream — fall through to the instant knowledge reply below.
     } catch {
-      // Any streaming error — fall through silently to the instant reply.
+      // Fall through to knowledge / corpus reply.
     }
   } else if (preferLlm && shouldAutoLoadModel()) {
-    // Warm the enhanced engine up in the background so it can take over on a
-    // later message. Fire-and-forget — this never delays the current answer.
-    // Skipped on phones to avoid using a visitor's mobile data.
-    ensureOfflineLlm().catch(() => {})
+    scheduleOfflineLlmWarmup({ preferSoon: true })
+  }
+
+  // Science questions: answer from the nanotech corpus even before the LLM is ready.
+  if (science) {
+    const excerpts = await getNoteExcerpts(userMessage, excerptK, excerptOpts)
+    const corpusText = formatCorpusTutorAnswer(userMessage, excerpts)
+    if (corpusText) {
+      await streamText(corpusText, onToken, signal)
+      return { text: corpusText, suggestions: suggestionsFor(userMessage), mode: 'knowledge' }
+    }
   }
 
   const reply = generateChatReply(userMessage)
@@ -394,13 +447,14 @@ export async function answerWithBestEngine(userMessage, history = [], { onToken,
 export function getWelcomeMessage() {
   return {
     text:
-      `Hi — welcome to **Industron Support**.\n\n` +
-      `I can help with products, material testing, brochures, services, and how to reach our team.`,
+      `Hi — I’m **NanoGuide**.\n\n` +
+      `Ask me anything about nanotechnology, nanoindentation, SPM/AFM, tribology, or materials testing — I’ll give a clear answer, then point you to the right **Industron** system when it helps.\n\n` +
+      `Try a concept, a method, or a product (e.g. **NG80**, **MesoProbe**, **μProbe 500**).`,
     suggestions: [
-      'What is MesoProbe?',
-      'Tell me about μProbe 500',
-      'How do I get my material tested?',
-      'Show me your products',
+      'What is nanotechnology?',
+      'How is in-situ SPM different from AFM?',
+      'Which system for nanoindentation?',
+      'Tell me about MesoProbe',
     ],
   }
 }

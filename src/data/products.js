@@ -2,7 +2,7 @@
    PRODUCTS — listing + detail pages (/products/:slug)
 
    framesFolder → public folder for scroll frame sequences
-   frameNaming    indexed-png (frame_000000.png) | ezgif (ezgif-frame-001.jpg)
+   frameNaming    indexed-png (frame_000000.jpg) | frame-seq (frame_001.jpg) | ezgif (ezgif-frame-001.jpg)
    sourceFrameCount / playbackFrameCount → subsample long exports for web playback
    scrollBeats    → text-only windows; frames always play 1…frameCount linearly
    Card images    → public/Products_Image/ (see `image` on each product)
@@ -15,14 +15,6 @@ import { getBrochureUrl } from './brochures'
 /** Default scroll-sequence folder — placeholder until product-specific assets exist */
 const DEFAULT_FRAMES_FOLDER = '/MesoProbe'
 
-/** Shared scroll-sequence defaults (NG80, μProbe 500 placeholders, …) */
-const SCROLL_SEQUENCE = {
-  frameCount: 64,
-  framesFolder: DEFAULT_FRAMES_FOLDER,
-  frameNaming: 'ezgif',
-  scrollBeats: DEFAULT_SCROLL_BEATS,
-}
-
 /** MesoProbe — JPEG sequence in public/MesoProbe (evenly sampled for playback) */
 const MESOPROBE_SCROLL_SEQUENCE = {
   framesFolder: '/MesoProbe',
@@ -31,6 +23,29 @@ const MESOPROBE_SCROLL_SEQUENCE = {
   playbackFrameCount: 96,
   frameCount: 96,
   scrollBeats: scaleScrollBeats(DEFAULT_SCROLL_BEATS, 64, 96),
+}
+
+/** NG80 — frame_001…200.jpg in public/NG80 */
+const NG80_SCROLL_SEQUENCE = {
+  framesFolder: '/NG80',
+  frameNaming: 'frame-seq',
+  sourceFrameCount: 200,
+  playbackFrameCount: 96,
+  frameCount: 96,
+  scrollBeats: scaleScrollBeats(DEFAULT_SCROLL_BEATS, 64, 96),
+}
+
+/** μProbe 500 — frame_001…194.jpg in public/Uprobe500
+ *  Studio frames use a soft gray floor gradient; lock letterbox to pure white
+ *  so left/right bars match the bright backdrop (same clean look as NG80). */
+const UPROBE_SCROLL_SEQUENCE = {
+  framesFolder: '/Uprobe500',
+  frameNaming: 'frame-seq',
+  sourceFrameCount: 194,
+  playbackFrameCount: 96,
+  frameCount: 96,
+  scrollBeats: scaleScrollBeats(DEFAULT_SCROLL_BEATS, 64, 96),
+  frameBackground: '#ffffff',
 }
 
 /** Product card thumbnails — files in public/Products_Image/ */
@@ -113,6 +128,7 @@ function p({
   sourceFrameCount,
   playbackFrameCount,
   scrollBeats: scrollBeatsOverride,
+  frameBackground,
 }) {
   const short = beatsHeading || name.split(/[–-]/)[0].trim()
   return {
@@ -137,6 +153,7 @@ function p({
       ...(sourceFrameCount ? { sourceFrameCount } : {}),
       ...(playbackFrameCount ? { playbackFrameCount } : {}),
       scrollBeats: scrollBeatsOverride ?? DEFAULT_SCROLL_BEATS,
+      ...(frameBackground ? { frameBackground } : {}),
     } : {}),
     ...(externalUrl ? { externalUrl } : {}),
     ...(!externalUrl
@@ -311,7 +328,7 @@ export const PRODUCTS = [
     slug: 'uprobe-500',
     name: 'μProbe 500',
     image: `${IMG}/μProbe500.png`,
-    ...SCROLL_SEQUENCE,
+    ...UPROBE_SCROLL_SEQUENCE,
     category: 'Education and Research',
     shortDesc:
       'Precision depth-sensing micro indenter for advanced material characterization — nanometre-scale accuracy, 500 mN load capacity, automated testing & mapping, and powerful analysis software.',
@@ -458,7 +475,7 @@ export const PRODUCTS = [
     slug: 'ng80',
     name: 'NG80',
     image: `${IMG}/NG80.png`,
-    ...SCROLL_SEQUENCE,
+    ...NG80_SCROLL_SEQUENCE,
     category: 'Education and Research',
     shortDesc:
       'High-throughput nanomechanical testing platform — nanoindentation, in-situ SPM imaging, scanning nanowear, and 300× faster high-speed indentation for rapid property mapping and statistics.',

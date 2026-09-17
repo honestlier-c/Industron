@@ -14,11 +14,14 @@ export default defineConfig({
     watch: {
       ignored: [
         '**/public/MesoProbe/**',
+        '**/public/NG80/**',
+        '**/public/Uprobe500/**',
         '**/public/PDF/**',
         '**/public/Brochure/**',
         '**/public/Products_Image/**',
         '**/public/**/*.mp4',
         '**/public/**/*.mov',
+        '**/dist/Chatbotdata/**',
       ],
     },
   },

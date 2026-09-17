@@ -130,6 +130,7 @@ function SequenceDetailPage({ product }) {
     frameUrls,
     enabled: true,
     progressMotion: scrollProgress,
+    frameBackground: product.frameBackground,
   })
 
   return (

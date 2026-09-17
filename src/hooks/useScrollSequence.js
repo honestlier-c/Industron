@@ -38,6 +38,43 @@ function loadImage(src) {
   })
 }
 
+/** Average several edge pixels so left and right letterboxes match the video. */
+function sampleFrameBackground(img) {
+  try {
+    const w = img.naturalWidth
+    const h = img.naturalHeight
+    if (!w || !h) return '#ffffff'
+    const probe = document.createElement('canvas')
+    probe.width = w
+    probe.height = h
+    const pctx = probe.getContext('2d', { willReadFrequently: true })
+    if (!pctx) return '#ffffff'
+    pctx.drawImage(img, 0, 0)
+    const points = [
+      [4, 4],
+      [w - 5, 4],
+      [4, h - 5],
+      [w - 5, h - 5],
+      [4, Math.floor(h / 2)],
+      [w - 5, Math.floor(h / 2)],
+      [Math.floor(w / 2), 4],
+    ]
+    let r = 0
+    let g = 0
+    let b = 0
+    for (const [x, y] of points) {
+      const d = pctx.getImageData(x, y, 1, 1).data
+      r += d[0]
+      g += d[1]
+      b += d[2]
+    }
+    const n = points.length
+    return `rgb(${Math.round(r / n)}, ${Math.round(g / n)}, ${Math.round(b / n)})`
+  } catch {
+    return '#ffffff'
+  }
+}
+
 /**
  * Scroll-synced JPEG sequence — tied directly to scroll position (no artificial lag).
  */
@@ -47,11 +84,13 @@ export function useScrollSequence({
   frameUrls,
   enabled,
   progressMotion,
+  frameBackground,
 }) {
   const imagesRef = useRef([])
   const rafRef = useRef(0)
   const visibleRef = useRef(false)
   const lastRenderedFrameRef = useRef(-1)
+  const bgColorRef = useRef(frameBackground || '#ffffff')
   const totalSourceFrames = frameUrls.length
 
   useEffect(() => {
@@ -63,6 +102,12 @@ export function useScrollSequence({
 
     const resolveFrameIndex = (progress) =>
       progressToFrameIndex(progress, totalSourceFrames)
+
+    const applyBackground = (color) => {
+      bgColorRef.current = color
+      const sticky = getStickyFromCanvas(canvas)
+      if (sticky) sticky.style.setProperty('--meso-frame-bg', color)
+    }
 
     const renderFrame = (index, force = false) => {
       const loaded = nearestLoadedIndex(imagesRef.current, index)
@@ -89,7 +134,8 @@ export function useScrollSequence({
       const { drawW, drawH, dx, dy } = metrics
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      ctx.clearRect(0, 0, targetW, targetH)
+      ctx.fillStyle = bgColorRef.current
+      ctx.fillRect(0, 0, targetW, targetH)
       ctx.drawImage(img, dx, dy, drawW, drawH)
       lastRenderedFrameRef.current = loaded
     }
@@ -118,11 +164,13 @@ export function useScrollSequence({
     let cancelled = false
     imagesRef.current = new Array(totalSourceFrames).fill(null)
     lastRenderedFrameRef.current = -1
+    applyBackground(frameBackground || '#ffffff')
 
     const preload = async () => {
       const order = sequentialIndices(totalSourceFrames)
       let next = 0
       let misses = 0
+      let sampledBg = Boolean(frameBackground)
 
       const worker = async () => {
         while (!cancelled) {
@@ -140,7 +188,11 @@ export function useScrollSequence({
           }
           misses = 0
           imagesRef.current[i] = img
-          if (visibleRef.current) scheduleSync()
+          if (!sampledBg) {
+            sampledBg = true
+            applyBackground(sampleFrameBackground(img))
+          }
+          if (visibleRef.current) scheduleSync(true)
         }
       }
 
@@ -173,8 +225,10 @@ export function useScrollSequence({
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onResize)
       io.disconnect()
+      const sticky = getStickyFromCanvas(canvas)
+      sticky?.style.removeProperty('--meso-frame-bg')
     }
-  }, [frameUrls, enabled, sectionRef, canvasRef, progressMotion, totalSourceFrames])
+  }, [frameUrls, enabled, sectionRef, canvasRef, progressMotion, totalSourceFrames, frameBackground])
 
   return {}
 }
