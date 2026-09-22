@@ -20,7 +20,7 @@ export default function Hero() {
           muted
           loop
           playsInline
-          poster="/Products_Image/MesoProbe.png"
+          poster="/Homepage-poster.jpg"
         />
         <div className="hero-media-scrim" />
       </div>

@@ -92,7 +92,8 @@ export default function ChatBot() {
   useEffect(() => subscribeOfflineLlm(setLlmStatus), [])
 
   /* Chat answers instantly from the knowledge base.
-     Cached models warm on idle; first-visit download starts only when chat opens. */
+     On site load (desktop + WebGPU), start warming / downloading the small model
+     in the background after idle so it’s ready when chat opens. */
   useEffect(() => {
     if (bootstrapped.current) return undefined
     bootstrapped.current = true
@@ -100,7 +101,7 @@ export default function ChatBot() {
     return undefined
   }, [])
 
-  /* Opening / hovering chat starts the small model download without blocking replies. */
+  /* Opening chat resumes / finishes load immediately and prefetches RAG. */
   useEffect(() => {
     if (!open) return undefined
     prefetchOfflineLlm()

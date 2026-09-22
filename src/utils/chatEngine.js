@@ -504,8 +504,11 @@ export async function answerWithBestEngine(userMessage, history = [], { onToken,
       let full = ''
       for await (const delta of streamOfflineChat(messages, {
         signal,
-        maxTokens: science ? 420 : 420,
-        temperature: science ? 0.35 : 0.2,
+        maxTokens: 420,
+        // Warm enough to sound conversational, cool enough to stay grounded in RAG.
+        temperature: science ? 0.5 : 0.35,
+        topP: 0.9,
+        frequencyPenalty: 0.35,
       })) {
         full += delta
         onToken?.(full)
