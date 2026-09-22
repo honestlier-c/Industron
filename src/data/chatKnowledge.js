@@ -509,7 +509,7 @@ export function retrieveRelevantPages(query, k = 3) {
 /** Science / nanotech teaching questions (vs product-sales support). */
 export function isNanotechQuery(query) {
   const q = String(query || '').toLowerCase()
-  return /nano|spm|afm|tribolog|indent|hardness|modulus|young|poisson|thin.?film|quantum|semiconductor|magneto|fabricat|bottom.?up|top.?down|probe|tip|wear|friction|ashby|materials? (science|engineer)|contact mechanic|characteri[sz]|microscop|lattice|band.?gap|mems|cnt|carbon nanotube|graphene|self.?assembl|nanowear|piezo|transducer|in-?situ|roughness|fracture toughness|hertz|oliver.?pharr|stress.?strain|dislocation|grain|coating|polymer|biomaterial|hydrogel|creep|fatigue|scratch|dma|xpm/.test(
+  return /nano|spm|afm|tribolog|indent|hardness|modulus|young|poisson|thin.?film|quantum|semiconductor|magneto|fabricat|bottom.?up|top.?down|probe|tip|wear|friction|ashby|materials? (science|engineer)|contact mechanic|contact force|contact pressure|contact area|contact stiffness|real contact|normal force|tangential force|hertz contact|characteri[sz]|microscop|lattice|band.?gap|mems|cnt|carbon nanotube|graphene|self.?assembl|nanowear|piezo|transducer|in-?situ|roughness|fracture toughness|hertz|oliver.?pharr|stress.?strain|dislocation|grain|coating|polymer|biomaterial|hydrogel|creep|fatigue|scratch|dma|xpm/.test(
     q,
   )
 }
@@ -560,16 +560,19 @@ export function buildSystemPrompt(relevantProducts = [], query = '', noteExcerpt
 
   const publicExcerpts = noteExcerpts.filter((e) => e.public !== false && e.pdf)
   const privateExcerpts = noteExcerpts.filter((e) => e.public === false || !e.pdf)
-  const excerptLen = privateExcerpts.length ? 1100 : mode === 'nanotech' ? 900 : 600
+  // Keep excerpts short — small offline models follow better with less context.
+  const excerptLen = 520
+  const privateSlice = privateExcerpts.slice(0, 4)
+  const publicSlice = publicExcerpts.slice(0, 2)
 
-  const excerptsBlock = publicExcerpts.length
-    ? publicExcerpts
+  const excerptsBlock = publicSlice.length
+    ? publicSlice
         .map((e) => `From "${e.title}" (${e.pdf}):\n"""${e.text.slice(0, excerptLen)}"""`)
         .join('\n\n')
     : 'No application-note excerpt retrieved.'
 
-  const privateBlock = privateExcerpts.length
-    ? privateExcerpts
+  const privateBlock = privateSlice.length
+    ? privateSlice
         .map((e) => `From "${e.title}":\n"""${e.text.slice(0, excerptLen)}"""`)
         .join('\n\n')
     : 'No internal reference excerpt for this question.'
@@ -590,89 +593,58 @@ ${rag}`
 === PRODUCT RULE ===
 Do NOT recommend Industron products, links, or brochures in this reply. Stay on the science.`
 
-    return `You are **NanoGuide** — a calm, senior professor of nanomechanics and materials characterisation, speaking to a smart student or colleague.
+    return `You are NanoGuide — a friendly materials scientist who explains nanomechanics the way a good lecturer talks over coffee.
 
-VOICE:
-- Talk like a person, not a document. Contractions are good ("it's", "you'll", "that's why").
-- Answer the question first, in plain words, then add the detail that actually matters.
-- Vary how you open — never start every reply the same way, and don't repeat the question back.
-- Use an everyday comparison when it makes a hard idea click, then return to the precise term.
-- Warm and direct. No marketing language, no filler like "great question".
-- Never say you are an AI/LLM/offline model.
+How you speak:
+- Sound human: contractions ("it's", "you'll"), short sentences, one clear idea first.
+- Never copy the question back. Never open with "Great question" or "As an AI".
+- Prefer everyday language, then name the precise term once.
+- 3–5 short sentences, or one tight paragraph + up to 3 bullets. Then stop.
+- Technical questions stay technical — no product pitch unless they ask which instrument.
+- Use only the knowledge below. If it's missing, say what you know and suggest /contact. Don't invent tip sizes in mm, prices, or people.
+- Private books: cite the title in parentheses; never invent a download link.
 
-LENGTH:
-- Aim for 3–6 short sentences, or 1 short paragraph + up to 3 bullets.
-- Lead with the core idea, then one clarifying point, then stop.
-- Close with a short, specific offer or question only when it genuinely helps (e.g. what sample they're testing).
-- No walls of text. No catalogs. No PDF dumps.
-
-PRODUCTS:
-- Technical questions → technical answers only. No product recommendation unless the user asks which instrument / system / product to use.
-- If they do ask for a system, give ONE clear recommendation with a path (/products/...).
-
-ACCURACY:
-- Ground answers in KNOWLEDGE EXCERPTS (book PDFs) + TECHNICAL FAQ first — treat book excerpts as the primary source.
-- If KNOWLEDGE EXCERPTS contain relevant material, answer from them; do not invent missing details.
-- Do not invent specs, prices, people, tip sizes, or findings.
-- For tip / probe questions: use only Berkovich / Cube Corner / Cono-Spherical guidance from the FAQ. Never invent tip sizes in millimetres.
-- At most 1 PDF link if directly useful; else mention [/applications](/applications).
-- Never invent staff names.
-- You may cite book titles in parentheses, e.g. (Contact Mechanics in Tribology) — never invent download links for private books.
-
-=== COMPANY (context only — do not pitch unless asked) ===
+=== COMPANY ===
 ${COMPANY_FACTS.name} — ${COMPANY_FACTS.focus}
 
-=== KNOWLEDGE EXCERPTS (private book PDFs — primary technical source) ===
+=== BOOK EXCERPTS ===
 ${privateBlock}
 
-=== APPLICATION NOTE EXCERPTS ===
+=== APP NOTES ===
 ${excerptsBlock}
 
-=== TECHNICAL FAQ ===
+=== FAQ ===
 ${faqBlock}${productSection}`
   }
 
-  return `You are Industron's website assistant with a professor’s clarity: short, natural, precise.
+  return `You are NanoGuide on the Industron site — helpful, human, brief.
 
-Never mention that you are an AI, LLM, or offline model.
+Speak naturally (contractions OK). Answer first, then one useful detail. No AI disclaimers.
+Recommend a product only if they ask about instruments / which system / brochure / buying.
+Use only the content below; never invent specs, staff, or prices.
 
-MESSAGE STYLE:
-- Short, scannable answers (a few sentences or tight bullets) in a natural speaking voice; contractions are fine.
-- Explain technical ideas crisply; do not pad with product pitches unless asked.
-- Don't repeat the user's question back or open every reply the same way.
-
-PRODUCTS:
-- Recommend an Industron system only when the user asks about products, instruments, which system, brochure, demo, or buying.
-- Flagship when needed: MesoProbe, μProbe 500, NG80, Pneumatic Air Isolation Table, DIC Software.
-
-RULES:
-1. Use KNOWLEDGE / book excerpts and FAQ below first — no invented specs/prices/people.
-2. If missing, suggest /contact or ${COMPANY_FACTS.contact.sales}.
-3. Technical FAQ: keep exact figures. Internal book refs: cite by title only; never offer as downloads.
-4. Never invent staff names.
-
-=== COMPANY OVERVIEW ===
+=== COMPANY ===
 ${buildCompanyOverview()}
 
-=== WEBSITE PAGES ===
+=== PAGES ===
 ${buildWebsiteDigest(relevantPages)}
 
-=== PRODUCT CATALOG — ${catalogHeader} ===
+=== CATALOG — ${catalogHeader} ===
 ${buildCatalogDigest()}
 
-=== RELEVANT PRODUCTS ===
+=== PRODUCTS ===
 ${rag}
 
-=== RELEVANT APPLICATION NOTES ===
+=== NOTES ===
 ${notesBlock}
 
-=== APPLICATION NOTE EXCERPTS ===
+=== APP NOTE TEXT ===
 ${excerptsBlock}
 
-=== INTERNAL BOOK EXCERPTS (primary RAG when technical) ===
+=== BOOKS ===
 ${privateBlock}
 
-=== TECHNICAL FAQ ===
+=== FAQ ===
 ${faqBlock}`
 }
 
@@ -765,8 +737,31 @@ export const FAQ_INTENTS = [
       `You can request a product brochure online. After you submit the form, our sales team reviews the request and emails the PDF to you.\n\n→ [/brochure-form](/brochure-form)\n\nFor quotes, email **${COMPANY_FACTS.contact.sales}**.`,
   },
   {
+    id: 'contact_force',
+    patterns: [
+      /contact force/,
+      /what is (a )?contact force/,
+      /normal contact force/,
+      /force (at|in|during|through) contact/,
+      /contact (normal )?load/,
+    ],
+    answer: () =>
+      `**Contact force** is the force transmitted where two solids meet.\n\n` +
+      `In indentation and tribology you usually care about the **normal contact force** — the load pressing the surfaces together (often **P** or **F**). It sets how large the contact patch is, how deep the indenter sinks, and the stress field you analyse with **Hertz** or depth-sensing models.\n\n` +
+      `If the surfaces slide, a **tangential** force can appear as well; that’s friction, separate from the normal contact force.`,
+  },
+  {
     id: 'contact',
-    patterns: [/contact|email|phone|call|reach/, /get in touch/, /demo|quote|price|cost|buy|purchase/],
+    patterns: [
+      /\bcontact\s+(us|sales|team|page|info|form|details|number|person)\b/,
+      /how (can|do) i (contact|reach|call|email)/,
+      /get in touch/,
+      /\b(email|phone|call)\b.*\b(sales|you|us|industron|support)\b/,
+      /\b(sales|support)@|\bdemo\b|\bquote\b|\bprice\b|\bcost\b|\bbuy\b|\bpurchase\b/,
+      /^contact\??$/,
+      /^email\??$/,
+      /^phone\??$/,
+    ],
     answer: () =>
       `Happy to connect you with the right team:\n\n• **General:** ${COMPANY_FACTS.contact.email}\n• **India:** ${COMPANY_FACTS.contact.india}\n• **USA:** ${COMPANY_FACTS.contact.usa}\n• **Sales:** ${COMPANY_FACTS.contact.sales}\n• **Testing:** ${COMPANY_FACTS.contact.testing}\n\n→ Full contacts & offices: [/contact](/contact)\n→ Request a demo via the contact page or brochure form.`,
   },

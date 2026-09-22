@@ -1,22 +1,18 @@
 /**
  * Offline in-browser LLM via WebLLM (MLC).
  *
- * Two-stage loading so chat feels fast *and* answers well:
- *   1. FAST tier  — small quantised model, ready in seconds.
- *   2. SMART tier — bigger model downloaded in the background, then swapped in.
+ * Two tiny tiers so “Online” arrives fast, then quality steps up:
+ *   1. FAST  — SmolLM2-135M (~360 MB VRAM) → Online ASAP
+ *   2. SMART — SmolLM2-360M q4 (~376 MB VRAM) → better human phrasing
  *
- * Site RAG supplies the facts; the model only does the wording.
- * Falls back to the knowledge engine when WebGPU is unavailable.
+ * No multi‑GB models: site RAG carries the facts; the model does the wording.
  */
 
-/** Quick to download, keeps replies flowing while the smart model arrives. */
-export const FAST_MODEL_ID = 'SmolLM2-360M-Instruct-q4f16_1-MLC'
+/** Smallest instruct model that still writes coherent English. */
+export const FAST_MODEL_ID = 'SmolLM2-135M-Instruct-q0f16-MLC'
 
-/** Noticeably better reasoning / phrasing; ~880 MB VRAM. */
-export const SMART_MODEL_ID = 'Llama-3.2-1B-Instruct-q4f16_1-MLC'
-
-/** Best phrasing for capable machines; only used when the GPU has room. */
-export const PRO_MODEL_ID = 'Qwen2.5-1.5B-Instruct-q4f16_1-MLC'
+/** Still compact, clearly better conversation than 135M. */
+export const SMART_MODEL_ID = 'SmolLM2-360M-Instruct-q4f16_1-MLC'
 
 export const OFFLINE_MODEL_ID = FAST_MODEL_ID
 export const OFFLINE_MODEL_LABEL = 'NanoGuide (offline)'
@@ -24,7 +20,6 @@ export const OFFLINE_MODEL_LABEL = 'NanoGuide (offline)'
 const TIER_LABELS = {
   [FAST_MODEL_ID]: 'quick',
   [SMART_MODEL_ID]: 'smart',
-  [PRO_MODEL_ID]: 'pro',
 }
 
 let enginePromise = null
@@ -37,7 +32,7 @@ let listeners = new Set()
 let warmupScheduled = false
 let cacheChecked = false
 let modelCached = false
-let gpuBudgetMb = null
+let lastError = null
 
 function notify() {
   listeners.forEach((fn) => {
@@ -61,6 +56,7 @@ export function getOfflineLlmStatus() {
     upgrading: Boolean(upgradePromise),
     webgpu: typeof navigator !== 'undefined' && Boolean(navigator.gpu),
     cached: modelCached,
+    error: lastError,
   }
 }
 
@@ -104,36 +100,14 @@ function isFrugalConnection() {
   return /(^|-)2g$/.test(String(conn.effectiveType || ''))
 }
 
-/** Usable GPU memory estimate (MB) from the WebGPU adapter limits. */
-async function getGpuBudgetMb() {
-  if (gpuBudgetMb !== null) return gpuBudgetMb
-  gpuBudgetMb = 0
-  try {
-    const adapter = await navigator.gpu.requestAdapter()
-    const bytes = adapter?.limits?.maxBufferSize || 0
-    gpuBudgetMb = bytes ? Math.round(bytes / (1024 * 1024)) : 0
-  } catch {
-    gpuBudgetMb = 0
-  }
-  return gpuBudgetMb
-}
-
 /**
- * Pick the best model the machine can host comfortably.
- * Conservative on purpose: a model that fails to load is worse than a small one.
- * `deviceMemory` is absent in some browsers, so unknown means "don't block".
+ * Upgrade target: always the compact 360M model (never multi‑GB).
+ * Skip on metered/slow links.
  */
 async function pickUpgradeModelId() {
   if (isFrugalConnection()) return null
-
-  const budget = await getGpuBudgetMb()
-  const cores = typeof navigator !== 'undefined' ? navigator.hardwareConcurrency || 0 : 0
-  const ram = typeof navigator !== 'undefined' ? navigator.deviceMemory : undefined
-  const ramOk = (min) => ram === undefined || ram >= min
-
-  if (budget >= 2600 && cores >= 8 && ramOk(8)) return PRO_MODEL_ID
-  if (budget >= 1200 && cores >= 4 && ramOk(4)) return SMART_MODEL_ID
-  return null
+  if (activeModelId === SMART_MODEL_ID) return null
+  return SMART_MODEL_ID
 }
 
 async function isCached(modelId) {
@@ -153,19 +127,14 @@ export async function checkModelCached() {
     modelCached = false
     return false
   }
-  const tiers = await Promise.all([
-    isCached(SMART_MODEL_ID),
-    isCached(PRO_MODEL_ID),
-    isCached(FAST_MODEL_ID),
-  ])
+  const tiers = await Promise.all([isCached(SMART_MODEL_ID), isCached(FAST_MODEL_ID)])
   modelCached = tiers.some(Boolean)
   notify()
   return modelCached
 }
 
-/** Skip the small model entirely when a better one is already cached. */
+/** Prefer cached 360M; otherwise start with tiny 135M for fastest Online. */
 async function pickStartupModelId() {
-  if (await isCached(PRO_MODEL_ID)) return PRO_MODEL_ID
   if (await isCached(SMART_MODEL_ID)) return SMART_MODEL_ID
   return FAST_MODEL_ID
 }
@@ -197,6 +166,7 @@ export async function ensureOfflineLlm(onProgress) {
   }
 
   enginePromise = (async () => {
+    lastError = null
     await checkModelCached()
     const startupModelId = await pickStartupModelId()
     const warm = await isCached(startupModelId)
@@ -226,12 +196,23 @@ export async function ensureOfflineLlm(onProgress) {
     enginePromise = null
     engine = null
     activeModelId = null
-    loadProgress = { progress: 0, text: err?.message || 'Failed to load offline LLM' }
+    // Let a later open / retry start over instead of staying silently dead.
+    warmupScheduled = false
+    lastError = err?.message || 'Failed to load offline LLM'
+    loadProgress = { progress: 0, text: lastError }
     notify()
     throw err
   })
 
   return enginePromise
+}
+
+/** Manual "try again" after a failed download (offered in the chat header). */
+export function retryOfflineLlm() {
+  if (engine || enginePromise) return
+  lastError = null
+  warmupScheduled = true
+  ensureOfflineLlm().catch(() => {})
 }
 
 /**

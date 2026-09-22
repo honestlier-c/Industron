@@ -176,9 +176,23 @@ function formatCorpusTutorAnswer(query, excerpts) {
   return promo ? `${core}${cite}\n\n${promo}` : `${core}${cite}`
 }
 
+/**
+ * Site keywords that double as physics terms — "contact mechanics" must not be
+ * read as "contact us", and an explainer opener means teaching, not sales.
+ */
+const TECH_COLLOCATION =
+  /\bcontact (mechanic|stiffness|area|depth|radius|pressure|damage|zone|point|angle|force|forces|interaction|patch|patches|compliance|model|problem|width|element|deformation|stress|strain)s?\b/
+const EXPLAINER_OPENER =
+  /^(explain|what is|what are|what's|define|describe|derive|compare|how (does|do|is|are)|why (does|do|is|are))\b/
+
+function isTechnicalAsk(normalized) {
+  return TECH_COLLOCATION.test(normalized) || (EXPLAINER_OPENER.test(normalized) && isNanotechQuery(normalized))
+}
+
 /** Company / sales / catalog questions — skip book-corpus dumps. */
 function isSiteOnlyQuery(query) {
   const q = normalize(query)
+  if (isTechnicalAsk(q)) return false
   return (
     /^(hi|hello|hey|thanks|thank you|ok|okay)\b/.test(q) ||
     /contact|email|phone|call sales|brochure|demo|quote|price|cost|founder|office|address|technopark|kinfra|how many product|list (all |your )?products|show (me )?(your )?products|get in touch|who (founded|owns)|team\b|staff\b/.test(
@@ -187,9 +201,27 @@ function isSiteOnlyQuery(query) {
   )
 }
 
+/** Sales / company intents, bypassed when the visitor is asking to be taught. */
+const SITE_INTENT_IDS = new Set([
+  'contact',
+  'brochure',
+  'services',
+  'testing',
+  'products_list',
+  'product_count',
+  'team',
+  'founder',
+  'about',
+  'offices',
+  'customers',
+  'history',
+])
+
 function matchFaq(query, products) {
   const q = normalize(query)
+  const skipSite = isTechnicalAsk(q)
   for (const intent of FAQ_INTENTS) {
+    if (skipSite && SITE_INTENT_IDS.has(intent.id)) continue
     if (intent.patterns.some((re) => re.test(q))) {
       return intent.answer({ products, company: COMPANY_FACTS })
     }
@@ -200,6 +232,12 @@ function matchFaq(query, products) {
 /** Crisp professor-style wrap for technical FAQ entries. */
 function formatTechFaqAnswer(entry, query) {
   const q = normalize(query)
+  if (/contact force|normal contact force/.test(q)) {
+    return (
+      `**Contact force** is the force at the interface where two bodies touch.\n\n` +
+      `The **normal** component is the load pushing them together — that’s what you control in nanoindentation and what sets contact area and depth. A **tangential** force appears when you slide or partially slip.`
+    )
+  }
   if (/hard (surface|material)|steel|ceramic|glass|bulk metal/.test(q) && /tip|probe|indenter/.test(q)) {
     return (
       `For a **hard surface**, use a **Berkovich** tip — the standard choice for hardness and modulus on metals, ceramics, and glass.\n\n` +
@@ -504,11 +542,11 @@ export async function answerWithBestEngine(userMessage, history = [], { onToken,
       let full = ''
       for await (const delta of streamOfflineChat(messages, {
         signal,
-        maxTokens: 420,
-        // Warm enough to sound conversational, cool enough to stay grounded in RAG.
-        temperature: science ? 0.5 : 0.35,
-        topP: 0.9,
-        frequencyPenalty: 0.35,
+        maxTokens: science ? 280 : 320,
+        temperature: science ? 0.62 : 0.45,
+        topP: 0.92,
+        frequencyPenalty: 0.4,
+        presencePenalty: 0.25,
       })) {
         full += delta
         onToken?.(full)
@@ -543,8 +581,8 @@ export function getWelcomeMessage() {
   return {
     text:
       `Hi — I’m **NanoGuide**.\n\n` +
-      `Ask a technical question about nanotechnology, indentation, SPM/AFM, tribology, or materials testing — I’ll explain it clearly and briefly, like a short lecture note.\n\n` +
-      `If you want an instrument recommendation, just ask (e.g. “which system for nanoindentation?”).`,
+      `Ask me something about nanotech, indentation, SPM/AFM, or materials testing and I’ll walk you through it in plain language.\n\n` +
+      `Want a system recommendation? Just say what you’re trying to measure.`,
     suggestions: [
       'What is nanotechnology?',
       'How is in-situ SPM different from AFM?',

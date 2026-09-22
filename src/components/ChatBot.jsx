@@ -6,6 +6,7 @@ import {
   getOfflineLlmStatus,
   scheduleOfflineLlmWarmup,
   prefetchOfflineLlm,
+  retryOfflineLlm,
   subscribeOfflineLlm,
 } from '../utils/offlineLlm'
 
@@ -215,8 +216,19 @@ export default function ChatBot() {
                       <>
                         <span className="chatbot-status-dot chatbot-status-dot--llm" />
                         Online
+                        {llmStatus.upgrading ? ' · improving answers…' : ''}
                       </>
-                    ) : null}
+                    ) : llmStatus.loading ? (
+                      <>
+                        <span className="chatbot-status-dot" />
+                        {`Loading model… ${Math.round((llmStatus.progress || 0) * 100)}%`}
+                      </>
+                    ) : (
+                      <>
+                        <span className="chatbot-status-dot" />
+                        Answering from knowledge base
+                      </>
+                    )}
                   </p>
                 </div>
               </div>
@@ -229,6 +241,37 @@ export default function ChatBot() {
                 ✕
               </button>
             </header>
+
+            {!llmStatus.ready && (llmStatus.loading || llmStatus.error || !llmStatus.webgpu) && (
+              <div className="chatbot-llm-bar">
+                {llmStatus.loading && (
+                  <>
+                    <p className="chatbot-llm-loading-title">{llmStatus.text}</p>
+                    <div className="chatbot-progress">
+                      <div style={{ width: `${Math.round((llmStatus.progress || 0) * 100)}%` }} />
+                    </div>
+                    <p className="chatbot-llm-hint">
+                      First visit downloads the model once (a few hundred MB), then it starts instantly. Ask away
+                      meanwhile — answers come from the knowledge base.
+                    </p>
+                  </>
+                )}
+                {!llmStatus.loading && !llmStatus.webgpu && (
+                  <p className="chatbot-llm-hint">
+                    This browser has no WebGPU, so the local model can’t run. Answers come from the built-in
+                    knowledge base. Chrome or Edge 113+ enables the full model.
+                  </p>
+                )}
+                {!llmStatus.loading && llmStatus.webgpu && llmStatus.error && (
+                  <>
+                    <p className="chatbot-llm-error">Model didn’t load: {llmStatus.error}</p>
+                    <button type="button" className="chatbot-chip" onClick={() => retryOfflineLlm()}>
+                      Try again
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
 
             <div className="chatbot-messages" ref={listRef}>
               {messages.map((m) => (
