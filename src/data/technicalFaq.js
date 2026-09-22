@@ -11,11 +11,11 @@ export const TECHNICAL_FAQ = [
     question: 'Tip / probe selection guide (Berkovich, Cube Corner, Cono-Spherical)',
     answer:
       'Three standard nanoindentation probe geometries are commonly used. ' +
-      'Berkovich tip: three-sided pyramidal indenter with an included angle of 142.35° and a typical tip radius of ~120–150 nm; best for bulk metals, ceramics, glass, hard polymers, and hard biological materials (bone, teeth); the standard choice for hardness and modulus. ' +
+      'Berkovich tip: three-sided pyramidal indenter with an included angle of 142.35° and a typical tip radius of ~120–150 nm; best for bulk metals, ceramics, glass, hard polymers, and hard biological materials (bone, teeth); the standard choice for hardness and modulus on hard surfaces. ' +
       'Cube Corner tip: sharper three-sided pyramid with a 90° included angle and a typical tip radius <40 nm; best for ultra-thin films (<100 nm), micro/nanocomposites, fracture-toughness studies, and nanostructured materials; produces plastic deformation at much smaller loads. ' +
       'Cono-Spherical tip: conical indenter with a spherical end, available in 60°, 90°, and 120° cone angles; best for scratch testing, soft materials, compression experiments, and contact-mechanics studies.',
     keywords:
-      'tip probe selection guide geometry berkovich cube corner cono conospherical conical spherical pyramid indenter included angle radius which tip should i use hardness modulus scratch soft',
+      'tip probe selection guide geometry berkovich cube corner cono conospherical conical spherical pyramid indenter included angle radius which tip should i use needed for hard surface hard material steel ceramic glass hardness modulus scratch soft bulk metal',
   },
   {
     id: 'min-depth-berkovich',

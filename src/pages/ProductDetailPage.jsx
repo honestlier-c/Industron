@@ -389,7 +389,7 @@ function InfoSection({ info, name, slug, layout, section, brochureUrl }) {
                 to={`/brochure-form?product=${slug}`}
                 className="meso-cta meso-cta--brochure"
               >
-                Get Brochure
+                Request Brochure
               </Link>
             )}
             <Link to="/products" className="meso-link">Back to Product Portfolio</Link>

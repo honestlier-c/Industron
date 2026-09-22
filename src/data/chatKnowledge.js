@@ -318,7 +318,7 @@ export const WEBSITE_PAGES = {
       'Technical support & product expert: Pratyank Rastogi, Manager · Sales & Service — pratyank@industronnano.com, +91 9048542221.',
       'Advanced material testing: Kiran Raphael, Application Engineer — kp@industronnano.com, +91 9447311243, or use the /testing-form.',
       `General contact: ${COMPANY_FACTS.contact.email}. India office: ${COMPANY_FACTS.contact.india}. USA office: ${COMPANY_FACTS.contact.usa}. Response within 1 business day.`,
-      'Enquiry routing: Brochure requests → brochure@industronnano.com (or /brochure-form). Material testing (NRL) → testing@industronnano.com (or /testing-form). General enquiries → enquiries@industronnano.com. Sales & procurement → sales@industronnano.com.',
+      'Enquiry routing: Brochure requests → sales@industronnano.com via /brochure-form (sales reviews, then emails the PDF). Material testing (NRL) → testing@industronnano.com (or /testing-form). General enquiries → enquiries@industronnano.com. Sales & procurement → sales@industronnano.com.',
       'Offices — India (Technopark): Industron Nanotechnology Pvt Ltd, Unit #401, Fourth Floor, Thejaswini Building, Technopark, Thiruvananthapuram, Kerala – 695581. India (Kinfra): Industron Technical Services Pvt Ltd, Plot No 45(B), Kinfra Industrial Park, Meenamkulam, St. Xavier’s College, Thiruvananthapuram, Kerala – 695586. USA: Industron Technical Services Inc, Suite 132, 4445 West 77th Street, Edina, MN 55435.',
     ].join(' '),
   },
@@ -514,6 +514,14 @@ export function isNanotechQuery(query) {
   )
 }
 
+/** True only when the user is asking for an instrument / product recommendation. */
+export function wantsInstrumentAdvice(query) {
+  const q = String(query || '').toLowerCase()
+  return /which (system|instrument|product|one)|recommend|suggest|best (system|instrument|fit)|should i (buy|use|get)|looking for (a |an )?(system|instrument)|instrument for|system for|product for|brochure|demo|quote|\bbuy\b|purchase|compare.*(ng80|mesoprobe|uprobe|μprobe)|tell me about (ng80|mesoprobe|μprobe|uprobe|mesoprobe)|what (is|are) (the )?(ng80|mesoprobe|μprobe|uprobe)|show me (your )?(products|instruments)|list (your )?products/.test(
+    q,
+  )
+}
+
 /**
  * @param {object[]} relevantProducts
  * @param {string} query
@@ -522,6 +530,7 @@ export function isNanotechQuery(query) {
  */
 export function buildSystemPrompt(relevantProducts = [], query = '', noteExcerpts = [], opts = {}) {
   const mode = opts.mode || (isNanotechQuery(query) ? 'nanotech' : 'site')
+  const promoteProducts = wantsInstrumentAdvice(query) || mode === 'site'
 
   const rag =
     relevantProducts.length > 0
@@ -551,7 +560,7 @@ export function buildSystemPrompt(relevantProducts = [], query = '', noteExcerpt
 
   const publicExcerpts = noteExcerpts.filter((e) => e.public !== false && e.pdf)
   const privateExcerpts = noteExcerpts.filter((e) => e.public === false || !e.pdf)
-  const excerptLen = mode === 'nanotech' ? 1100 : 600
+  const excerptLen = privateExcerpts.length ? 1100 : mode === 'nanotech' ? 900 : 600
 
   const excerptsBlock = publicExcerpts.length
     ? publicExcerpts
@@ -571,69 +580,70 @@ export function buildSystemPrompt(relevantProducts = [], query = '', noteExcerpt
     : 'No specific FAQ matched this question.'
 
   if (mode === 'nanotech') {
-    return `You are **NanoGuide** — Industron's assistant for nanotechnology, nanomechanics, tribology, and materials testing.
+    const productSection = promoteProducts
+      ? `
 
-Write naturally: clear, confident, and easy to read. Never say you are an AI/LLM/offline model.
+=== INDUSTRON SYSTEMS (only if the user asked for a system / recommendation) ===
+${rag}`
+      : `
 
-MESSAGE STYLE (important):
-- Reply in short messages: 1 short opening sentence, then 2–4 tight sentences or bullets. Easy to read on mobile.
-- No walls of text. No catalogs. No dumping every PDF or industry list.
-- Use light markdown (**bold** for key terms). One blank line between short paragraphs is good.
+=== PRODUCT RULE ===
+Do NOT recommend Industron products, links, or brochures in this reply. Stay on the science.`
 
-PROMOTE INDUSTRON SYSTEMS (naturally):
-- After explaining the science, add ONE soft product line that fits the topic — like a helpful recommendation, not a hard sell.
-- Mapping guide:
-  • nanoindentation / SPM / AFM / nanowear / high-speed mapping → **NG80** [/products/ng80]
-  • meso-scale / DIC / compression / bend / larger soft samples → **MesoProbe** [/products/mesoprobe]
-  • microindentation / education labs → **μProbe 500** [/products/uprobe-500]
-  • vibration isolation → **Pneumatic Air Isolation Table**
-  • soft / bio / hydrogels / tissues → BioSoft or MesoProbe
-- Prefer the product(s) listed under RELEVANT PRODUCTS when present.
-- End with a natural follow-up question (e.g. “Want specs for NG80, or how this applies to your sample?”).
+    return `You are **NanoGuide** — a calm, senior professor of nanomechanics and materials characterisation, speaking to a smart student or colleague.
+
+VOICE:
+- Natural spoken English: short, crisp, precise — like a good lecture aside, not a sales pitch.
+- Warm but no fluff. Prefer “In short…” / “Simply put…” over marketing language.
+- Never say you are an AI/LLM/offline model.
+
+LENGTH:
+- Aim for 3–6 short sentences, or 1 short paragraph + up to 3 bullets.
+- Lead with the core idea, then one clarifying point, then stop.
+- No walls of text. No catalogs. No PDF dumps.
+
+PRODUCTS:
+- Technical questions → technical answers only. No product recommendation unless the user asks which instrument / system / product to use.
+- If they do ask for a system, give ONE clear recommendation with a path (/products/...).
 
 ACCURACY:
-- Ground answers in KNOWLEDGE EXCERPTS + TECHNICAL FAQ first.
-- Do not invent specs, prices, people, or findings.
+- Ground answers in KNOWLEDGE EXCERPTS (book PDFs) + TECHNICAL FAQ first — treat book excerpts as the primary source.
+- If KNOWLEDGE EXCERPTS contain relevant material, answer from them; do not invent missing details.
+- Do not invent specs, prices, people, tip sizes, or findings.
+- For tip / probe questions: use only Berkovich / Cube Corner / Cono-Spherical guidance from the FAQ. Never invent tip sizes in millimetres.
 - At most 1 PDF link if directly useful; else mention [/applications](/applications).
 - Never invent staff names.
+- You may cite book titles in parentheses, e.g. (Contact Mechanics in Tribology) — never invent download links for private books.
 
-=== COMPANY ===
+=== COMPANY (context only — do not pitch unless asked) ===
 ${COMPANY_FACTS.name} — ${COMPANY_FACTS.focus}
-Flagship: ${COMPANY_FACTS.flagship.join(', ')}
-Contact: ${COMPANY_FACTS.contact.email} · ${COMPANY_FACTS.contact.path}
 
-=== KNOWLEDGE EXCERPTS ===
+=== KNOWLEDGE EXCERPTS (private book PDFs — primary technical source) ===
 ${privateBlock}
 
 === APPLICATION NOTE EXCERPTS ===
 ${excerptsBlock}
 
 === TECHNICAL FAQ ===
-${faqBlock}
-
-=== RELEVANT INDUSTRON SYSTEMS (promote these when relevant) ===
-${rag}
-
-=== OPTIONAL NOTE LINKS (max 2 — do not list more) ===
-${notesBlock}`
+${faqBlock}${productSection}`
   }
 
-  return `You are Industron's website assistant. Help with products, testing, services — and explain nanotech topics when asked.
+  return `You are Industron's website assistant with a professor’s clarity: short, natural, precise.
 
 Never mention that you are an AI, LLM, or offline model.
 
 MESSAGE STYLE:
-- Short, natural, scannable messages (a few sentences or tight bullets).
-- Never dump application-note catalogs or long industry lists.
+- Short, scannable answers (a few sentences or tight bullets).
+- Explain technical ideas crisply; do not pad with product pitches unless asked.
 
-PROMOTE INDUSTRON:
-- When relevant, recommend the best Industron system in one soft line with a product path (/products/...).
-- Flagship: MesoProbe, μProbe 500, NG80, Pneumatic Air Isolation Table, DIC Software.
+PRODUCTS:
+- Recommend an Industron system only when the user asks about products, instruments, which system, brochure, demo, or buying.
+- Flagship when needed: MesoProbe, μProbe 500, NG80, Pneumatic Air Isolation Table, DIC Software.
 
 RULES:
-1. Use only the content below — no invented specs/prices/people.
+1. Use KNOWLEDGE / book excerpts and FAQ below first — no invented specs/prices/people.
 2. If missing, suggest /contact or ${COMPANY_FACTS.contact.sales}.
-3. Technical FAQ: keep exact figures. Internal refs: never offer as downloads.
+3. Technical FAQ: keep exact figures. Internal book refs: cite by title only; never offer as downloads.
 4. Never invent staff names.
 
 === COMPANY OVERVIEW ===
@@ -654,7 +664,7 @@ ${notesBlock}
 === APPLICATION NOTE EXCERPTS ===
 ${excerptsBlock}
 
-=== INTERNAL REFERENCE EXCERPTS ===
+=== INTERNAL BOOK EXCERPTS (primary RAG when technical) ===
 ${privateBlock}
 
 === TECHNICAL FAQ ===
@@ -666,7 +676,7 @@ export const FAQ_INTENTS = [
     id: 'greeting',
     patterns: [/^hi\b/, /^hello\b/, /^hey\b/, /good (morning|afternoon|evening)/, /namaste/],
     answer: () =>
-      `Hi! I’m **NanoGuide** — ask me about nanotech, indentation, SPM/AFM, or materials testing, and I’ll give a clear, concise answer.\n\nWhen it fits, I’ll also recommend the right Industron system (**NG80**, **μProbe 500**, **MesoProbe**, and more).`,
+      `Hi! I’m **NanoGuide**. Ask a technical question — nanotech, indentation, SPM/AFM, tribology — and I’ll explain it briefly and clearly.\n\nWant a product recommendation? Just ask which system fits your test.`,
   },
   {
     id: 'what_is_nanotechnology',
@@ -677,7 +687,7 @@ export const FAQ_INTENTS = [
       /^nanotechnology\??$/,
     ],
     answer: () =>
-      `**Nanotechnology** is the design, construction, and use of functional structures with at least one size in the **nanometre** range — roughly **1–100 nm**.\n\nAt that scale, materials can show physical, chemical, or biological behaviour very different from bulk matter, which opens new technologies (and new measurement challenges).\n\nIndustron instruments like **NG80** help characterise those materials mechanically at the nanoscale — ask if you want the right system for your sample.`,
+      `**Nanotechnology** is engineering and using structures with at least one size in the **nanometre** range — roughly **1–100 nm**.\n\nAt that scale, materials often behave differently from bulk matter: surface effects dominate, quantum and interfacial physics matter, and “small” becomes a design variable — not just a size label.`,
   },
   {
     id: 'founder',
@@ -747,13 +757,34 @@ export const FAQ_INTENTS = [
     id: 'brochure',
     patterns: [/brochure|datasheet|pdf|spec(ification)?s?|literature/],
     answer: () =>
-      `You can request a product brochure online — share your details and download the PDF.\n\n→ [/brochure-form](/brochure-form)\n\nOr open a product page and tap **Get Brochure**. For sales quotes, email **${COMPANY_FACTS.contact.sales}**.`,
+      `You can request a product brochure online. After you submit the form, our sales team reviews the request and emails the PDF to you.\n\n→ [/brochure-form](/brochure-form)\n\nFor quotes, email **${COMPANY_FACTS.contact.sales}**.`,
   },
   {
     id: 'contact',
     patterns: [/contact|email|phone|call|reach/, /get in touch/, /demo|quote|price|cost|buy|purchase/],
     answer: () =>
       `Happy to connect you with the right team:\n\n• **General:** ${COMPANY_FACTS.contact.email}\n• **India:** ${COMPANY_FACTS.contact.india}\n• **USA:** ${COMPANY_FACTS.contact.usa}\n• **Sales:** ${COMPANY_FACTS.contact.sales}\n• **Testing:** ${COMPANY_FACTS.contact.testing}\n\n→ Full contacts & offices: [/contact](/contact)\n→ Request a demo via the contact page or brochure form.`,
+  },
+  {
+    id: 'tip_selection',
+    patterns: [
+      /which tip/,
+      /what tip/,
+      /tip (is |do i |should i )?(need|needed|use|choose|select|best|right|suitable)/,
+      /(need|needed|use|choose|select).*(tip|probe|indenter)/,
+      /(tip|probe|indenter).*(hard (surface|material)|steel|ceramic|glass|metal)/,
+      /hard (surface|material).*(tip|probe|indenter)/,
+      /berkovich|cube.?corner|cono.?spherical|conospherical/,
+      /indenter tip/,
+      /probe selection|tip selection/,
+    ],
+    answer: () =>
+      `For a **hard surface** (steel, ceramics, glass, hard metals), start with a **Berkovich** tip.\n\n` +
+      `In short: it is the standard three-sided pyramid for hardness and elastic modulus — included angle **142.35°**, tip radius typically **~120–150 nm**.\n\n` +
+      `• **Berkovich** — everyday hardness/modulus on hard bulk materials\n` +
+      `• **Cube Corner** — sharper tip when you need cracking / fracture toughness or very thin films\n` +
+      `• **Cono-Spherical** — soft materials, scratch, or contact-mechanics studies\n\n` +
+      `Tip size here is measured in **nanometres**, not millimetres — geometry and tip radius matter far more than a crude “mm tip size” rule.`,
   },
   {
     id: 'spm_vs_afm',

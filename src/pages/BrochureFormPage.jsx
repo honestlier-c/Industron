@@ -3,76 +3,88 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import PageHero from '../components/PageHero'
 import SEOMeta from '../components/SEOMeta'
-import {
-  INQUIRY_CHANNELS,
-  formDataToBody,
-  openInquiryMailto,
-  resolveBrochureMailto,
-} from '../config/inquiryEmails'
-import { getBrochureUrl } from '../data/brochures'
+import { formDataToBody, openInquiryMailto, formatInquirySubject } from '../config/inquiryEmails'
+import { SALES_EMAIL, submitBrochureViaGoogleScript } from '../utils/brochureRequest'
+
 const PRODUCT_LABELS = {
-  'uprobe-500':  'μProbe 500',
-  'mesoprobe':   'MesoProbe',
-  'ng80':        'NG80',
+  'uprobe-500': 'μProbe 500',
+  mesoprobe: 'MesoProbe',
+  ng80: 'NG80',
   'pneumatic-air-isolation-table': 'Pneumatic Air Isolation Table',
   'dic-software': 'DIC Software',
 }
 
 export default function BrochureFormPage() {
   const [params] = useSearchParams()
-  const slug    = params.get('product') ?? ''
+  const slug = params.get('product') ?? ''
   const product = PRODUCT_LABELS[slug] ?? 'Industron Instrument'
-  const file    = getBrochureUrl(slug) ?? '/Ammuu_Latest.pdf'
 
   const [done, setDone] = useState(false)
-  const [notice, setNotice] = useState(null)
+  const [busy, setBusy] = useState(false)
+  const [userEmail, setUserEmail] = useState('')
+  const [usedMailtoFallback, setUsedMailtoFallback] = useState(false)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    setBusy(true)
+
     const form = e.currentTarget
-    const requirementType = new FormData(form).get('Requirement type')?.toString() ?? ''
-    const { to, cc, subject, routedToSales } = resolveBrochureMailto({
+    const fd = new FormData(form)
+    const email = String(fd.get('Email') || '').trim()
+    const requirementType = String(fd.get('Requirement type') || '').trim()
+    const payload = {
+      name: String(fd.get('Name') || '').trim(),
+      organization: String(fd.get('Organization') || '').trim(),
+      email,
+      phone: String(fd.get('Phone') || '').trim(),
       requirementType,
       product,
-    })
-    const body = formDataToBody(form, [
-      `Channel: ${routedToSales ? 'Sales lead (brochure)' : 'Brochure request'}`,
-      `Product: ${product}`,
-    ])
-    openInquiryMailto({ to, cc, subject, body })
+      productSlug: slug,
+    }
 
-    /* Trigger download automatically */
-    const a = document.createElement('a')
-    a.href = file
-    a.download = ''
-    a.target   = '_blank'
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-
-    setDone(true)
-    const mailbox = routedToSales
-      ? INQUIRY_CHANNELS.sales.email
-      : INQUIRY_CHANNELS.brochure.email
-    setNotice(
-      `Your email app should open with a draft to ${mailbox}. The brochure download has started automatically.`,
-    )
+    try {
+      await submitBrochureViaGoogleScript(payload)
+      setUsedMailtoFallback(false)
+      setUserEmail(email)
+      setDone(true)
+    } catch (err) {
+      // No script URL yet → open mail draft to sales@
+      const body = formDataToBody(form, [
+        'Channel: Brochure request (sales approval required)',
+        `Product: ${product}`,
+        `Product slug: ${slug || 'n/a'}`,
+        '',
+        'Action for sales:',
+        '1) Review this lead',
+        `2) If approved, email the brochure PDF to: ${email}`,
+      ])
+      openInquiryMailto({
+        to: SALES_EMAIL,
+        subject: formatInquirySubject('[Brochure Request]', product, requirementType),
+        body,
+      })
+      setUsedMailtoFallback(true)
+      setUserEmail(email)
+      setDone(true)
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (
     <main className="testing-form-page">
       <SEOMeta
-        title={`Get ${product} Brochure`}
-        description={`Download the ${product} product brochure from Industron. Fill in your details and receive the latest specifications, features, and application information.`}
+        title={`Request ${product} Brochure`}
+        description={`Request the ${product} brochure from Industron. Share your details and our sales team will email the brochure after review.`}
         canonical={`https://www.industronnano.com/brochure-form${slug ? `?product=${slug}` : ''}`}
       />
 
       <PageHero
         tag="Product Literature"
         title={`${product}`}
-        highlight="Brochure Download"
-        lead="Share a few details so we can tailor follow-up support. Your brochure will start downloading immediately after you submit."
-        badges={['Latest specs', 'Application notes', 'Free download']}
+        highlight="Brochure request"
+        lead="Share a few details. After our sales team reviews your request, the brochure will be emailed to you."
+        badges={['Sales reviewed', 'Sent by email', 'No instant download']}
       />
 
       <section className="page-section testing-form-section">
@@ -86,7 +98,7 @@ export default function BrochureFormPage() {
             <header className="testing-form-panel-head">
               <div>
                 <p className="testing-modal-form-id">Brochure request</p>
-                <h2 className="testing-form-panel-title">{product} — product brochure</h2>
+                <h2 className="testing-form-panel-title">{product} — brochure request</h2>
                 <p className="testing-form-panel-intro">
                   Complete the form below. Questions?{' '}
                   <Link to="/contact">Contact us</Link>
@@ -96,23 +108,33 @@ export default function BrochureFormPage() {
               </div>
             </header>
 
-            {notice && (
-              <p className="testing-form-notice" role="status">
-                {notice}
-              </p>
-            )}
-
             {done ? (
               <div className="testing-form-done">
                 <p className="testing-form-panel-intro">
-                  Thank you! If the download did not start,{' '}
-                  <a href={file} download target="_blank" rel="noopener noreferrer">
-                    click here to download directly
-                  </a>.
+                  Thank you. Your brochure will be sent soon to{' '}
+                  <strong>{userEmail || 'your email id'}</strong> after our sales team reviews
+                  the request.
+                </p>
+                <p className="testing-form-hint" style={{ marginTop: '0.75rem' }}>
+                  {usedMailtoFallback ? (
+                    <>
+                      A draft email to <strong>{SALES_EMAIL}</strong> should have opened — please
+                      send it so sales can review and email you the PDF.
+                    </>
+                  ) : (
+                    <>
+                      Your request went to <strong>{SALES_EMAIL}</strong>. After they approve, the
+                      brochure PDF is emailed to you automatically — nothing downloads here.
+                    </>
+                  )}
                 </p>
                 <div className="testing-modal-actions" style={{ marginTop: '1.5rem' }}>
-                  <Link to="/products" className="btn-ghost">Back to products</Link>
-                  <Link to="/contact" className="btn-primary">Talk to a specialist</Link>
+                  <Link to="/products" className="btn-ghost">
+                    Back to products
+                  </Link>
+                  <Link to="/contact" className="btn-primary">
+                    Talk to a specialist
+                  </Link>
                 </div>
               </div>
             ) : (
@@ -142,7 +164,9 @@ export default function BrochureFormPage() {
                 <label>
                   What describes your requirement best?
                   <select name="Requirement type" required defaultValue="">
-                    <option value="" disabled>Select one</option>
+                    <option value="" disabled>
+                      Select one
+                    </option>
                     <option value="Learning / education">Learning / education</option>
                     <option value="Research">Research</option>
                     <option value="Industrial / QC">Industrial / QC</option>
@@ -152,16 +176,16 @@ export default function BrochureFormPage() {
                 </label>
 
                 <p className="testing-form-hint">
-                  Submitting opens your email app to{' '}
-                  <strong>{INQUIRY_CHANNELS.brochure.email}</strong>
-                  {' '}(or <strong>{INQUIRY_CHANNELS.sales.email}</strong> for industrial /
-                  procurement requests). The brochure PDF downloads at the same time.
+                  Submitting notifies <strong>{SALES_EMAIL}</strong>. The brochure is emailed to
+                  you after sales approval — it is not downloaded here.
                 </p>
 
                 <div className="testing-modal-actions">
-                  <Link to="/products" className="btn-ghost">Cancel</Link>
-                  <button type="submit" className="btn-primary">
-                    Download brochure
+                  <Link to="/products" className="btn-ghost">
+                    Cancel
+                  </Link>
+                  <button type="submit" className="btn-primary" disabled={busy}>
+                    {busy ? 'Submitting…' : 'Request brochure'}
                   </button>
                 </div>
               </form>

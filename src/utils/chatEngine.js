@@ -13,6 +13,7 @@ import {
   buildSystemPrompt,
   buildProductCountAnswer,
   isNanotechQuery,
+  wantsInstrumentAdvice,
   COMMON_STOPWORDS,
 } from '../data/chatKnowledge'
 import { retrieveRelevantFaq } from '../data/technicalFaq'
@@ -97,33 +98,28 @@ function formatProductAnswer(product) {
 }
 
 /**
- * Soft product CTA — only when the question is about measuring / instruments.
- * Skip for pure “what is …” concept questions.
+ * Soft product CTA — only when the user asks for instruments / recommendations.
+ * Pure technical questions stay technical only.
  */
 function promoLineFor(query) {
+  if (!wantsInstrumentAdvice(query)) return ''
   const q = normalize(query)
-  if (/^what is\b|^define\b|^meaning of\b/.test(q) && !/indent|probe|instrument|system|machine|product/.test(q)) {
-    return `Want to measure nanoscale mechanical properties? Ask about **NG80**, **μProbe 500**, or **MesoProbe**.`
-  }
   if (/meso|dic|strain map|compress|bend|tensile|fatigue|hydrogel|foam/.test(q)) {
-    return `If you’re measuring this in the lab, **MesoProbe** is built for meso-scale loading with DIC strain mapping — [/products/mesoprobe](/products/mesoprobe).`
+    return `For that measurement class, **MesoProbe** is Industron’s meso-scale platform with DIC — [/products/mesoprobe](/products/mesoprobe).`
   }
   if (/spm|afm|nanowear|high.?speed|hsi|site.?specific|ng80|nanoindent/.test(q)) {
-    return `On the instrument side, **NG80** combines nanoindentation, in-situ SPM, and high-speed mapping — [/products/ng80](/products/ng80).`
+    return `For nanoindentation with in-situ SPM / high-speed mapping, look at **NG80** — [/products/ng80](/products/ng80).`
   }
   if (/micro.?indent|uprobe|μprobe|500 mN/.test(q)) {
-    return `For research-grade microindentation, **μProbe 500** is a strong fit — [/products/uprobe-500](/products/uprobe-500).`
+    return `For research-grade microindentation, **μProbe 500** — [/products/uprobe-500](/products/uprobe-500).`
   }
   if (/vibration|isolation|pneumatic|air table/.test(q)) {
-    return `For quiet lab floors, the **Pneumatic Air Isolation Table** helps protect nanometre measurements — [/products/pneumatic-air-isolation-table](/products/pneumatic-air-isolation-table).`
+    return `For floor vibration control: **Pneumatic Air Isolation Table** — [/products/pneumatic-air-isolation-table](/products/pneumatic-air-isolation-table).`
   }
   if (/soft|bio|lens|cell|tissue|cartilage/.test(q)) {
-    return `For soft/biomaterials, Industron’s **BioSoft** / meso platforms are designed for gentle, precise testing — [/products](/products).`
+    return `For soft / bio samples, Industron’s **BioSoft** / meso platforms are the usual fit — [/products](/products).`
   }
-  if (/instrument|system|product|which (one|system)|recommend|buy|demo/.test(q)) {
-    return `Industron builds systems for this kind of work — **NG80**, **μProbe 500**, and **MesoProbe**. See [/products](/products).`
-  }
-  return ''
+  return `Industron’s main platforms here are **NG80**, **μProbe 500**, and **MesoProbe** — [/products](/products).`
 }
 
 function isJunkChunk(text) {
@@ -136,13 +132,14 @@ function isJunkChunk(text) {
   )
 }
 
-/** Instant knowledge answer from corpus when the LLM is still loading. */
+/** Instant knowledge answer from book / note corpus when the LLM is still loading. */
 function formatCorpusTutorAnswer(query, excerpts) {
   if (!excerpts?.length) return null
-  const usable = excerpts.find((e) => !isJunkChunk(e.text)) || excerpts[0]
-  if (isJunkChunk(usable.text)) return null
+  const usableList = excerpts.filter((e) => !isJunkChunk(e.text))
+  if (!usableList.length) return null
 
-  let body = String(usable.text || '')
+  const primary = usableList[0]
+  let body = String(primary.text || '')
     .replace(/\/\/INTEGRAS\/[^\s]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
@@ -150,15 +147,44 @@ function formatCorpusTutorAnswer(query, excerpts) {
   // Prefer the real definition sentence when present.
   const def = body.match(/nanotechnology is the term used to cover[^.]{20,280}\./i)
   if (def) body = def[0]
-  else body = body.slice(0, 320)
+  else {
+    const parts = body.split(/(?<=[.!?])\s+/).filter(Boolean)
+    body = parts.slice(0, 3).join(' ')
+    if (body.length > 420) body = `${body.slice(0, 417).trim()}…`
+  }
 
-  const core = `${body}${body.length >= 300 && !def ? '…' : ''}`
+  const extra = usableList
+    .slice(1, 3)
+    .map((e) => {
+      const t = String(e.text || '')
+        .replace(/\s+/g, ' ')
+        .trim()
+      const sentence = t.split(/(?<=[.!?])\s+/).filter(Boolean)[0] || ''
+      return sentence.length > 40 ? sentence.slice(0, 180) : ''
+    })
+    .filter(Boolean)
+
+  const core = [body, ...extra].filter(Boolean).join('\n\n')
+  const sourceTitles = [...new Set(usableList.slice(0, 3).map((e) => e.title).filter(Boolean))]
   const cite =
-    usable.public && usable.pdf
-      ? `\n\nRelated note: [${usable.title}](${usable.pdf}).`
-      : ''
+    primary.public && primary.pdf
+      ? `\n\nRelated note: [${primary.title}](${primary.pdf}).`
+      : sourceTitles.length
+        ? `\n\n_(Drawn from: ${sourceTitles.join('; ')})_`
+        : ''
   const promo = promoLineFor(query)
   return promo ? `${core}${cite}\n\n${promo}` : `${core}${cite}`
+}
+
+/** Company / sales / catalog questions — skip book-corpus dumps. */
+function isSiteOnlyQuery(query) {
+  const q = normalize(query)
+  return (
+    /^(hi|hello|hey|thanks|thank you|ok|okay)\b/.test(q) ||
+    /contact|email|phone|call sales|brochure|demo|quote|price|cost|founder|office|address|technopark|kinfra|how many product|list (all |your )?products|show (me )?(your )?products|get in touch|who (founded|owns)|team\b|staff\b/.test(
+      q,
+    )
+  )
 }
 
 function matchFaq(query, products) {
@@ -171,19 +197,32 @@ function matchFaq(query, products) {
   return null
 }
 
+/** Crisp professor-style wrap for technical FAQ entries. */
+function formatTechFaqAnswer(entry, query) {
+  const q = normalize(query)
+  if (/hard (surface|material)|steel|ceramic|glass|bulk metal/.test(q) && /tip|probe|indenter/.test(q)) {
+    return (
+      `For a **hard surface**, use a **Berkovich** tip — the standard choice for hardness and modulus on metals, ceramics, and glass.\n\n` +
+      `Included angle **142.35°**, tip radius typically **~120–150 nm**.\n\n` +
+      `• **Cube Corner** — when you need cracking / fracture toughness or ultra-thin films\n` +
+      `• **Cono-Spherical** — soft materials, scratch, or contact-mechanics work`
+    )
+  }
+  return `**${entry.question}**\n\n${entry.answer}`
+}
+
 /** Short pointer to /applications — never dump the full note catalog. */
 function notesReply(notes, { all = false } = {}) {
   if (all || !notes?.length) {
     return (
-      `We have application notes across steel, coatings, biomaterials, polymers, and more — all on [/applications](/applications).\n\n` +
-      `Tell me your material or test type and I’ll point you to the best note, plus the Industron system that fits.`
+      `Application notes cover steel, coatings, biomaterials, polymers, and more — see [/applications](/applications).\n\n` +
+      `Name your material or test type and I’ll point to the best note.`
     )
   }
   const top = notes.slice(0, 1)
   return (
-    `Here’s a strong match: [${top[0].label}](${top[0].pdf}).\n\n` +
-    `Browse more on [/applications](/applications).\n\n` +
-    promoLineFor(top[0].label)
+    `Strong match: [${top[0].label}](${top[0].pdf}).\n\n` +
+    `More on [/applications](/applications).`
   )
 }
 
@@ -295,8 +334,8 @@ export function generateChatReply(userMessage) {
   const techFaq = retrieveRelevantFaq(userMessage, 1)
   if (techFaq.length) {
     return {
-      text: `**${techFaq[0].question}**\n\n${techFaq[0].answer}`,
-      suggestions: ['Tip selection guide', 'What is dynamic nanoindentation?', 'NRL testing', 'Contact'],
+      text: formatTechFaqAnswer(techFaq[0], userMessage),
+      suggestions: ['Which tip for hard surfaces?', 'What is dynamic nanoindentation?', 'NRL testing', 'Contact'],
       mode: 'knowledge',
     }
   }
@@ -417,20 +456,39 @@ export async function answerWithBestEngine(userMessage, history = [], { onToken,
     return { text: faqHit, suggestions: suggestionsFor(userMessage), mode: 'knowledge' }
   }
 
+  // Tip / instrument FAQ only — other questions go through book RAG.
+  const tipLike =
+    /tip|probe|berkovich|cube.?corner|cono.?spherical|indenter tip|noise floor|oliver.?pharr|dynamic nanoindent|thin film.?substrate|surface roughness/.test(
+      normalize(userMessage),
+    )
+  if (tipLike) {
+    const techFaqHit = retrieveRelevantFaq(userMessage, 1)
+    if (techFaqHit.length) {
+      const text = formatTechFaqAnswer(techFaqHit[0], userMessage)
+      await streamText(text, onToken, signal)
+      return {
+        text,
+        suggestions: ['Which tip for hard surfaces?', 'Cube Corner vs Berkovich', 'What is Oliver–Pharr?', 'Contact'],
+        mode: 'knowledge',
+      }
+    }
+  }
+
   const status = getOfflineLlmStatus()
-  const science = isNanotechQuery(userMessage)
-  const excerptOpts = science ? { preferPrivate: true, perSource: 3 } : {}
-  const excerptK = science ? 6 : 3
+  const siteOnly = isSiteOnlyQuery(userMessage)
+  // Always pull private book PDFs for technical / general questions.
+  const excerptOpts = { preferPrivate: true, perSource: 3 }
+  const excerptK = 6
+  const noteExcerpts = siteOnly ? [] : await getNoteExcerpts(userMessage, excerptK, excerptOpts)
+  const hasBookRag = noteExcerpts.some((e) => e.public === false)
+  const science = isNanotechQuery(userMessage) || hasBookRag
 
   // Instant-first: only use the enhanced engine when it is ALREADY loaded.
-  // We never block a reply on the model download — the knowledge base answers
-  // immediately, and the enhanced engine simply takes over once it's ready.
   if (preferLlm && status.ready) {
     try {
-      const relevant = retrieveRelevantProducts(userMessage, science ? 2 : 2)
-      const noteExcerpts = await getNoteExcerpts(userMessage, excerptK, excerptOpts)
+      const relevant = retrieveRelevantProducts(userMessage, 2)
       const system = buildSystemPrompt(relevant, userMessage, noteExcerpts, {
-        mode: science ? 'nanotech' : 'site',
+        mode: science && !siteOnly ? 'nanotech' : 'site',
       })
       const recent = history
         .filter((m) => m.role === 'user' || m.role === 'assistant')
@@ -446,8 +504,8 @@ export async function answerWithBestEngine(userMessage, history = [], { onToken,
       let full = ''
       for await (const delta of streamOfflineChat(messages, {
         signal,
-        maxTokens: science ? 720 : 420,
-        temperature: science ? 0.45 : 0.2,
+        maxTokens: science ? 420 : 420,
+        temperature: science ? 0.35 : 0.2,
       })) {
         full += delta
         onToken?.(full)
@@ -464,13 +522,12 @@ export async function answerWithBestEngine(userMessage, history = [], { onToken,
     scheduleOfflineLlmWarmup({ preferSoon: true })
   }
 
-  // Science questions: answer from the nanotech corpus even before the LLM is ready.
-  if (science) {
-    const excerpts = await getNoteExcerpts(userMessage, excerptK, excerptOpts)
-    const corpusText = formatCorpusTutorAnswer(userMessage, excerpts)
+  // Book / note RAG for any matching question (not only nanotech keywords).
+  if (!siteOnly && noteExcerpts.length) {
+    const corpusText = formatCorpusTutorAnswer(userMessage, noteExcerpts)
     if (corpusText) {
       await streamText(corpusText, onToken, signal)
-      return { text: corpusText, suggestions: suggestionsFor(userMessage), mode: 'knowledge' }
+      return { text: corpusText, suggestions: suggestionsFor(userMessage), mode: 'rag' }
     }
   }
 
@@ -483,13 +540,13 @@ export function getWelcomeMessage() {
   return {
     text:
       `Hi — I’m **NanoGuide**.\n\n` +
-      `Ask me anything about nanotechnology, nanoindentation, SPM/AFM, tribology, or materials testing — I’ll give a clear answer, then point you to the right **Industron** system when it helps.\n\n` +
-      `Try a concept, a method, or a product (e.g. **NG80**, **MesoProbe**, **μProbe 500**).`,
+      `Ask a technical question about nanotechnology, indentation, SPM/AFM, tribology, or materials testing — I’ll explain it clearly and briefly, like a short lecture note.\n\n` +
+      `If you want an instrument recommendation, just ask (e.g. “which system for nanoindentation?”).`,
     suggestions: [
       'What is nanotechnology?',
       'How is in-situ SPM different from AFM?',
+      'Explain Oliver–Pharr briefly',
       'Which system for nanoindentation?',
-      'Tell me about MesoProbe',
     ],
   }
 }

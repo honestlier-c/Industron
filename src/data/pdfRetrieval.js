@@ -57,17 +57,18 @@ function isFrontMatterJunk(text) {
 
 /**
  * Retrieve the most relevant PDF / Chatbotdata chunks for a query.
- * Returns [{ title, pdf, text, industries, public }].
+ * Returns [{ title, pdf, text, industries, public, score }].
  *
  * @param {string} query
- * @param {number} [k=3]
+ * @param {number} [k=6]
  * @param {{ preferPrivate?: boolean, perSource?: number }} [opts]
  */
-export function retrieveNoteExcerpts(query, k = 3, opts = {}) {
+export function retrieveNoteExcerpts(query, k = 6, opts = {}) {
   const tokens = tokenize(query)
   if (!tokens.length) return []
 
-  const preferPrivate = Boolean(opts.preferPrivate)
+  // Default: prefer private book corpus (Chatbotdata) for technical grounding.
+  const preferPrivate = opts.preferPrivate !== false
   const perSource = opts.perSource ?? (preferPrivate ? 3 : 2)
   const q = String(query || '').toLowerCase()
 
@@ -81,7 +82,8 @@ export function retrieveNoteExcerpts(query, k = 3, opts = {}) {
       if (hay.includes(t)) score += 2
       else if (stem.length > 2 && hay.includes(stem)) score += 1
     })
-    if (preferPrivate && chunk.public === false && score > 0) score += 1.5
+    // Always boost private book chunks when they match — this is the main RAG corpus.
+    if (chunk.public === false && score > 0) score += preferPrivate ? 2.5 : 1
     const titleHay = String(chunk.title || '').toLowerCase()
     tokens.forEach((t) => {
       if (titleHay.includes(t)) score += 3
@@ -98,12 +100,12 @@ export function retrieveNoteExcerpts(query, k = 3, opts = {}) {
 
   const perNote = new Map()
   const picked = []
-  for (const { chunk } of scored) {
+  for (const { chunk, score } of scored) {
     const key = chunk.pdf || `private:${chunk.title}`
     const count = perNote.get(key) || 0
     if (count >= perSource) continue
     perNote.set(key, count + 1)
-    picked.push(chunk)
+    picked.push({ ...chunk, score })
     if (picked.length >= k) break
   }
   return picked

@@ -1,24 +1,23 @@
 /**
- * Dedicated inquiry mailboxes — edit addresses here once IT creates them
- * in Google Workspace (or your host). Set up inbox rules / forwarding so:
- *   brochure@ → literature team (+ archive)
- *   testing@  → NRL / application engineering (e.g. forward from kp@)
- *   enquiries@ → general desk (or forward to info@)
- *   sales@   → sales team (e.g. forward to pratyank@)
+ * Dedicated inquiry mailboxes. Brochure requests all go to sales@
+ * (review first, then email the PDF to the visitor).
  *
- * Subject prefixes ([Brochure], etc.) help filter and sort in any mail client.
+ * Other channels:
+ *   testing@  → NRL / application engineering
+ *   enquiries@ → general desk
+ *   sales@   → sales team + brochure approvals
  */
 
 export const INQUIRY_CHANNELS = {
   brochure: {
     id: 'brochure',
-    email: 'brochure@industronnano.com',
-    subjectPrefix: '[Brochure]',
+    email: 'sales@industronnano.com',
+    subjectPrefix: '[Brochure Request]',
     label: 'Brochure requests',
     description:
-      'Product literature downloads, PDF follow-up, and specification questions.',
+      'Product literature requests — reviewed by sales, then brochure emailed to the requester.',
     formPath: '/brochure-form',
-    formLabel: 'Download a brochure',
+    formLabel: 'Request a brochure',
   },
   testing: {
     id: 'testing',
@@ -71,17 +70,16 @@ export function formatInquirySubject(prefix, ...parts) {
 }
 
 export function resolveBrochureMailto({ requirementType, product }) {
-  const isSalesLead = BROCHURE_SALES_REQUIREMENTS.has(requirementType)
-  const primary = isSalesLead ? INQUIRY_CHANNELS.sales : INQUIRY_CHANNELS.brochure
+  // All brochure requests go to sales@ only (approval before sending PDF).
   return {
-    to: primary.email,
-    cc: isSalesLead ? INQUIRY_CHANNELS.brochure.email : undefined,
+    to: INQUIRY_CHANNELS.sales.email,
+    cc: undefined,
     subject: formatInquirySubject(
-      primary.subjectPrefix,
+      '[Brochure Request]',
       product,
       requirementType || undefined,
     ),
-    routedToSales: isSalesLead,
+    routedToSales: true,
   }
 }
 
