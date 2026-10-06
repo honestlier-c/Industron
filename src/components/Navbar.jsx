@@ -6,6 +6,7 @@ const LINKS = [
   { label: 'Products',     to: '/products' },
   { label: 'Services',     to: '/services' },
   { label: 'Applications', to: '/applications' },
+  { label: 'News & Events', to: '/news-events' },
   { label: 'Contact',      to: '/contact' },
 ]
 

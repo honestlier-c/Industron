@@ -28,6 +28,17 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 1.1rem;
 }
+.contact-page-grid--single {
+  grid-template-columns: 1fr;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.contact-page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
+}
 .contact-page-card {
   background: #fff;
   border: 1px solid var(--border);

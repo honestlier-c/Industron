@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import PageHero from '../components/PageHero'
@@ -73,6 +74,27 @@ function DocCard({ id, children, className = '' }) {
 }
 
 export default function ServicesPage() {
+  const jumpRef = useRef(null)
+  const [jumpStuck, setJumpStuck] = useState(false)
+
+  useEffect(() => {
+    const el = jumpRef.current
+    if (!el) return undefined
+
+    const onScroll = () => {
+      const top = el.getBoundingClientRect().top
+      setJumpStuck(top <= 76)
+    }
+
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [])
+
   return (
     <main className="services-page">
       <SEOMeta
@@ -86,10 +108,12 @@ export default function ServicesPage() {
         title="Services"
         highlight="Testing, Consultancy & Technical Support"
         lead="From advanced materials testing to product engineering and long-term technical support, Industron Technical Services Pvt. Ltd. delivers integrated solutions for global research and industrial needs."
-        badges={['NRL', 'R&D consultancy', 'Training', 'Service agreements', 'Support']}
       />
 
-      <div className="services-jump-wrap">
+      <div
+        ref={jumpRef}
+        className={`services-jump-wrap${jumpStuck ? ' is-stuck' : ''}`}
+      >
         <div className="container">
           <nav className="services-jump" aria-label="On this page">
             {JUMP_LINKS.map(({ id, label }) => (

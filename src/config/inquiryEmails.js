@@ -2,10 +2,10 @@
  * Dedicated inquiry mailboxes. Brochure requests all go to sales@
  * (review first, then email the PDF to the visitor).
  *
- * Other channels:
- *   testing@  → NRL / application engineering
- *   enquiries@ → general desk
- *   sales@   → sales team + brochure approvals
+ * Public contact inbox:
+ *   sales@  → sales, support, brochures, and general enquiries
+ *
+ * Testing form may still use a dedicated subject prefix; mail goes to sales@.
  */
 
 export const INQUIRY_CHANNELS = {
@@ -21,7 +21,7 @@ export const INQUIRY_CHANNELS = {
   },
   testing: {
     id: 'testing',
-    email: 'testing@industronnano.com',
+    email: 'sales@industronnano.com',
     subjectPrefix: '[NRL Testing]',
     label: 'Material testing (NRL)',
     description:
@@ -31,7 +31,7 @@ export const INQUIRY_CHANNELS = {
   },
   general: {
     id: 'general',
-    email: 'enquiries@industronnano.com',
+    email: 'sales@industronnano.com',
     subjectPrefix: '[General]',
     label: 'General enquiries',
     description:
@@ -103,20 +103,53 @@ export function buildMailtoHref({ to, cc, subject, body }) {
   return `mailto:${to}${qs}`
 }
 
+/** Gmail web compose — opens logged-in account with To / Subject / Body filled. */
+export function buildGmailComposeHref({ to, cc, subject, body }) {
+  const params = new URLSearchParams()
+  params.set('view', 'cm')
+  params.set('fs', '1')
+  if (to) params.set('to', to)
+  if (cc) params.set('cc', cc)
+  if (subject) params.set('su', subject)
+  if (body) params.set('body', body)
+  return `https://mail.google.com/mail/?${params.toString()}`
+}
+
 const DEFAULT_MAX_BODY = 3200
+const GMAIL_URL_SAFE_MAX = 7500
+
+function truncateInquiryBody(body, maxChars = 2800) {
+  const text = String(body || '')
+  if (text.length <= maxChars) return text
+  return `${text.slice(0, maxChars)}\n\n[Message truncated — please add any missing details in your email.]`
+}
 
 export function openInquiryMailto({ to, cc, subject, body, maxBodyLength = DEFAULT_MAX_BODY }) {
   let bodyText = body
   const encoded = encodeURIComponent(bodyText)
   if (encoded.length > maxBodyLength) {
-    bodyText = `${bodyText.slice(0, 2800)}\n\n[Message truncated — please add any missing details in your email.]`
+    bodyText = truncateInquiryBody(bodyText)
   }
   window.location.href = buildMailtoHref({ to, cc, subject, body: bodyText })
+}
+
+export function openInquiryGmailCompose({ to, cc, subject, body }) {
+  let bodyText = body
+  let href = buildGmailComposeHref({ to, cc, subject, body: bodyText })
+  if (href.length > GMAIL_URL_SAFE_MAX) {
+    bodyText = truncateInquiryBody(bodyText, 2200)
+    href = buildGmailComposeHref({ to, cc, subject, body: bodyText })
+  }
+
+  const opened = window.open(href, '_blank', 'noopener,noreferrer')
+  if (!opened) {
+    window.location.assign(href)
+  }
 }
 
 export function openTestingInquiryMailto(form) {
   const { email, subjectPrefix } = INQUIRY_CHANNELS.testing
   const body = formDataToBody(form, ['Channel: NRL / material testing enquiry'])
   const subject = formatInquirySubject(subjectPrefix, 'First-hand sample enquiry')
-  openInquiryMailto({ to: email, subject, body })
+  openInquiryGmailCompose({ to: email, subject, body })
 }

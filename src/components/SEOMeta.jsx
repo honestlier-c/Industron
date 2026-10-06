@@ -32,7 +32,7 @@ const ORG_JSONLD = {
   ],
   contactPoint: {
     '@type': 'ContactPoint',
-    email: 'info@industronnano.com',
+    email: 'sales@industronnano.com',
     contactType: 'customer support',
   },
   sameAs: [

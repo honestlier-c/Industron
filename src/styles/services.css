@@ -6,26 +6,23 @@
   background: linear-gradient(180deg, #f7faff 0%, #ffffff 42%);
 }
 
-/* Hero → jump nav: keep bottom padding tight so the sticky pills sit flush */
+/*
+  Extend the hero downward and pull the jump nav up into it so the
+  orbs/grid/dots continue behind the pills (same visual plane).
+*/
 .services-page .page-hero.page-hero--lg {
-  padding-bottom: 1rem;
+  padding-bottom: 4.25rem;
+  margin-bottom: -3.35rem;
+}
+.services-page .page-hero--lg .page-hero-lead {
+  margin-bottom: 1.05rem;
 }
 
 @media (max-width: 960px) {
   .services-page .page-hero.page-hero--lg {
-    padding-bottom: 0.75rem;
+    padding-bottom: 4rem;
+    margin-bottom: -3.1rem;
   }
-}
-
-@media (max-width: 600px) {
-  .services-page .page-hero.page-hero--lg {
-    padding-bottom: 0.5rem;
-  }
-}
-
-/* Tighter space between hero lead and badges (jump pills sit right under hero) */
-.services-page .page-hero--lg .page-hero-lead {
-  margin-bottom: 1.05rem;
 }
 /* Services page — editorial layout, jump nav, grids */
 .services-doc-wrap {
@@ -35,7 +32,7 @@
 /* page-shared.css loads after this file; .page-section { padding: 5rem 0 } would
    override .services-doc-wrap and create a large gap under the jump nav. */
 .services-page .page-section.services-doc-wrap {
-  padding-top: 0;
+  padding-top: 1.75rem;
   padding-bottom: 3.75rem;
 }
 .services-doc-layout {
@@ -55,7 +52,10 @@
   z-index: 45;
   padding: 1rem 0;
   margin: 0;
-  background: linear-gradient(180deg, rgba(247, 250, 255, 0.98) 0%, rgba(255, 255, 255, 0.96) 100%);
+  background: transparent;
+}
+.services-jump-wrap.is-stuck {
+  background: linear-gradient(180deg, #f5f9ff 0%, #ffffff 70%);
   border-bottom: 1px solid var(--border);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);

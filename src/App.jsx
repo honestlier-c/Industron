@@ -11,7 +11,9 @@ const ProductsPage     = lazy(() => import('./pages/ProductsPage'))
 const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'))
 const ServicesPage     = lazy(() => import('./pages/ServicesPage'))
 const ApplicationsPage = lazy(() => import('./pages/ApplicationsPage'))
+const NewsEventsPage   = lazy(() => import('./pages/NewsEventsPage'))
 const ContactPage      = lazy(() => import('./pages/ContactPage'))
+const CareersPage      = lazy(() => import('./pages/CareersPage'))
 const TestingFormPage   = lazy(() => import('./pages/TestingFormPage'))
 const BrochureFormPage  = lazy(() => import('./pages/BrochureFormPage'))
 
@@ -47,7 +49,9 @@ export default function App() {
             <Route path="/products/:productSlug" element={<ProductDetailPage />} />
             <Route path="/services"              element={<ServicesPage />} />
             <Route path="/applications"          element={<ApplicationsPage />} />
+            <Route path="/news-events"           element={<NewsEventsPage />} />
             <Route path="/contact"               element={<ContactPage />} />
+            <Route path="/careers"               element={<CareersPage />} />
             <Route path="/testing-form"          element={<TestingFormPage />} />
             <Route path="/brochure-form"         element={<BrochureFormPage />} />
             <Route path="/mesoprobe"             element={<Navigate to="/products/mesoprobe" replace />} />

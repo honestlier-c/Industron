@@ -1,14 +1,55 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { answerWithBestEngine, getWelcomeMessage } from '../utils/chatEngine'
 import {
-  getOfflineLlmStatus,
-  scheduleOfflineLlmWarmup,
-  prefetchOfflineLlm,
-  retryOfflineLlm,
-  subscribeOfflineLlm,
-} from '../utils/offlineLlm'
+  checkChatHealth,
+  postChatMessage,
+  toChatHistory,
+} from '../utils/chatApi'
+
+const WELCOME = {
+  text: 'Hi — I’m NanoGuide. Ask about nanomechanical testing, instruments, or materials characterization.',
+  suggestions: [
+    'What is nanoindentation?',
+    'Tell me about MesoProbe',
+    'How do I contact Industron?',
+  ],
+}
+
+/** Reveal assistant text with a typewriter effect. Returns a cancel() fn. */
+function typewriterReveal(fullText, { onUpdate, onDone, msPerChar = 14, charsPerTick = 2 } = {}) {
+  const text = String(fullText || '')
+  const reduced =
+    typeof window !== 'undefined' &&
+    window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
+
+  if (!text || reduced) {
+    onUpdate?.(text)
+    onDone?.(text)
+    return () => {}
+  }
+
+  let i = 0
+  let cancelled = false
+  let timer = 0
+
+  const tick = () => {
+    if (cancelled) return
+    i = Math.min(text.length, i + charsPerTick)
+    onUpdate?.(text.slice(0, i))
+    if (i >= text.length) {
+      onDone?.(text)
+      return
+    }
+    timer = window.setTimeout(tick, msPerChar)
+  }
+
+  timer = window.setTimeout(tick, msPerChar)
+  return () => {
+    cancelled = true
+    window.clearTimeout(timer)
+  }
+}
 
 function renderRichText(text) {
   const parts = []
@@ -73,43 +114,31 @@ export default function ChatBot() {
   const [open, setOpen] = useState(false)
   const [input, setInput] = useState('')
   const [busy, setBusy] = useState(false)
-  const [llmStatus, setLlmStatus] = useState(() => getOfflineLlmStatus())
-  const [messages, setMessages] = useState(() => {
-    const welcome = getWelcomeMessage()
-    return [
-      {
-        id: 'welcome',
-        role: 'assistant',
-        text: welcome.text,
-        suggestions: welcome.suggestions,
-      },
-    ]
-  })
+  const [serverOk, setServerOk] = useState(null) // null | true | false
+  const [messages, setMessages] = useState(() => [
+    {
+      id: 'welcome',
+      role: 'assistant',
+      text: WELCOME.text,
+      suggestions: WELCOME.suggestions,
+    },
+  ])
   const listRef = useRef(null)
   const inputRef = useRef(null)
   const abortRef = useRef(null)
-  const bootstrapped = useRef(false)
+  const typeCancelRef = useRef(null)
 
-  useEffect(() => subscribeOfflineLlm(setLlmStatus), [])
-
-  /* Chat answers instantly from the knowledge base.
-     On site load (desktop + WebGPU), start warming / downloading the small model
-     in the background after idle so it’s ready when chat opens. */
-  useEffect(() => {
-    if (bootstrapped.current) return undefined
-    bootstrapped.current = true
-    scheduleOfflineLlmWarmup()
-    return undefined
-  }, [])
-
-  /* Opening chat resumes / finishes load immediately and prefetches RAG. */
   useEffect(() => {
     if (!open) return undefined
-    prefetchOfflineLlm()
-    // Prefetch RAG only when chat is used (keeps first page paint lighter).
-    import('../data/pdfRetrieval').catch(() => {})
+    const controller = new AbortController()
+    checkChatHealth({ signal: controller.signal })
+      .then(() => setServerOk(true))
+      .catch(() => setServerOk(false))
     const t = window.setTimeout(() => inputRef.current?.focus(), 180)
-    return () => window.clearTimeout(t)
+    return () => {
+      controller.abort()
+      window.clearTimeout(t)
+    }
   }, [open])
 
   useEffect(() => {
@@ -118,19 +147,48 @@ export default function ChatBot() {
     el.scrollTop = el.scrollHeight
   }, [messages, busy, open])
 
-  useEffect(() => () => {
-    abortRef.current?.abort()
-  }, [])
+  useEffect(
+    () => () => {
+      abortRef.current?.abort()
+      typeCancelRef.current?.()
+    },
+    [],
+  )
+
+  const revealAnswer = (assistantId, fullText) =>
+    new Promise((resolve) => {
+      typeCancelRef.current?.()
+      typeCancelRef.current = typewriterReveal(fullText, {
+        onUpdate: (partial) => {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantId ? { ...m, text: partial, streaming: true } : m,
+            ),
+          )
+        },
+        onDone: (finalText) => {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantId
+                ? { ...m, text: finalText, streaming: false }
+                : m,
+            ),
+          )
+          resolve()
+        },
+      })
+    })
 
   const ask = async (raw) => {
     const text = String(raw || '').trim()
     if (!text || busy) return
 
     abortRef.current?.abort()
+    typeCancelRef.current?.()
     const controller = new AbortController()
     abortRef.current = controller
 
-    const history = messages.filter((m) => m.role === 'user' || m.role === 'assistant')
+    const history = toChatHistory(messages)
     const userId = `u-${Date.now()}`
     const assistantId = `a-${Date.now()}`
 
@@ -143,44 +201,24 @@ export default function ChatBot() {
     setBusy(true)
 
     try {
-      const reply = await answerWithBestEngine(text, history, {
-        preferLlm: true,
+      const { answer } = await postChatMessage({
+        message: text,
+        history,
         signal: controller.signal,
-        onToken: (partial) => {
-          setMessages((prev) =>
-            prev.map((m) => (m.id === assistantId ? { ...m, text: partial, streaming: true } : m)),
-          )
-        },
       })
-
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === assistantId
-            ? {
-                ...m,
-                text: reply.text,
-                suggestions: reply.suggestions,
-                streaming: false,
-                mode: reply.mode,
-                notice: reply.notice
-                  ? 'Having trouble connecting — sharing the best info we have.'
-                  : undefined,
-              }
-            : m,
-        ),
-      )
+      if (controller.signal.aborted) return
+      setServerOk(true)
+      const full =
+        answer ||
+        'I couldn’t find an answer for that. Try rephrasing, or ask something else.'
+      await revealAnswer(assistantId, full)
     } catch (err) {
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === assistantId
-            ? {
-                ...m,
-                text: err?.message || 'Something went wrong. Please try again.',
-                streaming: false,
-              }
-            : m,
-        ),
-      )
+      if (err?.name === 'AbortError') return
+      setServerOk(false)
+      const full =
+        err?.message ||
+        'Couldn’t reach the chat server. Please try again in a moment.'
+      await revealAnswer(assistantId, full)
     } finally {
       setBusy(false)
     }
@@ -212,21 +250,20 @@ export default function ChatBot() {
                 <div>
                   <p className="chatbot-title">NanoGuide</p>
                   <p className="chatbot-status">
-                    {llmStatus.ready ? (
+                    {serverOk === true ? (
                       <>
                         <span className="chatbot-status-dot chatbot-status-dot--llm" />
                         Online
-                        {llmStatus.upgrading ? ' · improving answers…' : ''}
                       </>
-                    ) : llmStatus.loading ? (
+                    ) : serverOk === false ? (
                       <>
-                        <span className="chatbot-status-dot" />
-                        {`Loading model… ${Math.round((llmStatus.progress || 0) * 100)}%`}
+                        <span className="chatbot-status-dot chatbot-status-dot--offline" />
+                        Server offline
                       </>
                     ) : (
                       <>
                         <span className="chatbot-status-dot" />
-                        Answering from knowledge base
+                        Connecting…
                       </>
                     )}
                   </p>
@@ -241,37 +278,6 @@ export default function ChatBot() {
                 ✕
               </button>
             </header>
-
-            {!llmStatus.ready && (llmStatus.loading || llmStatus.error || !llmStatus.webgpu) && (
-              <div className="chatbot-llm-bar">
-                {llmStatus.loading && (
-                  <>
-                    <p className="chatbot-llm-loading-title">{llmStatus.text}</p>
-                    <div className="chatbot-progress">
-                      <div style={{ width: `${Math.round((llmStatus.progress || 0) * 100)}%` }} />
-                    </div>
-                    <p className="chatbot-llm-hint">
-                      First visit downloads the model once (a few hundred MB), then it starts instantly. Ask away
-                      meanwhile — answers come from the knowledge base.
-                    </p>
-                  </>
-                )}
-                {!llmStatus.loading && !llmStatus.webgpu && (
-                  <p className="chatbot-llm-hint">
-                    This browser has no WebGPU, so the local model can’t run. Answers come from the built-in
-                    knowledge base. Chrome or Edge 113+ enables the full model.
-                  </p>
-                )}
-                {!llmStatus.loading && llmStatus.webgpu && llmStatus.error && (
-                  <>
-                    <p className="chatbot-llm-error">Model didn’t load: {llmStatus.error}</p>
-                    <button type="button" className="chatbot-chip" onClick={() => retryOfflineLlm()}>
-                      Try again
-                    </button>
-                  </>
-                )}
-              </div>
-            )}
 
             <div className="chatbot-messages" ref={listRef}>
               {messages.map((m) => (
@@ -288,10 +294,11 @@ export default function ChatBot() {
                       </div>
                     ) : (
                       <div className="chatbot-typing" aria-live="polite">
-                        <span /><span /><span />
+                        <span />
+                        <span />
+                        <span />
                       </div>
                     )}
-                    {m.notice && <p className="chatbot-notice">{m.notice}</p>}
                     {m.suggestions?.length > 0 && (
                       <div className="chatbot-suggestions">
                         {m.suggestions.map((s) => (
@@ -325,9 +332,20 @@ export default function ChatBot() {
                 autoComplete="off"
                 disabled={busy}
               />
-              <button type="submit" className="chatbot-send" disabled={busy || !input.trim()} aria-label="Send message">
+              <button
+                type="submit"
+                className="chatbot-send"
+                disabled={busy || !input.trim()}
+                aria-label="Send message"
+              >
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
-                  <path d="M5 12h12M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path
+                    d="M5 12h12M13 6l6 6-6 6"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </button>
             </form>
@@ -337,13 +355,11 @@ export default function ChatBot() {
 
       <motion.button
         type="button"
-        className={`chatbot-fab ${open ? 'chatbot-fab--open' : ''} ${llmStatus.loading ? 'chatbot-fab--warming' : ''}`}
+        className={`chatbot-fab ${open ? 'chatbot-fab--open' : ''}`}
         aria-expanded={open}
         aria-controls={panelId}
         aria-label={open ? 'Close chat' : 'Open chat'}
         onClick={() => setOpen((v) => !v)}
-        onMouseEnter={() => prefetchOfflineLlm()}
-        onFocus={() => prefetchOfflineLlm()}
         whileHover={{ scale: 1.04 }}
         whileTap={{ scale: 0.96 }}
       >

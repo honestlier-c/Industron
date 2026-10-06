@@ -17,7 +17,7 @@ export default function TestingFormPage() {
     event.preventDefault()
     openTestingInquiryMailto(event.currentTarget)
     setNotice(
-      'Your email app should open with this enquiry as a draft. If it does not, copy your answers and send them manually.',
+      'Gmail should open in a new tab with this enquiry ready to send. Sign in to the Google account you want to use, review the message, then click Send.',
     )
   }
 
@@ -48,7 +48,7 @@ export default function TestingFormPage() {
               <div>
                 <p className="testing-modal-form-id">Form: A</p>
                 <h2 className="testing-form-panel-title">First-hand sample information form</h2>
-                <p className="testing-form-panel-intro">
+                {/* <p className="testing-form-panel-intro">
                   For enquiries to <strong>Advanced Material Testing</strong> and NRL access.
                   Submissions are addressed to{' '}
                   <a href={`mailto:${TESTING_EMAIL}`}>{TESTING_EMAIL}</a>
@@ -57,7 +57,7 @@ export default function TestingFormPage() {
                   <Link to="/contact">Contact us</Link>
                   {' · '}
                   <Link to="/services">Services overview</Link>
-                </p>
+                </p> */}
               </div>
             </header>
 
@@ -122,29 +122,19 @@ export default function TestingFormPage() {
                 Expected number of samples
                 <input type="number" name="Expected samples" min="1" step="1" />
               </label>
-              <label>
-                Paid / non-paid testing
-                <select name="Paid or non-paid testing" defaultValue="">
-                  <option value="" disabled>
-                    Select option
-                  </option>
-                  <option value="Paid">Paid</option>
-                  <option value="Non-paid">Non-paid</option>
-                </select>
-              </label>
 
-              <p className="testing-form-hint">
-                Submitting opens your default email app with this information addressed to{' '}
-                <strong>{TESTING_EMAIL}</strong> (NRL / material testing desk). You can edit the
-                message before sending.
-              </p>
+              {/* <p className="testing-form-hint">
+                Submitting opens <strong>Gmail</strong> compose in a new tab — To{' '}
+                <strong>{TESTING_EMAIL}</strong>, subject and body filled from this form. Sign in
+                if prompted, edit if needed, then send from your Gmail account.
+              </p> */}
 
               <div className="testing-modal-actions">
                 <Link to="/" className="btn-ghost">
                   Cancel
                 </Link>
                 <button type="submit" className="btn-primary">
-                  Open email with enquiry
+                  Open in Gmail
                 </button>
               </div>
             </form>

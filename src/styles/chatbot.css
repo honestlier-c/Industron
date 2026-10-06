@@ -92,6 +92,10 @@
   background: #67e8f9;
   box-shadow: 0 0 0 3px rgba(103, 232, 249, 0.28);
 }
+.chatbot-status-dot--offline {
+  background: #f87171;
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.28);
+}
 
 .chatbot-llm-bar {
   padding: 0.55rem 0.9rem 0.65rem;

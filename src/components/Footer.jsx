@@ -26,8 +26,7 @@ const COLS = [
     links: [
       { label: 'About Us', href: '/about' },
       { label: 'Customers', href: '/#research' },
-      { label: 'Nanoyantrika', href: '#' },
-      { label: 'Careers', href: '#' },
+      { label: 'Careers', href: '/careers' },
       { label: 'Contact', href: '/contact' },
     ],
   },

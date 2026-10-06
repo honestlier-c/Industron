@@ -11,12 +11,10 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "extract:pdf": "node scripts/extract-pdf-text.mjs",
-    "extract:chatbot": "node scripts/extract-chatbot-docs.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@mlc-ai/web-llm": "^0.2.84",
     "@netlify/blobs": "^11.1.0",
     "@react-three/drei": "^9.99.4",
     "@react-three/fiber": "^8.16.2",

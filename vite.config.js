@@ -4,10 +4,12 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    headers: {
-      // Helpful for WebGPU / WASM workers during local LLM use
-      'Cross-Origin-Opener-Policy': 'same-origin',
-      'Cross-Origin-Embedder-Policy': 'credentialless',
+    // NanoGuide chat API
+    proxy: {
+      '/api': {
+        target: 'http://4.247.143.232:8000',
+        changeOrigin: true,
+      },
     },
     // Don't watch huge static folders (MesoProbe alone is ~625MB / 1380 frames).
     // Watching them can freeze Vite so the browser spins forever on localhost.
@@ -25,15 +27,11 @@ export default defineConfig({
       ],
     },
   },
-  optimizeDeps: {
-    exclude: ['@mlc-ai/web-llm'],
-  },
   build: {
-    chunkSizeWarningLimit: 6500,
+    chunkSizeWarningLimit: 2000,
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes('node_modules/@mlc-ai/web-llm')) return 'vendor-webllm'
           if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/') || id.includes('node_modules/react-router')) {
             return 'vendor-react'
           }

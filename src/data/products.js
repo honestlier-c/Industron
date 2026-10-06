@@ -2,7 +2,7 @@
    PRODUCTS — listing + detail pages (/products/:slug)
 
    framesFolder → public folder for scroll frame sequences
-   frameNaming    indexed-png (frame_000000.jpg) | frame-seq (frame_001.jpg) | ezgif (ezgif-frame-001.jpg)
+   frameNaming    indexed-png (frame_000000.jpg) | indexed-webp (frame_000000.webp) | frame-seq (frame_001.jpg) | ezgif (ezgif-frame-001.jpg)
    sourceFrameCount / playbackFrameCount → subsample long exports for web playback
    scrollBeats    → text-only windows; frames always play 1…frameCount linearly
    Card images    → public/Products_Image/ (see `image` on each product)
@@ -25,23 +25,23 @@ const MESOPROBE_SCROLL_SEQUENCE = {
   scrollBeats: scaleScrollBeats(DEFAULT_SCROLL_BEATS, 64, 96),
 }
 
-/** NG80 — frame_001…200.jpg in public/NG80 */
+/** NG80 — frame_000000…001221.webp in public/NG80 */
 const NG80_SCROLL_SEQUENCE = {
   framesFolder: '/NG80',
-  frameNaming: 'frame-seq',
-  sourceFrameCount: 200,
+  frameNaming: 'indexed-webp',
+  sourceFrameCount: 1222,
   playbackFrameCount: 96,
   frameCount: 96,
   scrollBeats: scaleScrollBeats(DEFAULT_SCROLL_BEATS, 64, 96),
 }
 
-/** μProbe 500 — frame_001…194.jpg in public/Uprobe500
+/** μProbe 500 — frame_000000…001497.webp in public/Uprobe500
  *  Studio frames use a soft gray floor gradient; lock letterbox to pure white
  *  so left/right bars match the bright backdrop (same clean look as NG80). */
 const UPROBE_SCROLL_SEQUENCE = {
   framesFolder: '/Uprobe500',
-  frameNaming: 'frame-seq',
-  sourceFrameCount: 194,
+  frameNaming: 'indexed-webp',
+  sourceFrameCount: 1498,
   playbackFrameCount: 96,
   frameCount: 96,
   scrollBeats: scaleScrollBeats(DEFAULT_SCROLL_BEATS, 64, 96),

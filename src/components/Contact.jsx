@@ -31,7 +31,7 @@ export default function Contact() {
           </p>
           <p className="contact-home-quick">
             <strong>Email:</strong>{' '}
-            <a href="mailto:info@industronnano.com">info@industronnano.com</a>
+            <a href="mailto:sales@industronnano.com">sales@industronnano.com</a>
             {' · '}
             <strong>India:</strong>{' '}
             <a href="tel:+914712786500">+91 471 278 6500</a>
