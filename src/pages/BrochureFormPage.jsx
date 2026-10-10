@@ -11,6 +11,7 @@ const PRODUCT_LABELS = {
   mesoprobe: 'MesoProbe',
   ng80: 'NG80',
   'pneumatic-air-isolation-table': 'Pneumatic Air Isolation Table',
+  'ulsi-bench-top-vibration-isolator': 'μLSI Bench Top Vibration Isolator',
   'dic-software': 'DIC Software',
 }
 

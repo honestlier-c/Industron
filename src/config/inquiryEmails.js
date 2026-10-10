@@ -22,12 +22,12 @@ export const INQUIRY_CHANNELS = {
   testing: {
     id: 'testing',
     email: 'sales@industronnano.com',
-    subjectPrefix: '[NRL Testing]',
-    label: 'Material testing (NRL)',
+    subjectPrefix: '[Customer Requirements]',
+    label: 'Benchtop Tensile — customer requirements',
     description:
-      'First-hand sample testing, lab access, and advanced characterization enquiries.',
+      'Customer requirements for a Benchtop Tensile Testing System and budgetary quotation.',
     formPath: '/testing-form',
-    formLabel: 'Sample testing form',
+    formLabel: 'Customer requirements form',
   },
   general: {
     id: 'general',
@@ -86,10 +86,15 @@ export function resolveBrochureMailto({ requirementType, product }) {
 export function formDataToBody(form, headerLines = []) {
   const fd = new FormData(form)
   const lines = [...headerLines]
+  const grouped = new Map()
   for (const [key, value] of fd.entries()) {
-    if (typeof value === 'string' && value.trim()) {
-      lines.push(`${key}: ${value.trim()}`)
-    }
+    if (typeof value !== 'string' || !value.trim()) continue
+    const v = value.trim()
+    if (grouped.has(key)) grouped.set(key, `${grouped.get(key)}; ${v}`)
+    else grouped.set(key, v)
+  }
+  for (const [key, value] of grouped) {
+    lines.push(`${key}: ${value}`)
   }
   return lines.join('\n')
 }
@@ -141,15 +146,21 @@ export function openInquiryGmailCompose({ to, cc, subject, body }) {
     href = buildGmailComposeHref({ to, cc, subject, body: bodyText })
   }
 
-  const opened = window.open(href, '_blank', 'noopener,noreferrer')
-  if (!opened) {
+  // `noopener` makes window.open return null, so detach the opener manually instead.
+  const opened = window.open(href, '_blank')
+  if (opened) {
+    opened.opener = null
+  } else {
     window.location.assign(href)
   }
 }
 
-export function openTestingInquiryMailto(form) {
+export function openTestingInquiryGmail({ body, organisation }) {
   const { email, subjectPrefix } = INQUIRY_CHANNELS.testing
-  const body = formDataToBody(form, ['Channel: NRL / material testing enquiry'])
-  const subject = formatInquirySubject(subjectPrefix, 'First-hand sample enquiry')
+  const subject = formatInquirySubject(
+    subjectPrefix,
+    'Benchtop Tensile Testing System',
+    organisation,
+  )
   openInquiryGmailCompose({ to: email, subject, body })
 }

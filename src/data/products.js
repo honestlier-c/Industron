@@ -117,6 +117,14 @@ function p({
   info,
   infoLayout,
   infoSection,
+  layout,
+  specs,
+  metrics,
+  features,
+  workflow,
+  outputs,
+  platforms,
+  applications,
   externalUrl,
   brochureUrl,
   cardLogo,
@@ -131,6 +139,7 @@ function p({
   frameBackground,
 }) {
   const short = beatsHeading || name.split(/[–-]/)[0].trim()
+  const isCatalog = layout === 'catalog'
   return {
     slug,
     name,
@@ -138,9 +147,19 @@ function p({
     image: image ?? '/industron-logo.png',
     shortDesc,
     exploreTo: `/products/${slug}`,
+    ...(layout ? { layout } : {}),
     hero: heroOverride ?? defaultHero(name, highlight, lead, badges),
-    beats: beatsOverride ?? defaultBeats(short, beatsTagline || shortDesc),
+    ...(isCatalog
+      ? {}
+      : { beats: beatsOverride ?? defaultBeats(short, beatsTagline || shortDesc) }),
     info: info || defaultInfo,
+    ...(specs ? { specs } : {}),
+    ...(metrics ? { metrics } : {}),
+    ...(features ? { features } : {}),
+    ...(workflow ? { workflow } : {}),
+    ...(outputs ? { outputs } : {}),
+    ...(platforms ? { platforms } : {}),
+    ...(applications ? { applications } : {}),
     ...(infoLayout ? { infoLayout } : {}),
     ...(infoSection ? { infoSection } : {}),
     cardLogo: cardLogo ?? DEFAULT_CARD_LOGO,
@@ -375,6 +394,49 @@ export const PRODUCTS = [
           'μProbe 500 — discuss probes, automation grids, software training, and lab integration with our applications team.',
       },
     },
+    metrics: [
+      { value: '500', unit: 'mN', label: 'Max load' },
+      { value: '18', unit: 'μm', label: 'Max displacement' },
+      { value: '24', unit: 'bit', label: 'ADC resolution' },
+      { value: '1', unit: 'nm', label: 'Encoder resolution' },
+    ],
+    specs: [
+      { label: 'Indentation load range', value: '0–500 mN' },
+      { label: 'Maximum displacement', value: '18 μm' },
+      { label: 'ADC resolution', value: '24-bit' },
+      { label: 'Frame stiffness', value: '8 × 10⁷ N/m' },
+      { label: 'Control & acquisition', value: '600 MHz embedded processor @ 30 kHz' },
+      { label: 'Motorized stages', value: 'X 100 mm / Y 50 mm / Z 50 mm' },
+      { label: 'Encoder resolution', value: '1 nm' },
+      { label: 'Optics', value: '10× to 40×' },
+    ],
+    applications: [
+      'Materials research',
+      'Thin films & coatings',
+      'Metals & alloys',
+      'Polymers & composites',
+      'Biomaterials',
+      'Semiconductors',
+      'Education & training',
+    ],
+    features: [
+      {
+        title: 'Micro indentation',
+        text: 'Depth-sensing indentation for hardness, elastic modulus, and related mechanical properties.',
+      },
+      {
+        title: 'Method automation',
+        text: 'Automated grid indentation with stage control for high-throughput, repeatable mapping.',
+      },
+      {
+        title: 'Partial unload testing',
+        text: 'Instrumented partial unload for accurate elastic modulus with reduced indentation effects.',
+      },
+      {
+        title: 'Stable granite platform',
+        text: 'Natural granite base, motorized X-Y-Z stage, and digital microscope for precise placement.',
+      },
+    ],
     infoLayout: 'track',
     infoSection: {
       tag: 'Measurement capabilities',
@@ -447,6 +509,49 @@ export const PRODUCTS = [
           'MesoProbe — discuss temperature range, DIC workflows, fixturing, and throughput targets with our applications team.',
       },
     },
+    metrics: [
+      { value: '20', unit: 'N', label: 'Max actuation load' },
+      { value: '60', unit: 'mm', label: 'Max displacement' },
+      { value: '1', unit: 'nm', label: 'Displacement resolution' },
+      { value: '600', unit: '°C', label: 'Temperature capability' },
+    ],
+    specs: [
+      { label: 'Maximum actuation load', value: '20 N' },
+      { label: 'Maximum displacement', value: '60 mm' },
+      { label: 'Displacement resolution', value: '1 nm' },
+      { label: 'Camera resolution', value: '4024 × 3036 px' },
+      { label: 'Temperature capability', value: 'Up to 600 °C' },
+      { label: 'Motorized stages', value: 'X 150 mm / Y 50 mm' },
+      { label: 'Optics', value: '0.2× (1× / 5× / 10× optional)' },
+      { label: 'Length scale', value: 'Meso scale 10 μm – 5 mm' },
+    ],
+    applications: [
+      'Automotive',
+      'Aerospace',
+      'Battery materials',
+      'Thin films & coatings',
+      'Semiconductors & MEMS',
+      'Biomaterials',
+      'Education & research',
+    ],
+    features: [
+      {
+        title: 'Meso-scale bridge',
+        text: 'Connects nano and macro testing on small samples with bulk-relevant mechanical insights.',
+      },
+      {
+        title: 'Multi-mode testing',
+        text: 'Indentation, compression, tensile, bending, fracture, fatigue, and creep on one platform.',
+      },
+      {
+        title: 'Integrated DIC',
+        text: 'Full-field strain mapping with high-resolution optical imaging during mechanical loading.',
+      },
+      {
+        title: 'High-temperature ready',
+        text: 'Temperature capability up to 600 °C for demanding materials programmes.',
+      },
+    ],
     info: [
       {
         title: 'Industries & research areas',
@@ -522,6 +627,49 @@ export const PRODUCTS = [
           'NG80 — share your sample types, mapping targets, wear protocols, and temperature needs. Our team helps with configuration, method setup, and integration.',
       },
     },
+    metrics: [
+      { value: '300×', unit: '', label: 'Faster HSI mapping' },
+      { value: '4', unit: '/s', label: 'Indents per second' },
+      { value: '1', unit: 'nN', label: 'Force resolution' },
+      { value: '10', unit: 'mN', label: 'Max normal force' },
+    ],
+    specs: [
+      { label: 'High-speed indentation', value: 'Up to 4 indents/s (300× faster)' },
+      { label: 'Force resolution', value: '1 nN (noise floor < 200 nN)' },
+      { label: 'Max normal force', value: '10 mN' },
+      { label: 'Displacement resolution', value: '0.006 mm' },
+      { label: 'Max normal displacement', value: '5 μm' },
+      { label: 'SPM image size', value: '50 μm × 50 μm at 256 × 256' },
+      { label: 'Stage travel (X×Y×Z)', value: '100 × 50 × 50 mm' },
+      { label: 'Optional high temperature', value: 'Up to 600 °C (as configured)' },
+    ],
+    applications: [
+      'Automotive',
+      'Aerospace',
+      'Battery materials',
+      'Thin films & coatings',
+      'Semiconductors & MEMS',
+      'Biomaterials',
+      'Education & research',
+    ],
+    features: [
+      {
+        title: 'Nanoindentation',
+        text: 'Hardness and elastic modulus at the nanometer scale for thin films, coatings, and bulk materials.',
+      },
+      {
+        title: 'In-situ SPM imaging',
+        text: '3D topography for site-specific indentation (±10 nm) and surface feature analysis.',
+      },
+      {
+        title: 'High-speed indentation',
+        text: 'Up to 4 indents per second for rapid property mapping and statistical distributions.',
+      },
+      {
+        title: 'Scanning nanowear',
+        text: 'Quantify wear volume, friction maps, and multi-pass wear with in-situ imaging.',
+      },
+    ],
     info: [
       {
         title: 'Ideal for',
@@ -546,57 +694,46 @@ export const PRODUCTS = [
     ],
   }),
 
-  // —— Accessories ——
+  // —— Accessories (catalog layout — not story/scroll beats) ——
   p({
     slug: 'pneumatic-air-isolation-table',
     name: 'Pneumatic Air Isolation Table',
     image: `${IMG}/Pneumatic-Air-Isolation-Table.png`,
     category: 'Accessories',
+    layout: 'catalog',
     shortDesc:
-      'Vibration-free granite platform with pneumatic air suspension — isolate vibrations, enable precision, and support performance for metrology, optics, and sensitive instruments.',
-    highlight: 'stable · precise · reliable',
+      'Vibration-free granite platform with pneumatic air suspension for metrology, optics, and sensitive instruments.',
+    highlight: 'A stable foundation for higher precision',
     lead:
-      'A stable foundation for higher precision. The Pneumatic Air Isolation Table provides a vibration-free platform for precision inspection, metrology, optical systems, and other vibration-sensitive applications.',
-    badges: ['Granite', 'Pneumatic', '40–150 kg'],
-    beatsHeading: 'Pneumatic Air Isolation Table',
+      'Granite tabletop with pneumatic air suspension — isolate floor vibration so inspection, metrology, and optical systems can resolve more.',
+    badges: ['Isolate vibrations', 'Enable precision', 'Support performance'],
     hero: defaultHero(
       'Pneumatic Air Isolation Table',
       'A stable foundation for higher precision',
-      'Isolate vibrations. Enable precision. Support performance. Precision granite tabletop with pneumatic air suspension for excellent stability and repeatable results — even in challenging environments.',
-      ['Stable', 'Precise', 'Reliable'],
+      'Granite tabletop with pneumatic air suspension — isolate floor vibration so inspection, metrology, and optical systems can resolve more.',
+      ['Isolate vibrations', 'Enable precision', 'Support performance'],
     ),
-    beats: {
-      intro: {
-        kicker: 'Why isolation matters',
-        heading: 'Precision starts with stability',
-        sub:
-          'Floor vibration and building noise limit what sensitive instruments can resolve. The Pneumatic Air Isolation Table isolates those disturbances so inspection, metrology, and optical systems can deliver trustworthy data.',
-      },
-      engineering: {
-        kicker: 'Key features',
-        heading: 'Granite stiffness with pneumatic isolation',
-        text:
-          'High-stiffness granite tabletop for dimensional stability. Pneumatic air suspension with a natural frequency of 6 Hz. Adjustable air pressure from 0 to 4 bar depending on payload. Wide payload range from 40 kg to 150 kg (maximum 150 kg). Built for precision and vibration-sensitive equipment.',
-      },
-      control: {
-        kicker: 'Specifications',
-        heading: '600 × 600 mm working surface',
-        text:
-          'Table size 600 mm × 600 mm; effective working surface 600 mm × 600 mm; tabletop material granite; payload capacity 40–150 kg (max 150 kg); isolation system pneumatic air suspension; natural / resonance frequency 6 Hz; air supply pressure range 0–4 bar (payload-dependent).',
-      },
-      performance: {
-        kicker: 'Applications',
-        heading: 'Built for vibration-sensitive workflows',
-        text:
-          'Ideal for precision inspection, metrology, optical systems, and other vibration-sensitive equipment where a quiet, stable foundation improves measurement quality and instrument uptime.',
-      },
-      final: {
-        kicker: 'Next step',
-        heading: 'Configure with Industron.',
-        text:
-          'Pneumatic Air Isolation Table — share your instrument footprint, payload, and lab vibration environment. Our team helps size air supply and setup.',
-      },
-    },
+    metrics: [
+      { value: '600×600', unit: 'mm', label: 'Working surface' },
+      { value: '6', unit: 'Hz', label: 'Natural frequency' },
+      { value: '40–150', unit: 'kg', label: 'Payload range' },
+      { value: '0–4', unit: 'bar', label: 'Air pressure' },
+    ],
+    specs: [
+      { label: 'Table size', value: '600 mm × 600 mm' },
+      { label: 'Effective working surface', value: '600 mm × 600 mm' },
+      { label: 'Tabletop material', value: 'Granite' },
+      { label: 'Payload capacity', value: '40 kg to 150 kg (max 150 kg)' },
+      { label: 'Isolation system', value: 'Pneumatic air suspension' },
+      { label: 'Natural / resonance frequency', value: '6 Hz' },
+      { label: 'Air supply pressure', value: '0 to 4 bar (payload-dependent)' },
+    ],
+    applications: [
+      'Precision inspection',
+      'Metrology',
+      'Optical systems',
+      'Vibration-sensitive instruments',
+    ],
     info: [
       {
         title: 'Granite tabletop',
@@ -604,87 +741,163 @@ export const PRODUCTS = [
       },
       {
         title: 'Pneumatic isolation',
-        text: 'Natural / resonance frequency of 6 Hz with adjustable air pressure 0–4 bar.',
+        text: 'Natural frequency of 6 Hz with adjustable air pressure from 0 to 4 bar.',
       },
       {
-        title: 'Payload range',
-        text: 'Supports 40 kg to 150 kg (maximum 150 kg) for a wide class of instruments.',
+        title: 'Wide payload range',
+        text: 'Supports 40 kg to 150 kg for a wide class of precision instruments.',
       },
       {
-        title: 'Technical specifications',
-        text:
-          'Table / working surface 600 × 600 mm; granite top; pneumatic air suspension; 6 Hz natural frequency; air 0–4 bar; applications in inspection, metrology, optics, and vibration-sensitive systems.',
+        title: 'Reliable performance',
+        text: 'Built for precision and vibration-sensitive equipment in demanding lab environments.',
       },
     ],
   }),
 
-  // —— Software ——
+  p({
+    slug: 'ulsi-bench-top-vibration-isolator',
+    name: 'μLSI Bench Top Vibration Isolator',
+    image: `${IMG}/uLSI-Bench-Top-Vibration-Isolator.png`,
+    category: 'Accessories',
+    layout: 'catalog',
+    shortDesc:
+      'Compact benchtop vibration isolator with ≤1 Hz vertical resonance for research and industrial precision equipment.',
+    highlight: 'Compact. Stable. Reliable.',
+    lead:
+      'Stable foundations for precise discoveries — a benchtop isolator with vertical resonance ≤1 Hz and simple front-panel load and stiffness control.',
+    badges: ['Low resonance', 'Manual load adjust', 'Benchtop ready'],
+    hero: defaultHero(
+      'μLSI Bench Top Vibration Isolator',
+      'Compact. Stable. Reliable.',
+      'Stable foundations for precise discoveries — a benchtop isolator with vertical resonance ≤1 Hz and simple front-panel load and stiffness control.',
+      ['Low resonance', 'Manual load adjust', 'Benchtop ready'],
+    ),
+    metrics: [
+      { value: '≤1', unit: 'Hz', label: 'Vertical resonance' },
+      { value: '30–50', unit: 'kg', label: 'Payload range' },
+      { value: '426', unit: 'mm', label: 'Footprint (W/D)' },
+      { value: '~100', unit: 'nN', label: 'Force noise floor' },
+    ],
+    specs: [
+      { label: 'Weight', value: 'Approximately 21 kg' },
+      { label: 'Dimensions (W × D × H)', value: '426 mm × 426 mm × 240 mm' },
+      { label: 'Payload range', value: '30–50 kg' },
+      {
+        label: 'Vertical natural frequency',
+        value: '1 Hz or less over the entire load range',
+      },
+      {
+        label: 'Horizontal natural frequency',
+        value: 'Load dependent; 1 Hz or less at or near upper payload limits',
+      },
+      { label: 'Force noise floor', value: '~100 nN' },
+      { label: 'Load adjustment', value: 'Manual front crank' },
+    ],
+    applications: [
+      'Research & development',
+      'Sensitive instrumentation',
+      'Metrology equipment',
+      'Surface analysis',
+      'Microscopy',
+    ],
+    info: [
+      {
+        title: 'Low resonance frequency',
+        text: 'Vertical resonance ≤1 Hz across the full load range, with a force noise floor around 100 nN.',
+      },
+      {
+        title: 'Manual load adjustment',
+        text: 'Front-panel crank for simple, precise payload and vertical-position control.',
+      },
+      {
+        title: 'Compact design',
+        text: 'Built for benchtop laboratory use — 426 × 426 × 240 mm footprint.',
+      },
+      {
+        title: 'Stiffness control',
+        text: 'Vertical stiffness adjust lets you decrease or increase frequency for your setup.',
+      },
+    ],
+  }),
+
+  // —— Software (workflow / module layout) ——
   p({
     slug: 'dic-software',
     name: 'DIC Software',
     image: `${IMG}/MesoProbe.png`,
     category: 'Software',
+    layout: 'software',
     shortDesc:
-      'Digital Image Correlation software for full-field strain mapping — pair optical imaging with mechanical testing for stress, strain, modulus, creep, and failure analysis.',
-    highlight: 'full-field strain · DIC',
+      'Digital Image Correlation software for full-field strain mapping with optical mechanical testing.',
+    highlight: 'Full-field strain mapping for precision mechanics',
     lead:
-      'Turn in-situ optical imagery into quantitative mechanics. Industron DIC software delivers accurate full-field strain mapping for bending, tensile, compression, and creep workflows.',
-    badges: ['Full-field strain', 'DIC', 'Analysis'],
-    beatsHeading: 'DIC Software',
+      'Turn in-situ optical imagery into quantitative mechanics — displacement, strain, modulus, creep, and failure analysis.',
+    badges: ['Digital Image Correlation', 'Full-field strain', 'Report-ready'],
     hero: defaultHero(
       'DIC Software',
       'Full-field strain mapping for precision mechanics',
-      'Digital Image Correlation correlates sequential images to measure displacement and strain across the sample surface — ideal with MesoProbe and other optical mechanical testing platforms.',
-      ['Strain mapping', 'Modulus', 'Creep & failure'],
+      'Turn in-situ optical imagery into quantitative mechanics — displacement, strain, modulus, creep, and failure analysis.',
+      ['Digital Image Correlation', 'Full-field strain', 'Report-ready'],
     ),
-    beats: {
-      intro: {
-        kicker: 'What is DIC?',
-        heading: 'See deformation as it happens — then quantify it',
-        sub:
-          'Digital Image Correlation tracks surface patterns through high-resolution imaging to compute displacement and strain fields. Combined with load data, it yields stress–strain response, modulus, and time-dependent behaviour.',
+    workflow: [
+      {
+        title: 'Acquire',
+        text: 'Capture image sequences during mechanical loading on your optical test platform.',
       },
-      engineering: {
-        kicker: 'Capabilities',
-        heading: 'From image sequences to mechanical insight',
-        text:
-          'Full-field strain and displacement mapping. Stress–strain curves and Young’s modulus from DIC-based analysis. Support for bending, tensile, compression, fracture, fatigue, and creep studies. Overlay strain maps on optical imagery for clear reporting.',
+      {
+        title: 'Correlate',
+        text: 'Track surface patterns to compute displacement and strain fields across the region of interest.',
       },
-      control: {
-        kicker: 'Workflow',
-        heading: 'Built for lab and research throughput',
-        text:
-          'Acquire images during mechanical loading, run DIC correlation, export strain fields and summary metrics. Designed to work with Industron optical meso-scale testing platforms such as MesoProbe for high-accuracy, high-throughput programmes.',
+      {
+        title: 'Analyze',
+        text: 'Derive stress–strain response, modulus, creep, and failure metrics from correlated data.',
       },
-      performance: {
-        kicker: 'Best for',
-        heading: 'When point sensors are not enough',
-        text:
-          'Heterogeneous materials, limited sample volumes, high-temperature optical tests, and any experiment where strain localisation, crack paths, or full-field maps matter more than a single gauge reading.',
+      {
+        title: 'Report',
+        text: 'Overlay strain maps on optical imagery and export summary results for papers and QC.',
       },
-      final: {
-        kicker: 'Next step',
-        heading: 'Configure with Industron.',
-        text:
-          'DIC Software — discuss camera setup, sample patterning, and analysis packages with our applications team.',
+    ],
+    outputs: [
+      'Displacement fields',
+      'Full-field strain',
+      'Stress–strain curves',
+      "Young's modulus",
+      'Creep metrics',
+      'Failure / localisation maps',
+    ],
+    platforms: [
+      {
+        name: 'MesoProbe',
+        text: 'Optical meso-scale testing with integrated DIC workflows.',
+        to: '/products/mesoprobe',
       },
-    },
+      {
+        name: 'Industron imaging setups',
+        text: 'Other optical mechanical testing platforms with sequence capture.',
+      },
+    ],
+    applications: [
+      'Heterogeneous materials',
+      'Limited sample volume',
+      'High-temperature optical tests',
+      'Strain localisation & crack paths',
+    ],
     info: [
       {
         title: 'Full-field strain',
-        text: 'Map displacement and strain across the region of interest, not just at a single point.',
+        text: 'Map displacement and strain across the region of interest — not just a single gauge point.',
       },
       {
-        title: 'Mechanical outputs',
-        text: 'Stress, strain, modulus, creep, and failure metrics derived from correlated image sequences.',
+        title: 'Multi-mode mechanics',
+        text: 'Supports bending, tensile, compression, fracture, fatigue, and creep studies.',
       },
       {
-        title: 'Platform fit',
-        text: 'Pairs naturally with MesoProbe optical meso-scale testing and other Industron imaging workflows.',
+        title: 'Visual reporting',
+        text: 'Strain-map overlays on optical imagery for clear, shareable results.',
       },
       {
-        title: 'Support',
-        text: 'Application guidance for patterning, lighting, calibration, and report-ready analysis.',
+        title: 'Application support',
+        text: 'Guidance for patterning, lighting, calibration, and analysis packages.',
       },
     ],
   }),

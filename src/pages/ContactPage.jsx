@@ -92,7 +92,7 @@ export default function ContactPage() {
                   Request a brochure
                 </Link>
                 <Link to="/testing-form" className="btn-ghost">
-                  Sample testing form
+                  Customer requirements form
                 </Link>
               </div>
             </motion.article>

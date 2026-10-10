@@ -145,10 +145,10 @@ export default function ServicesPage() {
               collaborative and chargeable testing services.
             </p>
             <div className="services-callout" role="note">
-              <strong>Enquire for access.</strong>{' '}
-              Share your sample and study details to scope feasibility and next steps.{' '}
+              <strong>Configure a quotation.</strong>{' '}
+              Share customer, material, and test requirements for a Benchtop Tensile system.{' '}
               <Link to="/testing-form" className="services-callout-link">
-                Open sample testing enquiry form →
+                Open customer requirements form →
               </Link>
             </div>
           </DocCard>

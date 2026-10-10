@@ -7,7 +7,7 @@ const COLS = [
       { label: 'Research & Development', href: '/services' },
       { label: 'Nanomechanical Instruments', href: '/products' },
       { label: 'Advanced Material Testing', href: '/services' },
-      { label: 'Testing enquiry form', href: '/testing-form' },
+      { label: 'Customer requirements form', href: '/testing-form' },
     ],
   },
   {
@@ -17,6 +17,7 @@ const COLS = [
       { label: 'μProbe', href: '/products/uprobe-500' },
       { label: 'MesoProbe', href: '/products/mesoprobe' },
       { label: 'Pneumatic Isolation Table', href: '/products/pneumatic-air-isolation-table' },
+      { label: 'μLSI Vibration Isolator', href: '/products/ulsi-bench-top-vibration-isolator' },
       { label: 'DIC Software', href: '/products/dic-software' },
       { label: 'Hysitron Instruments', href: '/products' },
     ],
